@@ -116,4 +116,8 @@ public abstract class Board {
         return PresidentialPower.NONE;
     }
 
+    public boolean fascistsCanWinByElection() {
+        return (getNumFascistPolicies() >= MIN_POLICIES_FOR_CHANCELLOR_VICTORY);
+    }
+
 }

@@ -128,6 +128,10 @@ public class SecretHitlerGame {
         return -1;
     }
 
+    private Player getPlayer(String username) {
+        return playerList.get(indexOfPlayer(username));
+    }
+
     /////////////////////// Starting a Game
 
     /**
@@ -158,7 +162,7 @@ public class SecretHitlerGame {
         lastChancellor = null;
         lastPresident = null;
 
-        state = GameState.CHANCELLOR_SELECTION;
+        state = GameState.CHANCELLOR_NOMINATION;
 
         return true;
     }
@@ -280,7 +284,7 @@ public class SecretHitlerGame {
         if(username.equals(lastChancellor) || username.equals(lastPresident)) {
             throw new IllegalArgumentException("Cannot elect chancellor that was previously in office.");
         }
-        if (getState() != GameState.CHANCELLOR_SELECTION) {
+        if (getState() != GameState.CHANCELLOR_NOMINATION) {
             throw new IllegalStateException("Cannot elect a chancellor now (invalid state).");
         }
         currentChancellor = username;
@@ -293,7 +297,8 @@ public class SecretHitlerGame {
      * @param username the name of the player giving the vote.
      * @param vote the vote of the player (true = ja, false = nein).
      * @throws IllegalArgumentException if the Player with name {@code username} is not in the game.
-     * @throws IllegalStateException if the Player with name {@code username} has already voted.
+     * @throws IllegalStateException if the Player with name {@code username} has already voted, or if the game is not
+     *                               in the voting ({@code CHANCELLOR_VOTING}) state.
      * @modifies this
      * @effects registers the given vote. If all players have voted, determines whether the vote passed.
      *          If the vote passed, the state advances to {@code LEGISLATIVE_PRESIDENT}.
@@ -305,7 +310,10 @@ public class SecretHitlerGame {
             throw new IllegalArgumentException("Player " + username +" is not in the game and cannot vote.");
         } else if (voteMap.containsKey(username)) {
             throw new IllegalStateException("Player " + username + " cannot vote twice.");
+        } else if (state != GameState.CHANCELLOR_VOTING) {
+            throw new IllegalStateException("Player " + username + " cannot vote when a vote is not taking place.");
         }
+
         voteMap.put(username, vote);
 
         if(voteMap.keySet().size() == playerList.size()) { // All players have voted
@@ -319,7 +327,11 @@ public class SecretHitlerGame {
 
             if (yesVotes / ((float) playerList.size()) > VOTING_CUTOFF) {
                 // vote passed
-                state = GameState.LEGISLATIVE_PRESIDENT; // Legislative session begins with president
+                if (getPlayer(username).isHitler() && board.fascistsCanWinByElection()) {
+                    state = GameState.FASCIST_VICTORY_ELECTION; // Fascists won by electing Hitler: game ends.
+                } else {
+                    state = GameState.LEGISLATIVE_PRESIDENT; // Legislative session begins with president
+                }
             } else {
                 // vote failed
                 onFailedVote();
@@ -363,7 +375,23 @@ public class SecretHitlerGame {
      *          Otherwise, state is set to {@code CHANCELLOR_SELECTION}.
      */
     private void onEnactPolicy() {
-
+        switch (board.getActivatedPower()) {
+            case PEEK:
+                state = GameState.PRESIDENTIAL_POWER_PEEK;
+                break;
+            case EXECUTION:
+                state = GameState.PRESIDENTIAL_POWER_EXECUTION;
+                break;
+            case ELECTION:
+                state = GameState.PRESIDENTIAL_POWER_ELECTION;
+                break;
+            case INVESTIGATE:
+                state = GameState.PRESIDENTIAL_POWER_INVESTIGATE;
+                break;
+            case NONE:
+                state = GameState.CHANCELLOR_NOMINATION; // Loop back to next decision.
+                break;
+        }
     }
 
 }
