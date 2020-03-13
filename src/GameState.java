@@ -1,7 +1,7 @@
 public enum GameState {
     SETUP,                          // Game is being set up.
-    CHANCELLOR_SELECTION,           //
-    CHANCELLOR_VOTING,
+    CHANCELLOR_SELECTION,           // President is selecting chancellor.
+    CHANCELLOR_VOTING,              // Voting on the chancellor is taking place.
     LEGISLATIVE_PRESIDENT,          // In the legislative phase. The president is selecting a card to discard.
     LEGISLATIVE_CHANCELLOR,         // In the legislative phase. The chancellor is selecting a card to enact.
     LEGISLATIVE_PRESIDENT_VETO,     // If the chancellor decides to veto the policy agenda

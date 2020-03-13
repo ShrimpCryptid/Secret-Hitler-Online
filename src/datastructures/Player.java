@@ -8,12 +8,6 @@ public class Player {
 
     private String username;
     private Identity id;
-    public enum Identity {
-        UNASSIGNED,
-        HITLER,
-        FASCIST,
-        LIBERAL
-    }
 
     /**
      * Constructs a new Player with the given username.
