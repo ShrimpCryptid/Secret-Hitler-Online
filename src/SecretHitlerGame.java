@@ -88,7 +88,7 @@ public class SecretHitlerGame {
     }
 
     /**
-     * Attempts to add a player to the list of active players.
+     * Adds a player to the list of active players.
      * @param username the username of the player to add.
      * @modifies this
      * @effects if 1) the number of players is less than {@code MAX_PLAYERS}, 2) the game is in setup mode, and 3)
@@ -105,7 +105,16 @@ public class SecretHitlerGame {
     }
 
     /**
-     *
+     * Gets the list of active players.
+     * @return an immutable list of Players.
+     */
+    public List<Player> getPlayerList() {
+        return new ArrayList<>(playerList);
+        // TODO: Unfortunately, Player is not immutable, so it's possible for the contents to be changed. ://
+    }
+
+    /**
+     * Removes a player from the list of active players.
      * @param username
      * @return
      */

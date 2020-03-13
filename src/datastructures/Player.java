@@ -8,6 +8,7 @@ public class Player {
 
     private String username;
     private Identity id;
+    private boolean isAlive;
 
     /**
      * Constructs a new Player with the given username.
