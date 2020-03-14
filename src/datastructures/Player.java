@@ -38,6 +38,12 @@ public class Player {
         return this.id.equals(Identity.HITLER);
     }
 
+    public void kill() {
+        isAlive = false;
+    }
+
+    public boolean isAlive() { return this.isAlive; }
+
     /**
      * @return true if the player is fascist or hitler.
      */

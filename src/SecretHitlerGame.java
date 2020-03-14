@@ -20,7 +20,8 @@ import java.util.*;
  */
 public class SecretHitlerGame {
 
-    /////////////// Static Fields
+    /////////////////// Static Fields
+    //<editor-fold desc="Static Fields">
 
     // Keeps track of the number of fascists that should be in the game for a given number
     // of players.                                         -   -   -   -   -   5   6   7   8   9  10
@@ -35,8 +36,15 @@ public class SecretHitlerGame {
 
     public static final int MAX_FAILED_ELECTIONS = 3;
     private static final float VOTING_CUTOFF = 0.5000001f;
+    private static final int MIN_DRAW_DECK_SIZE = 3;
 
-    ////////////// Private Fields
+    public static final int PRESIDENT_DRAW_SIZE = 3;
+    public static final int CHANCELLOR_DRAW_SIZE = 2;
+
+    //</editor-fold>
+
+    /////////////////// Private Fields
+    //<editor-fold desc="Private Fields">
 
     private List<Player> playerList;
     private Board board;
@@ -49,13 +57,51 @@ public class SecretHitlerGame {
 
     private Random random;
 
+    // The last president and chancellor that were successfully voted into office.
     private String lastPresident;
     private String lastChancellor;
-    // The last president and chancellor that were successfully voted into office.
+
     private String currentPresident;
     private String currentChancellor;
 
+    // Used during a session with the PRESIDENTIAL_POWER_ELECTION power active to remember the next president.
+    // The default state should be null.
+    private String nextPresident;
+    // The president that was elected to take power next (due to the PRESIDENTIAL_POWER_ELECTION power being active).
+    private String electedPresident;
+
+    // The options available to either the President or the Chancellor during the legislative session
+    private List<Policy> legislativePolicies;
+
     private Map<String, Boolean> voteMap;
+
+    //</editor-fold>
+
+    /////////////////// Public Observers
+    //<editor-fold desc="Public Observers">
+
+    public String getCurrentPresident() { return currentPresident; }
+
+    public String getCurrentChancellor() { return currentChancellor; }
+
+    public String getLastPresident() { return lastPresident; }
+
+    public String getLastChancellor() { return lastChancellor; }
+
+    public int getDrawSize() { return draw.getSize(); }
+
+    public int getDiscardSize() { return discard.getSize(); }
+
+    public int getElectionTracker() { return electionTracker; }
+
+    public int getNumFascistPolicies() { return board.getNumFascistPolicies(); }
+
+    public int getNumLiberalPolicies() { return board.getNumLiberalPolicies(); }
+
+    //</editor-fold>
+
+    /////////////////// Constructor
+    //<editor-fold desc="Constructor">
 
     /**
      * Constructs a new game of Secret Hitler.
@@ -69,8 +115,10 @@ public class SecretHitlerGame {
         electionTracker = 0;
     }
 
+    //</editor-fold>
 
-    ////////////////// Player Management
+    /////////////////// Player Management
+    //<editor-fold desc="Player Management">
 
 
     /**
@@ -116,11 +164,15 @@ public class SecretHitlerGame {
     /**
      * Removes a player from the list of active players.
      * @param username
-     * @return
+     * @throws IllegalArgumentException if the player is not in the game.
+     * @modifies this
+     * @effects removes the specified player from the list of active players.
      */
-    public boolean removePlayer(String username) {
-        //TODO: Implement removing players
-        throw new RuntimeException();
+    public void removePlayer(String username) {
+        if (!hasPlayer(username)) {
+            throw new IllegalArgumentException("Cannot remove player " + username + ": player does not exist.");
+        }
+        playerList.remove(indexOfPlayer(username));
     }
 
     /**
@@ -141,7 +193,10 @@ public class SecretHitlerGame {
         return playerList.get(indexOfPlayer(username));
     }
 
-    /////////////////////// Starting a Game
+    //</editor-fold>
+
+    /////////////////// Game Setup
+    //<editor-fold desc="Game Setup">
 
     /**
      * Starts the game of Secret Hitler.
@@ -235,23 +290,10 @@ public class SecretHitlerGame {
         }
     }
 
+    //</editor-fold>
 
-    //////////////// Deck Management
-
-    /**
-     * Adds the discard deck to the draw deck and shuffles.
-     * @modifies this
-     * @effects Empties the discard pile into the draw pile and shuffles.
-     */
-    private void shuffleDiscardIntoDraw() {
-        while(!discard.isEmpty()) {
-            draw.add(discard.remove());
-        }
-        draw.shuffle();
-    }
-
-
-    ////////////// State Management
+    /////////////////// State Management
+    //<editor-fold desc="State Management">
 
 
     /**
@@ -277,25 +319,44 @@ public class SecretHitlerGame {
         }
     }
 
+    /**
+     * Adds the discard deck to the draw deck and shuffles.
+     * @modifies this
+     * @effects Empties the discard pile into the draw pile and shuffles.
+     */
+    private void shuffleDiscardIntoDraw() {
+        while(!discard.isEmpty()) {
+            draw.add(discard.remove());
+        }
+        draw.shuffle();
+    }
 
-    ////////////// Input Handling
+    //</editor-fold>
+
+    /////////////////// Nomination and Voting
+    //<editor-fold desc="Nomination and Voting">
 
     /**
      * Selects the chancellor for the current legislation.
      * @param username username of the chancellor to elect.
      * @throws IllegalStateException if the state is not {@code CHANCELLOR_SELECTION}.
-     * @throws IllegalArgumentException if the player named {@code username} was one of the last elected officials.
+     * @throws IllegalArgumentException if the player named {@code username} was one of the last elected officials,
+     *         if the player is dead, or if the player does not exist.
      * @modifies this
      * @effects the current chancellor is set to the player named {@code username}. The game state is set to be in
      *          CHANCELLOR_VOTING.
      */
     public void nominateChancellor(String username) {
-        if(username.equals(lastChancellor) || username.equals(lastPresident)) {
-            throw new IllegalArgumentException("Cannot elect chancellor that was previously in office.");
-        }
         if (getState() != GameState.CHANCELLOR_NOMINATION) {
             throw new IllegalStateException("Cannot elect a chancellor now (invalid state).");
+        } else if (username.equals(lastChancellor) || username.equals(lastPresident)) {
+            throw new IllegalArgumentException("Cannot elect chancellor that was previously in office.");
+        } else if (!hasPlayer(username)) {
+            throw new IllegalArgumentException("Player " + username + " does not exist.");
+        } else if (!getPlayer(username).isAlive()) {
+            throw new IllegalArgumentException("Player " + username + " is dead and cannot be elected for chancellor.");
         }
+
         currentChancellor = username;
         state = GameState.CHANCELLOR_VOTING; // exits the previous state.
         voteMap = new HashMap<>(); // initializes a new map for voting.
@@ -310,7 +371,8 @@ public class SecretHitlerGame {
      *                               in the voting ({@code CHANCELLOR_VOTING}) state.
      * @modifies this
      * @effects registers the given vote. If all players have voted, determines whether the vote passed.
-     *          If the vote passed, the state advances to {@code LEGISLATIVE_PRESIDENT}.
+     *          If the vote passed, the state advances to {@code LEGISLATIVE_PRESIDENT}. (unless the chancellor is Hitler
+     *          and three fascist policies have been passed, in which case the state advances to {@code FASCIST_VICTORY_ELECTION.}
      *          If the vote did not pass, advances the election tracker by 1. If the election tracker reaches its max,
      *          immediately enacts the top policy on the pile and handles state progression.
      */
@@ -325,35 +387,46 @@ public class SecretHitlerGame {
 
         voteMap.put(username, vote);
 
-        if(voteMap.keySet().size() == playerList.size()) { // All players have voted
-            // tally votes
-            float yesVotes = 0.0f;
-            for (Boolean voteEntry : voteMap.values()) {
-                if(voteEntry) {
-                    yesVotes += 1;
+        // Count up votes and check if all votes have been submitted.
+        boolean allPlayersHaveVoted = true;
+        int totalVotes = 0;
+        int totalYesVotes = 0;
+
+        for (Player player : playerList) {
+            String playerName = player.getUsername();
+
+            if (player.isAlive()) { // only account for
+                if (voteMap.containsKey(playerName)) {
+                    totalVotes += 1;
+                    if (voteMap.get(playerName)) { // player voted yes
+                        totalYesVotes += 1;
+                    }
+                } else {
+                    allPlayersHaveVoted = false; //Player vote not accounted for
                 }
             }
+        }
 
-            if (yesVotes / ((float) playerList.size()) > VOTING_CUTOFF) {
-                // vote passed
+        if (allPlayersHaveVoted) {
+            if (((float) totalYesVotes / (float) totalVotes) > VOTING_CUTOFF) { // vote passed successfully
+                currentChancellor = username;
                 if (getPlayer(username).isHitler() && board.fascistsCanWinByElection()) {
                     state = GameState.FASCIST_VICTORY_ELECTION; // Fascists won by electing Hitler: game ends.
                 } else {
-                    state = GameState.LEGISLATIVE_PRESIDENT; // Legislative session begins with president
+                    startLegislativeSession();
                 }
-            } else {
-                // vote failed
-                onFailedVote();
+            } else { // vote failed
+                advanceElectionTracker();
             }
         }
     }
 
     /**
-     * Returns a copy of the map representing what each player voted.
+     * Returns a map representing what each player voted.
      * @return a map, where the keys are the usernames and the booleans are the vote (yes/no) of the player.
      */
     public Map<String, Boolean> getVotes() {
-        return new HashMap<>(voteMap);
+        return new HashMap<>(voteMap); // making a copy of the votes so that they cannot be externally modified
     }
 
     /**
@@ -362,7 +435,7 @@ public class SecretHitlerGame {
      * @effects If the tracker < 2, advances the tracker by 1.
      *          If the tracker == 2, rests the tracker to 0 and enacts the first policy on the top of the draw pile.
      */
-    private void onFailedVote() {
+    private void advanceElectionTracker() {
         electionTracker += 1;
         if (electionTracker == MAX_FAILED_ELECTIONS) {
             Policy newPolicy = draw.remove();
@@ -371,19 +444,203 @@ public class SecretHitlerGame {
             electionTracker = 0; // Reset
 
             onEnactPolicy();
+        } else {
+            concludeTerm();
         }
     }
 
+    //</editor-fold>
 
-    //////////// Legislative Actions
+    /////////////////// President Management
+    // <editor-fold desc="President Management">
+    /**
+     * Called when the president's term is over.
+     * @modifies this
+     * @effects advances the state to {@code POST_LEGISLATIVE}.
+     */
+    private void concludeTerm() {
+        this.state = GameState.POST_LEGISLATIVE;
+    }
+
+    /**
+     * Called to end the current's president term.
+     * @throws IllegalStateException if the state is not {@code POST_LEGISLATIVE}.
+     * @modifies this
+     * @effects advances the state to {@code CHANCELLOR_NOMINATION} and updates the current president.
+     *          If the PRESIDENTIAL_POWER_ELECTION power was activated, sets the next president to the elected.
+     *          If the election round finished, returns to the next player in the normal round ordering.
+     *          Otherwise, chooses the next eligible (alive) player in the ordering to become president.
+     */
+    public void endPresidentialTurn() {
+        if (this.state == GameState.POST_LEGISLATIVE) {
+            throw new IllegalStateException();
+        }
+
+        if (electedPresident != null) { // If the PRESIDENTIAL_POWER_ELECTION was active, chooses the elected president.
+            currentPresident = electedPresident;
+            electedPresident = null;
+        } else if (nextPresident != null) { // Once the PRESIDENTIAL_POWER_ELECTION round concludes, returns to the normal order.
+            currentPresident = nextPresident;
+            nextPresident = null;
+        } else { // advance the presidency
+            // Advance presidency:
+            currentPresident = getNextActivePlayer(currentPresident);
+        }
+        currentChancellor = null;
+        this.state = GameState.CHANCELLOR_NOMINATION;
+    }
+
+    /**
+     * Finds the next active, living player in order.
+     * @param player the player to find the next active player from.
+     * @return the username of the next player in order. Returns null if no player was found.
+     */
+    private String getNextActivePlayer(String player) {
+        for(int i = 1; i < playerList.size(); i++) {
+            int index = (i + indexOfPlayer(player)) % playerList.size();
+            if (playerList.get(index).isAlive()) {
+                return playerList.get(index).getUsername();
+            }
+        }
+        return null;
+    }
+
+    // </editor-fold>
+
+    /////////////////// Legislative Session
+    // <editor-fold desc="Legislative Session">
+
+    /**
+     * Starts the legislative session.
+     * Sets the available policies and the game state.
+     */
+    private void startLegislativeSession() {
+        state = GameState.LEGISLATIVE_PRESIDENT; // Legislative session begins.
+
+        legislativePolicies = new ArrayList<>();
+        for (int i = 0; i < PRESIDENT_DRAW_SIZE; i++) {
+            legislativePolicies.add(draw.remove());
+        }
+    }
+
+    /**
+     * Gets the legislative choices available for the President.
+     * @throws IllegalStateException if called when the state is not {@code LEGISLATIVE_PRESIDENT} or if an incorrect
+     *                               number of policies is available.
+     * @return a list of policies (size of {@code this.PRESIDENT_DRAW_SIZE}) representing the available choices.
+     */
+    public List<Policy> getPresidentLegislativeChoices() {
+        if (state != GameState.LEGISLATIVE_PRESIDENT) {
+            throw new IllegalStateException("Cannot get President legislative choices when not in legislative session.");
+        } if (legislativePolicies.size() != PRESIDENT_DRAW_SIZE) {
+            throw new IllegalStateException("An incorrect number of legislative policies are available for the president ("
+                                            + legislativePolicies.size() + " instead of " + PRESIDENT_DRAW_SIZE);
+        }
+        return new ArrayList<>(legislativePolicies); // makes a copy of the legislative policies
+    }
+
+    /**
+     * Discards the Policy in the list of presidential policy options.
+     * @param index the index of the policy in the list of legislative choices to enact.
+     * @throws IllegalStateException if called when the state is not {@code LEGISLATIVE_PRESIDENT}.
+     * @throws IndexOutOfBoundsException if index is outside of range [0, 2] (inclusive).
+     * @modifies this
+     * @effects adds the card in the policy list at index {@code index} to the discard deck.
+     *          Advances state to the {@code LEGISLATIVE_CHANCELLOR} state.
+     */
+    public void presidentDiscardPolicy(int index) {
+        if (state != GameState.LEGISLATIVE_PRESIDENT) {
+            throw new IllegalStateException("Cannot discard a policy from the president's hand in this state.");
+        } else if (index < 0 || index >= PRESIDENT_DRAW_SIZE) {
+            throw new IndexOutOfBoundsException("Cannot discard policy at the index " + index + ".");
+        }
+        discard.add(legislativePolicies.remove(index));
+        state = GameState.LEGISLATIVE_CHANCELLOR;
+    }
+
+    /**
+     * Gets the legislative choices available for the Chancellor.
+     * @throws IllegalStateException if called when the state is not {@code LEGISLATIVE_CHANCELLOR}.
+     * @return a list of policies (size of {@code this.CHANCELLOR_DRAW_SIZE}) representing the available choices.
+     */
+    public List<Policy> getChancellorLegislativeChoices() {
+        if (getState() != GameState.LEGISLATIVE_CHANCELLOR) {
+            throw new IllegalStateException("Cannot get Chancellor legislative choices when not in legislative session.");
+        } if (legislativePolicies.size() != CHANCELLOR_DRAW_SIZE) {
+            throw new IllegalStateException("An incorrect number of legislative policies are available for the chancellor ("
+                    + legislativePolicies.size() + " instead of " + CHANCELLOR_DRAW_SIZE);
+        }
+        return new ArrayList<>(legislativePolicies);
+    }
+
+    /**
+     * Enacts the Policy in the list of chancellor policy options.
+     * @param index the index of the policy in the list of legislative choices to enact.
+     * @throws IllegalStateException if called when the state is not {@code LEGISLATIVE_CHANCELLOR}.
+     * @throws IndexOutOfBoundsException if index is outside of range [0, 2] (inclusive).
+     * @modifies this
+     * @effects enacts the policy at index {@code index} and discards the remaining card.
+     *          Advances state to any relevant presidential powers, otherwise, advances to state {@code POST_LEGISLATIVE}.
+     */
+    public void chancellorEnactPolicy(int index) {
+        if (getState() != GameState.LEGISLATIVE_CHANCELLOR) {
+            throw new IllegalStateException("Cannot discard a policy from the chancellor's hand in this state.");
+        } else if (index < 0 || index >= CHANCELLOR_DRAW_SIZE) {
+            throw new IndexOutOfBoundsException("Cannot discard policy at the index " + index + ".");
+        }
+
+        board.enactPolicy(legislativePolicies.remove(index));
+        discard.add(legislativePolicies.remove(0)); //Discard last remaining Policy
+        onEnactPolicy();
+    }
+
+    /**
+     * Marks the chancellor as having vetoed the current policy agenda.
+     * @throws IllegalStateException if called when the state is not {@code LEGISLATIVE_CHANCELLOR}
+     * @modifies this
+     * @effects advances the state to {@code LEGISLATIVE_PRESIDENT_VETO} and awaits the president's approval.
+     */
+    public void chancellorVeto() {
+        if (getState() != GameState.LEGISLATIVE_CHANCELLOR) {
+            throw new IllegalStateException("Cannot veto in state " + getState().toString());
+        }
+        state = GameState.LEGISLATIVE_PRESIDENT_VETO;
+    }
+
+    /**
+     * Handles the president's response to an initiated veto.
+     * @param response is the president's vote (true = veto accepted, false = veto denied)
+     * @throws IllegalStateException if called when the state is not {@code LEGISLATIVE_PRESIDENT_VETO}
+     * @modifies this
+     * @effects If the veto is denied ({@code response} = false), then the game returns to the chancellor's decision
+     *          (state = LEGISLATIVE_CHANCELLOR).
+     *          If the veto is approved ({@code response} = true), then the game advances the election tracker. If the
+     *          tracker is at MAX_FAILED_ELECTIONS, enacts the first policy on top of the draw deck and carries out
+     *          any consequences of the policy.
+     */
+    public void presidentialVeto(boolean response) {
+        if (state != GameState.LEGISLATIVE_PRESIDENT_VETO) {
+            throw new IllegalStateException("Cannot get president veto input during state " + getState().toString() + ".");
+        }
+        if (response) { // veto was approved, advance election tracker
+            advanceElectionTracker();
+        } else {        // veto was denied, return to chancellor selection
+            state = GameState.LEGISLATIVE_CHANCELLOR;
+        }
+    }
 
     /**
      * Called AFTER a policy has been enacted, and sets the state according to any consequences.
      * @modifies this
      * @effects sets the state to handle any presidential powers that arise.
      *          Otherwise, state is set to {@code CHANCELLOR_SELECTION}.
+     *          Also handles reshuffling the discard into the draw deck when there are insufficient cards for a hand.
      */
     private void onEnactPolicy() {
+        if (draw.getSize() < MIN_DRAW_DECK_SIZE) {
+            shuffleDiscardIntoDraw();
+        }
+
         switch (board.getActivatedPower()) {
             case PEEK:
                 state = GameState.PRESIDENTIAL_POWER_PEEK;
@@ -398,9 +655,114 @@ public class SecretHitlerGame {
                 state = GameState.PRESIDENTIAL_POWER_INVESTIGATE;
                 break;
             case NONE:
-                state = GameState.CHANCELLOR_NOMINATION; // Loop back to next decision.
+                state = GameState.POST_LEGISLATIVE;
                 break;
         }
     }
+
+    //</editor-fold>
+
+    /////////////////// Presidential Powers
+    //<editor-fold desc="Presidential Powers">
+
+    /**
+     * Gets the preview of the top 3 cards of the deck during the {@code PRESIDENTIAL_POWER_PEEK} state.
+     * @throws IllegalStateException if called when state is not {@code PRESIDENTIAL_POWER_PEEK}.
+     * @return a size-3 array of Policies, where index 0 is the top of the stack. Advances the state of the game to
+     *         POST_LEGISLATIVE.
+     */
+    public Policy[] getPeek() {
+        if (state != GameState.PRESIDENTIAL_POWER_PEEK) {
+            throw new IllegalStateException("Cannot peek when the power is not active.");
+        } else if (draw.getSize() < 3) {
+            throw new IllegalStateException("Insufficient cards in the draw deck.");
+        }
+        concludeTerm();
+        return new Policy[] {draw.peek(0), draw.peek(1), draw.peek(2)};
+    }
+
+    /**
+     * Investigates the party identity of a given player.
+     * @param username the username of the player to investigate.
+     * @throws IllegalStateException if called when state is not {@code PRESIDENTIAL_POWER_INVESTIGATE}.
+     * @throws IllegalArgumentException if the player is not alive or in the game.
+     * @return the party membership of the player. If the player is fascist or Hitler, returns Identity.FASCIST.
+     *         if the player is liberal, returns Identity.LIBERAL.
+     *         Once called, advances the state of the game to POST_LEGISLATIVE.
+     */
+    public Identity investigatePlayer(String username) {
+        if (state != GameState.PRESIDENTIAL_POWER_INVESTIGATE) {
+            throw new IllegalStateException("Cannot investigate a player when the power is not active.");
+        } else if (!hasPlayer(username)) {
+            throw new IllegalArgumentException("Player " + username + " does not exist.");
+        } else if (!getPlayer(username).isAlive()) {
+            throw new IllegalArgumentException("Cannot investigate killed player " + username + ".");
+        }
+
+        concludeTerm();
+
+        if (getPlayer(username).isFascist()) {
+            return Identity.FASCIST;
+        } else {
+            return Identity.LIBERAL;
+        }
+    }
+
+    /**
+     * Executes a given player.
+     * @param username the username of the player to execute.
+     * @throws IllegalStateException if called when state is not {@code PRESIDENTIAL_POWER_EXECUTION}.
+     * @throws IllegalArgumentException if the player is already dead or is not in the game.
+     * @modifies this
+     * @effects The specified player is marked as not alive.
+     *          If they were Hitler, advances the state of the game to LIBERAL_VICTORY_EXECUTION.
+     *          Otherwise, once called, advances the state of the game to POST_LEGISLATIVE.
+     */
+    public void executePlayer(String username) {
+        if (state != GameState.PRESIDENTIAL_POWER_EXECUTION) {
+            throw new IllegalStateException("Cannot execute a player when the power is not active.");
+        } else if (!hasPlayer(username)) {
+            throw new IllegalArgumentException("Player " + username + " does not exist.");
+        }
+
+        Player playerToKill = getPlayer(username);
+        if (!playerToKill.isAlive()) {
+            throw new IllegalArgumentException("Cannot execute " + username + " because they are not alive.");
+        }
+
+        playerToKill.kill();
+        if(playerToKill.isHitler()) { // game ends and liberals win.
+            state = GameState.LIBERAL_VICTORY_EXECUTION;
+        } else {
+            concludeTerm();
+        }
+    }
+
+    /**
+     * Sets the next president through the Election power.
+     * @param username the username of the player to become president next.
+     * @throws IllegalStateException if called when state is not {@code PRESIDENTIAL_POWER_ELECTION}.
+     * @throws IllegalArgumentException if the player is dead or is not in the game.
+     * @modifies this
+     * @effects The specified player becomes the next president.
+     *          After the completion of their term, the presidency returns to the next president
+     *          in the normal rotation order.
+     *          Once called, advances the state to POST_LEGISLATIVE.
+     */
+    public void electNextPresident(String username) {
+        if (state != GameState.PRESIDENTIAL_POWER_ELECTION) {
+            throw new IllegalStateException("Cannot elect a player president when the power is not active.");
+        } else if (!hasPlayer(username)) {
+            throw new IllegalArgumentException("Player " + username + " does not exist.");
+        } else if (!getPlayer(username).isAlive()) {
+            throw new IllegalArgumentException("Cannot elect " + username + " because they are not alive.");
+        }
+
+        nextPresident = getNextActivePlayer(currentPresident);
+        electedPresident = username;
+        concludeTerm();
+    }
+
+    //</editor-fold>
 
 }

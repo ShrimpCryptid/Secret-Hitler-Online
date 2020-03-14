@@ -105,7 +105,6 @@ public abstract class Board {
         return getActivatedPower() != PresidentialPower.NONE;
     }
 
-
     /**
      * Gets the presidential power (if any) that was activated by the last policy.
      * @requires a policy has already been enacted.
