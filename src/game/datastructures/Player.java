@@ -1,4 +1,4 @@
-package datastructures;
+package game.datastructures;
 
 /**
  * Holds the data for an individual player.

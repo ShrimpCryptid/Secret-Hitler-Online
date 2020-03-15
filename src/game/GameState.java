@@ -1,3 +1,5 @@
+package game;
+
 public enum GameState {
     SETUP,                          // Game is being set up.
     CHANCELLOR_NOMINATION,          // President is nominating a chancellor.

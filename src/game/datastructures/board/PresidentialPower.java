@@ -1,4 +1,4 @@
-package datastructures.board;
+package game.datastructures.board;
 
 /**
  * Presidential powers are triggered when a set number of fascist policies have been enacted.

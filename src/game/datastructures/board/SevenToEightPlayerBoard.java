@@ -1,14 +1,13 @@
-package datastructures.board;
+package game.datastructures.board;
 
-import datastructures.Policy;
+import game.datastructures.Policy;
 
-public class NineToTenPlayerBoard extends Board{
+public class SevenToEightPlayerBoard extends Board{
 
     @Override
     public PresidentialPower getActivatedPower() {
         if (getLastEnactedType() == Policy.Type.FASCIST) {
             switch (getNumFascistPolicies()) {
-                case 1:
                 case 2:
                     return PresidentialPower.INVESTIGATE;
                 case 3:
@@ -20,4 +19,5 @@ public class NineToTenPlayerBoard extends Board{
         }
         return PresidentialPower.NONE;
     }
+
 }

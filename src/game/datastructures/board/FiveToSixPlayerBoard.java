@@ -1,6 +1,6 @@
-package datastructures.board;
+package game.datastructures.board;
 
-import datastructures.Policy;
+import game.datastructures.Policy;
 
 /**
  * A Board meant for 5-6 players.
@@ -17,6 +17,8 @@ public class FiveToSixPlayerBoard extends Board {
                 case 4:
                 case 5:
                     return PresidentialPower.EXECUTION;
+                default:
+                    //nothing happens, return no power.
             }
         }
         return PresidentialPower.NONE;

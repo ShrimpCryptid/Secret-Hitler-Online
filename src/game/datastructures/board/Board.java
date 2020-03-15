@@ -1,6 +1,6 @@
-package datastructures.board;
+package game.datastructures.board;
 
-import datastructures.Policy;
+import game.datastructures.Policy;
 
 public abstract class Board {
 

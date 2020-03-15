@@ -1,4 +1,6 @@
-import datastructures.Player;
+import game.datastructures.Player;
+import game.GameState;
+import game.SecretHitlerGame;
 import org.junit.Test;
 
 import java.util.List;
@@ -54,8 +56,30 @@ public class testSecretHitlerGame {
         assertEquals(game.getState(), GameState.CHANCELLOR_VOTING);
     }
 
+    ///////////////// Test Nomination and Voting
+    // <editor-fold desc="Test Nomination and Voting">
+
+
+    private void applyVotes(SecretHitlerGame game, Boolean[] votes) {
+        List<Player> playerList = game.getPlayerList();
+        for (int i = 0; i < playerList.size(); i++) {
+            if (playerList.get(i).isAlive()) {
+                game.registerVote(playerList.get(i).getUsername(), votes[i]);
+            }
+        }
+    }
+
     @Test
     public void testVotingSplit(){
+        SecretHitlerGame game = makeNewGame(makePlayers(5));
+        game.nominateChancellor("1");
 
     }
+
+    @Test
+    public void testVotingAfterPlayerIsExecuted() {
+
+    }
+
+    //</editor-fold>
 }

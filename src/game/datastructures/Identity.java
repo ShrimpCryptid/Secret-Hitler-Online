@@ -1,4 +1,4 @@
-package datastructures;
+package game.datastructures;
 
 public enum Identity {
     UNASSIGNED,

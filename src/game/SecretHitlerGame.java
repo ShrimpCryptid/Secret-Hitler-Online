@@ -1,11 +1,13 @@
-import datastructures.Deck;
-import datastructures.Identity;
-import datastructures.Player;
-import datastructures.Policy;
-import datastructures.board.Board;
-import datastructures.board.FiveToSixPlayerBoard;
-import datastructures.board.NineToTenPlayerBoard;
-import datastructures.board.SevenToEightPlayerBoard;
+package game;
+
+import game.datastructures.Deck;
+import game.datastructures.Identity;
+import game.datastructures.Player;
+import game.datastructures.Policy;
+import game.datastructures.board.Board;
+import game.datastructures.board.FiveToSixPlayerBoard;
+import game.datastructures.board.NineToTenPlayerBoard;
+import game.datastructures.board.SevenToEightPlayerBoard;
 
 import java.util.*;
 
@@ -106,7 +108,7 @@ public class SecretHitlerGame {
     /**
      * Constructs a new game of Secret Hitler.
      * @modifies this
-     * @effects this is a new SecretHitlerGame in setup mode with no players.
+     * @effects this is a new game.SecretHitlerGame in setup mode with no players.
      */
     public SecretHitlerGame() {
         playerList = new ArrayList<>();
@@ -297,8 +299,8 @@ public class SecretHitlerGame {
 
 
     /**
-     * Gets the current state of the SecretHitlerGame.
-     * @return a GameState representing the current state of the game.
+     * Gets the current state of the game.SecretHitlerGame.
+     * @return a game.GameState representing the current state of the game.
      */
     public GameState getState() {
         checkIfGameOver();

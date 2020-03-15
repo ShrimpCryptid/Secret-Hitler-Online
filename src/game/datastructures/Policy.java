@@ -1,4 +1,4 @@
-package datastructures;
+package game.datastructures;
 
 /**
  * An immutable object that represents either a Fascist or Liberal Policy.
