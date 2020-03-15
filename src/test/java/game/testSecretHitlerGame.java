@@ -1,6 +1,6 @@
+package game;
+
 import game.datastructures.Player;
-import game.GameState;
-import game.SecretHitlerGame;
 import org.junit.Test;
 
 import java.util.List;
@@ -72,6 +72,7 @@ public class testSecretHitlerGame {
     @Test
     public void testVotingSplit(){
         SecretHitlerGame game = makeNewGame(makePlayers(5));
+        game.start();
         game.nominateChancellor("1");
 
     }

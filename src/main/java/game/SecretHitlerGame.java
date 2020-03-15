@@ -303,7 +303,9 @@ public class SecretHitlerGame {
      * @return a game.GameState representing the current state of the game.
      */
     public GameState getState() {
-        checkIfGameOver();
+        if (board != null) {
+            checkIfGameOver();
+        }
         return state;
     }
 
@@ -554,7 +556,7 @@ public class SecretHitlerGame {
         if (state != GameState.LEGISLATIVE_PRESIDENT) {
             throw new IllegalStateException("Cannot discard a policy from the president's hand in this state.");
         } else if (index < 0 || index >= PRESIDENT_DRAW_SIZE) {
-            throw new IndexOutOfBoundsException("Cannot discard policy at the index " + index + ".");
+            throw new IndexOutOfBoundsException("Cannot discard policy at the index " + index + "");
         }
         discard.add(legislativePolicies.remove(index));
         state = GameState.LEGISLATIVE_CHANCELLOR;
@@ -588,7 +590,7 @@ public class SecretHitlerGame {
         if (getState() != GameState.LEGISLATIVE_CHANCELLOR) {
             throw new IllegalStateException("Cannot discard a policy from the chancellor's hand in this state.");
         } else if (index < 0 || index >= CHANCELLOR_DRAW_SIZE) {
-            throw new IndexOutOfBoundsException("Cannot discard policy at the index " + index + ".");
+            throw new IndexOutOfBoundsException("Cannot discard policy at the index " + index + "");
         }
 
         board.enactPolicy(legislativePolicies.remove(index));
@@ -622,7 +624,7 @@ public class SecretHitlerGame {
      */
     public void presidentialVeto(boolean response) {
         if (state != GameState.LEGISLATIVE_PRESIDENT_VETO) {
-            throw new IllegalStateException("Cannot get president veto input during state " + getState().toString() + ".");
+            throw new IllegalStateException("Cannot get president veto input during state " + getState().toString() + "");
         }
         if (response) { // veto was approved, advance election tracker
             advanceElectionTracker();
@@ -698,7 +700,7 @@ public class SecretHitlerGame {
         } else if (!hasPlayer(username)) {
             throw new IllegalArgumentException("Player " + username + " does not exist.");
         } else if (!getPlayer(username).isAlive()) {
-            throw new IllegalArgumentException("Cannot investigate killed player " + username + ".");
+            throw new IllegalArgumentException("Cannot investigate killed player " + username + "");
         }
 
         concludeTerm();
