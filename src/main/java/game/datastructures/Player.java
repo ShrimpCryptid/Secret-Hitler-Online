@@ -1,5 +1,7 @@
 package game.datastructures;
 
+import org.json.JSONObject;
+
 /**
  * Holds the data for an individual player.
  * A player has a username and identity associated with them.
@@ -50,5 +52,12 @@ public class Player {
      */
     public boolean isFascist() {
         return this.id.equals(Identity.HITLER) || this.id.equals(Identity.FASCIST);
+    }
+
+    public JSONObject toJSONObject() {
+        JSONObject out = new JSONObject();
+        out.put("username", this.username);
+        out.put("is_alive", isAlive());
+        return out;
     }
 }
