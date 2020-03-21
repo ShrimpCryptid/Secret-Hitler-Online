@@ -3,8 +3,7 @@ package server;
 import game.SecretHitlerGame;
 import io.javalin.Javalin;
 import io.javalin.websocket.WsContext;
-import io.javalin.websocket.WsHandler;
-import org.json.JSONObject;
+import server.util.Lobby;
 
 import java.util.Map;
 
@@ -12,14 +11,23 @@ public class SecretHitlerServer {
 
 
     ////// Static Fields
-    private static final int PORT_NUMBER = 4000;
-    private static final int
+    // <editor-fold desc="Static Fields">
 
+    private static final int PORT_NUMBER = 4000;
+
+    //</editor-fold>
 
     ///// Private Fields
+    // <editor-fold desc="Private Fields">
+
     private Map<String, SecretHitlerGame> activeGames;
-    private Map<WsContext, String> userToUsername;
-    private Map<WsContext, SecretHitlerGame> userToGameName;
+    private Map<WsContext, Lobby> userToLobby;
+
+    // </editor-fold>
+
+    ////// Private Classes
+
+
 
     public static void main(String[] args) {
         Javalin serverApp = Javalin.create().start(PORT_NUMBER);
@@ -31,8 +39,10 @@ public class SecretHitlerServer {
 
     }
 
-    private static void onWebsocketConnect(WsContext ctx) {
+    /////// Websocket Handling
+    //<editor-fold desc="Websocket Handling">
 
+    private static void onWebsocketConnect(WsContext ctx) {
 
     }
 
@@ -40,14 +50,14 @@ public class SecretHitlerServer {
 
     }
 
-    private static JSONObject gameToJSON(SecretHitlerGame game) {
-        JSONObject out = new JSONObject();
-        out.put("players", game.getPlayerList());
-        out.put("president", game.getCurrentPresident());
-        out.put("chancellor", game.getCurrentChancellor());
-        out.put("state", game.getState().toString());
-        out.put("last_president", game.getLastPresident());
-        out.put("last_chancellor", game.getLastChancellor());
+    private static void onWebSocketClose(WsContext ctx) {
+
     }
+
+    //</editor-fold>
+
+    ///////// Game Management
+    //<editor-fold desc="Game Management">
+    //</editor-fold>
 
 }

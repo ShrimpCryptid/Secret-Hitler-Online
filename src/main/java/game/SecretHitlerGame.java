@@ -106,15 +106,30 @@ public class SecretHitlerGame {
     //<editor-fold desc="Constructor">
 
     /**
-     * Constructs a new game of Secret Hitler.
+     * Constructs a new game of Secret Hitler with the given players.
+     * @param players the names of the players to add to the game.
+     * @requires there can be no repeat names in {@code players}. The number of players must be between MIN_PLAYERS and
+     *           MAX_PLAYERS, inclusive.
      * @modifies this
      * @effects this is a new game.SecretHitlerGame in setup mode with no players.
      */
-    public SecretHitlerGame() {
+    public SecretHitlerGame(ArrayList<String> players) {
+        if (players.size() < MIN_PLAYERS) {
+            throw new IllegalArgumentException("There must be at least " + MIN_PLAYERS + " to start the game (only " + players.size() + " provided).");
+        } else if (players.size() > MAX_PLAYERS) {
+            throw new IllegalArgumentException("There can be a max of " + MAX_PLAYERS + " in a game (" + players.size() + " provided).");
+        }
+
+        // Set up the list of players.
         playerList = new ArrayList<>();
+        for (String name : players) {
+            playerList.add(new Player(name));
+        }
+
         state = GameState.SETUP;
         random = new Random();
         electionTracker = 0;
+        start();
     }
 
     //</editor-fold>
@@ -138,43 +153,12 @@ public class SecretHitlerGame {
     }
 
     /**
-     * Adds a player to the list of active players.
-     * @param username the username of the player to add.
-     * @modifies this
-     * @effects if 1) the number of players is less than {@code MAX_PLAYERS}, 2) the game is in setup mode, and 3)
-     *          there is not already a player with the given username,
-     *          adds a new Player with the given username to the list of active players.
-     * @return true if the player was successfully added, false otherwise.
-     */
-    public boolean addPlayer(String username) {
-        if (playerList.size() >= MAX_PLAYERS || hasPlayer(username)) {
-            return false;
-        }
-        playerList.add(new Player(username));
-        return true;
-    }
-
-    /**
      * Gets the list of active players.
      * @return an immutable list of Players.
      */
     public List<Player> getPlayerList() {
         return new ArrayList<>(playerList);
         // TODO: Unfortunately, Player is not immutable, so it's possible for the contents to be changed. ://
-    }
-
-    /**
-     * Removes a player from the list of active players.
-     * @param username
-     * @throws IllegalArgumentException if the player is not in the game.
-     * @modifies this
-     * @effects removes the specified player from the list of active players.
-     */
-    public void removePlayer(String username) {
-        if (!hasPlayer(username)) {
-            throw new IllegalArgumentException("Cannot remove player " + username + ": player does not exist.");
-        }
-        playerList.remove(indexOfPlayer(username));
     }
 
     /**
@@ -203,13 +187,10 @@ public class SecretHitlerGame {
     /**
      * Starts the game of Secret Hitler.
      * @modifies this
-     * @effects initializes the game and
-     * @return true if and only if 1) the game is in setup and 2) there are sufficient players.
+     * @effects initializes the game, setting all player identities and card decks. The first player in the provided
+     *          player list is the first president, and the game begins the chancellor nomination process.
      */
-    public boolean start() {
-        if (playerList.size() < MIN_PLAYERS || this.state != GameState.SETUP) {
-            return false;
-        }
+    private void start() {
         resetDeck();
         assignRoles();
         electionTracker = 0;
@@ -229,8 +210,6 @@ public class SecretHitlerGame {
         lastPresident = null;
 
         state = GameState.CHANCELLOR_NOMINATION;
-
-        return true;
     }
 
     /**

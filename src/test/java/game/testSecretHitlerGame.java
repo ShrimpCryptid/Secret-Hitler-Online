@@ -3,32 +3,24 @@ package game;
 import game.datastructures.Player;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static junit.framework.TestCase.*;
 
 public class testSecretHitlerGame {
 
-    private String[] makePlayers(int numPlayers) {
-        String[] out = new String[numPlayers];
+    private ArrayList<String> makePlayers(int numPlayers) {
+        ArrayList<String> out = new ArrayList<>();
         for (int i = 0; i < numPlayers; i++) {
-            out[i] = Integer.toString(i);
+            out.add(Integer.toString(i));
         }
         return out;
     }
 
-    private SecretHitlerGame makeNewGame(String[] players) {
-        SecretHitlerGame game = new SecretHitlerGame();
-        for (String player: players) {
-            game.addPlayer(player);
-        }
-        return game;
-    }
-
     @Test
     public void testGameFlow() {
-        SecretHitlerGame game = makeNewGame(makePlayers(6));
-        game.start();
+        SecretHitlerGame game = new SecretHitlerGame(makePlayers(6));
 
         assertEquals(game.getCurrentPresident(), "0");
         assertNull(game.getCurrentChancellor());
@@ -71,8 +63,7 @@ public class testSecretHitlerGame {
 
     @Test
     public void testVotingSplit(){
-        SecretHitlerGame game = makeNewGame(makePlayers(5));
-        game.start();
+        SecretHitlerGame game = new SecretHitlerGame(makePlayers(5));
         game.nominateChancellor("1");
 
     }
