@@ -113,7 +113,7 @@ public class SecretHitlerGame {
      * @modifies this
      * @effects this is a new game.SecretHitlerGame in setup mode with no players.
      */
-    public SecretHitlerGame(ArrayList<String> players) {
+    public SecretHitlerGame(Collection<String> players) {
         if (players.size() < MIN_PLAYERS) {
             throw new IllegalArgumentException("There must be at least " + MIN_PLAYERS + " to start the game (only " + players.size() + " provided).");
         } else if (players.size() > MAX_PLAYERS) {

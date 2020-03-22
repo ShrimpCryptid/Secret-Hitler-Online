@@ -24,6 +24,7 @@ public class Lobby {
     public Lobby() {
         userToUsername = new HashMap<>();
         usernames = new HashSet<>();
+        usersInGame = new HashSet<>();
     }
 
     /////// User Management
@@ -89,14 +90,60 @@ public class Lobby {
         }
     }
 
+    /**
+     * Returns the number of active users connected to the Lobby.
+     * @return the number of active websocket connections currently in the lobby.
+     */
+    public int getUserCount() {
+        return userToUsername.size();
+    }
+
+
+    /**
+     * Sends a message to every connected user with the updated game state.
+     * @effects a message containing a JSONObject representing the state of the SecretHitlerGame is sent
+     *          to each WsContext in the username map. ({@code GameToJSONConverter.convert()})
+     */
+    public void updateAllUsers() {
+        JSONObject updatedGame = GameToJSONConverter.convert(game);
+        for (WsContext ws : userToUsername.keySet()) {
+            ws.send(updatedGame);
+        }
+    }
+
     //</editor-fold>
+
+    ////// Game Management
+    //<editor-fold desc="Game Management">
 
     /**
      * Returns whether the Lobby is currently in a game.
      * @return true iff the Lobby has a currently active game.
      */
     public boolean isInGame() {
-        return game != null && game.getState() != GameState.SETUP;
+        return game != null;
+    }
+
+    /**
+     * Starts a new SecretHitlerGame with the connected users as players.
+     * @throws RuntimeException if there are an insufficient number of players to start a game, if there are too
+     *         many in the lobby, or if the lobby is in a game ({@code isInGame() == true}).
+     * @modifies this
+     * @effects creates and stores a new SecretHitlerGame.
+     *          The usernames of all active users are added to the game in a randomized order.
+     */
+    public void startNewGame() {
+        if (userToUsername.size() < SecretHitlerGame.MIN_PLAYERS) {
+            throw new RuntimeException("Too many users to start a game.");
+        } else if (userToUsername.size() > SecretHitlerGame.MAX_PLAYERS) {
+            throw new RuntimeException("Too many users to start a game.");
+        } else if (isInGame()) {
+            throw new RuntimeException("Cannot start a new game while a game is in progress.");
+        }
+
+        List<String> playerNames = new ArrayList<>(userToUsername.values());
+        Collections.shuffle(playerNames);
+        game = new SecretHitlerGame(playerNames);
     }
 
     /**
@@ -112,16 +159,6 @@ public class Lobby {
         }
     }
 
-    /**
-     * Sends a message to every connected user with the updated game state.
-     * @effects a message containing a JSON object representing the state of the SecretHitlerGame is sent
-     *          to each WsContext in the username map.
-     */
-    public void updateAllUsers() {
-        JSONObject updatedGame = GameToJSONConverter.convert(game);
-        for (WsContext ws : userToUsername.keySet()) {
-            ws.send(updatedGame);
-        }
-    }
+    //</editor-fold>
 
 }
