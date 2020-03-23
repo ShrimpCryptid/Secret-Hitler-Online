@@ -1,17 +1,18 @@
 package server;
 
+import game.GameState;
 import game.SecretHitlerGame;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.javalin.websocket.WsConnectContext;
 import io.javalin.websocket.WsContext;
 import io.javalin.websocket.WsMessageContext;
+import org.eclipse.jetty.websocket.api.CloseStatus;
 import server.util.Lobby;
 
 import java.util.Map;
-import java.util.Set;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 public class SecretHitlerServer {
 
@@ -19,29 +20,34 @@ public class SecretHitlerServer {
     ////// Static Fields
     // <editor-fold desc="Static Fields">
 
-    private static final int PORT_NUMBER = 4000;
-    private static final String QUERY_LOBBY = "lobby";
-    private static final String QUERY_NAME = "name";
-    private static final String QUERY_COMMAND = "command";
+    public static final int PORT_NUMBER = 4000;
+
+
+    public static final String PARAM_LOBBY = "lobby";
+    public static final String PARAM_NAME = "name";
+    public static final String PARAM_COMMAND = "command";
+    public static final String PARAM_TARGET = "target-user";
+    public static final String PARAM_VOTE = "vote";
+    public static final String PARAM_CHOICE = "choice"; // the index of the chosen policy.
+
 
     // These are the commands that can be passed via a websocket connection.
-    private static final String COMMAND_GET_STATE = "get-state";
+    public static final String COMMAND_START_GAME = "start-game";
+    public static final String COMMAND_GET_STATE = "get-state";
 
-    private static final String COMMAND_NOMINATE_CHANCELLOR = "nominate-chancellor";
-    private static final String COMMAND_REGISTER_VOTE = "register-vote";
+    public static final String COMMAND_NOMINATE_CHANCELLOR = "nominate-chancellor";
+    public static final String COMMAND_REGISTER_VOTE = "register-vote";
+    public static final String COMMAND_REGISTER_PRESIDENT_CHOICE = "register-president-choice";
+    public static final String COMMAND_REGISTER_CHANCELLOR_CHOICE = "register-chancellor-choice";
+    public static final String COMMAND_REGISTER_CHANCELLOR_VETO = "chancellor-veto";
+    public static final String COMMAND_REGISTER_PRESIDENT_VETO = "president-veto";
 
-    private static final String COMMAND_REGISTER_PRESIDENT_CHOICE = "register-president-choice";
-    private static final String COMMAND_REGISTER_CHANCELLOR_CHOICE = "register-chancellor-choice";
-    private static final String COMMAND_REGISTER_CHANCELLOR_VETO = "chancellor-veto";
-    private static final String COMMAND_REGISTER_PRESIDENT_VETO = "president-veto";
+    public static final String COMMAND_REGISTER_EXECUTION = "register-execution";
+    public static final String COMMAND_REGISTER_SPECIAL_ELECTION = "register-special-election";
+    public static final String COMMAND_GET_INVESTIGATION = "get-investigation";
+    public static final String COMMAND_GET_PEEK = "get-peek";
 
-    private static final String COMMAND_REGISTER_EXECUTION = "register-execution";
-    private static final String COMMAND_REGISTER_SPECIAL_ELECTION = "register-special-election";
-    private static final String COMMAND_GET_INVESTIGATION = "get-investigation";
-    private static final String COMMAND_GET_PEEK = "get-peek";
-
-    private static final String COMMAND_END_TERM = "end-term";
-
+    public static final String COMMAND_END_TERM = "end-term";
 
 
     private static final String CODE_CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -94,8 +100,8 @@ public class SecretHitlerServer {
      *              these login credentials.
      */
     public static void checkLogin(Context ctx) {
-        String lobbyCode = ctx.queryParam(QUERY_LOBBY);
-        String name = ctx.queryParam(QUERY_NAME);
+        String lobbyCode = ctx.queryParam(PARAM_LOBBY);
+        String name = ctx.queryParam(PARAM_NAME);
         if (lobbyCode == null || name == null) {
             ctx.status(400);
             ctx.result("Requires lobby and name parameters");
@@ -165,15 +171,15 @@ public class SecretHitlerServer {
      *          Otherwise, connects the user to the lobby.
      */
     private static void onWebsocketConnect(WsConnectContext ctx) {
-        if (ctx.queryParam(QUERY_LOBBY) == null || ctx.queryParam(QUERY_NAME) == null) {
-            ctx.session.close(400, "Must have the '" + QUERY_LOBBY + "' and '" + QUERY_NAME + "' parameters.");
+        if (ctx.queryParam(PARAM_LOBBY) == null || ctx.queryParam(PARAM_NAME) == null) {
+            ctx.session.close(400, "Must have the '" + PARAM_LOBBY + "' and '" + PARAM_NAME + "' parameters.");
             return;
         }
 
-        String code = ctx.queryParam(QUERY_LOBBY);
-        String name = ctx.queryParam(QUERY_NAME);
-        if (!codeToLobby.containsKey(ctx.queryParam(QUERY_LOBBY))) { // the lobby does not exist.
-            ctx.session.close(404, "The lobby '" + ctx.queryParam(QUERY_LOBBY) + "' does not exist.");
+        String code = ctx.queryParam(PARAM_LOBBY);
+        String name = ctx.queryParam(PARAM_NAME);
+        if (!codeToLobby.containsKey(ctx.queryParam(PARAM_LOBBY))) { // the lobby does not exist.
+            ctx.session.close(404, "The lobby '" + ctx.queryParam(PARAM_LOBBY) + "' does not exist.");
             return;
         }
 
@@ -191,6 +197,7 @@ public class SecretHitlerServer {
         }
     }
 
+
     /**
      * Parses a websocket message sent from the user.
      * @param ctx the WsMessageContext of the websocket.
@@ -199,24 +206,211 @@ public class SecretHitlerServer {
      *          {@code name}: a String username. Cannot already exist in the given lobby.
      *          {@code command}: a String command.
      * @effects Ends the websocket command if:
-     *              - 404: the lobby code is invalid.
+     *              - 404: the specified lobby does not exist.
+     *              - 403: the user is not allowed to make this action. (Usually because they are not a president/chancellor).
      *              - 400: a required parameter is missing, or the command cannot be executed in this state.
      *          Updates the game state according to the specified command and updates every other connected user
      *          with the new state.
      */
     private static void onWebSocketMessage(WsMessageContext ctx) {
-        if (ctx.queryParam(QUERY_LOBBY) == null || ctx.queryParam(QUERY_NAME) == null || ctx.queryParam(QUERY_COMMAND) == null) {
-
+        if (ctx.queryParam(PARAM_LOBBY) == null || ctx.queryParam(PARAM_NAME) == null || ctx.queryParam(PARAM_COMMAND) == null) {
+            ctx.session.close(400, "A required parameter is missing.");
+            return;
+        } else if (!codeToLobby.containsKey(ctx.queryParam(PARAM_LOBBY))) {
+            ctx.session.close(404, "The lobby does not exist.");
+            return;
         }
+
+        String lobbyCode = ctx.queryParam(PARAM_LOBBY);
+        Lobby lobby = codeToLobby.get(lobbyCode);
+        String name = ctx.queryParam(PARAM_NAME);
+
+        if (!lobby.hasUser(ctx)) {
+            ctx.session.close(403, "The user is not connected to the lobby " + lobbyCode + ".");
+            return;
+        } else if (!lobby.hasUsername(name)) {
+            ctx.session.close(403, "The name of the user making this request is not in the lobby " + lobbyCode + ".");
+            return;
+        }
+
+        try {
+            switch (Objects.requireNonNull(ctx.queryParam(PARAM_COMMAND))) {
+                case COMMAND_START_GAME: // Starts the game.
+                    lobby.startNewGame();
+                    break;
+
+                case COMMAND_GET_STATE: // Requests the updated state of the game.
+                    lobby.updateUser(ctx);
+                    break;
+
+                case COMMAND_NOMINATE_CHANCELLOR: // params: PARAM_TARGET (String)
+                    if (!onCommandNominateChancellor(ctx)) {
+                        return; // the command failed.
+                    }
+                    break;
+
+                case COMMAND_REGISTER_VOTE: // params: PARAM_VOTE (boolean)
+                    if (!onRegisterVote(ctx)) {
+                        return;
+                    }
+                    break;
+
+                case COMMAND_REGISTER_PRESIDENT_CHOICE: // params: PARAM_CHOICE
+
+                case COMMAND_REGISTER_CHANCELLOR_CHOICE: // params: PARAM_CHOICE
+
+                case COMMAND_REGISTER_CHANCELLOR_VETO:
+
+                case COMMAND_REGISTER_PRESIDENT_VETO:
+
+                case COMMAND_REGISTER_EXECUTION: // params: PARAM_TARGET
+
+                case COMMAND_REGISTER_SPECIAL_ELECTION: // params: PARAM_TARGET
+
+                case COMMAND_GET_INVESTIGATION: // params: PARAM_TARGET
+
+                case COMMAND_GET_PEEK:
+
+                case COMMAND_END_TERM:
+
+                default: //This is an invalid command.
+
+            }
+        } catch (NullPointerException e) {
+            ctx.session.close(400, "NullPointerException:" + e.toString());
+        } catch (RuntimeException e) {
+            ctx.session.close(400, "RuntimeException:" + e.toString());
+        }
+        lobby.updateAllUsers();
     }
 
+    //<editor-fold desc="Close Websocket">
+
+    /**
+     * Closes the websocket connection because it is in the incorrect state.
+     * @param ctx the WsContext of the websocket.
+     * @effects closes the websocket connection with status code 400.
+     */
+    private static void closeIncorrectState(WsContext ctx) {
+        ctx.session.close(400, "Cannot take this action in this state.");
+    }
+
+    /**
+     * Closes the websocket connection because no game is running.
+     * @param ctx the WsContext of the websocket.
+     * @effects closes the websocket connection with status code 400.
+     */
+    private static void closeNoGameRunning(WsContext ctx) {
+        ctx.session.close(400, "Cannot take this action when a game is not running.");
+    }
+
+    //</editor-fold>
+
+    // <editor-fold desc="Command Handling">
+
+    /**
+     * Handles the COMMAND_NOMINATE_CHANCELLOR command.
+     * @param ctx The WsMessageContext of the websocket.
+     * @requires the context must have the following parameters:
+     *          {@code this.PARAM_TARGET}: the user to nominate as chancellor.
+     * @effects Closes the websocket connection if:
+     *              - 403: the user is not the president.
+     *              - 400: a required parameter is missing, the game is not running, or the command cannot be executed
+     *                     in the current state.
+     * @return Returns true if the command executed successfully. Otherwise, returns false.
+     */
+    private static boolean onCommandNominateChancellor(WsMessageContext ctx) {
+        Lobby lobby = userToLobby.get(ctx);
+        String name = ctx.queryParam(PARAM_NAME);
+
+        if (!lobby.isInGame()) {
+            closeNoGameRunning(ctx);
+            return false;
+        } else if (lobby.game().getState() != GameState.CHANCELLOR_NOMINATION) {
+            closeIncorrectState(ctx);
+            return false;
+        } else if (!lobby.game().getCurrentPresident().equals(name)) { // the player must be the president.
+            ctx.session.close(403, "The player cannot take this action because they are not currently president.");
+            return false;
+        }
+
+        String target = ctx.queryParam(PARAM_TARGET);
+        SecretHitlerGame game = lobby.game();
+
+        if (target == null) {
+            ctx.session.close(400, "Missing a required parameter (target user).");
+            return false;
+        } else if (game.getLastChancellor().equals(target) || game.getLastPresident().equals(target)) {
+            ctx.session.close(403, "The target is term-limited.");
+            return false;
+        }
+
+        lobby.game().nominateChancellor(target);
+        return true;
+    }
+
+    /**
+     * Handles the COMMAND_REGISTER_VOTE command.
+     * @param ctx The WsMessageContext of the websocket.
+     * @requires the context must have the following parameters:
+     *          {@code this.PARAM_VOTE}: the vote of this user (true is a yes vote).
+     * @effects Closes the websocket connection with code 400 if a required parameter is missing, the game is not
+     *          running, or the command cannot be executed in the current state.
+     * @return Returns true if the command executed successfully. Otherwise, returns false.
+     */
+    private static boolean onRegisterVote(WsMessageContext ctx) {
+        Lobby lobby = userToLobby.get(ctx);
+        String name = ctx.queryParam(PARAM_NAME);
+
+        try {
+            boolean vote = Boolean.getBoolean(ctx.queryParam(PARAM_VOTE));
+            if (lobby.game().getVotes().containsKey(name)) { // User has already voted
+                ctx.session.close(400, "Repeat votes are not allowed.");
+                return false;
+            }
+            lobby.game().registerVote(name, vote);
+            return true;
+
+        } catch (NullPointerException e) {
+            ctx.session.close(400, "NullPointerException: " + e.toString());
+        } catch (RuntimeException e) {
+            ctx.session.close(400, "RuntimeException: " + e.toString());
+        }
+
+        return false;
+    }
+
+    /**
+     * Handles the COMMAND_REGISTER_PRESIDENT_CHOICE command.
+     * @param ctx The WsMessageContext of the websocket.
+     * @requires the context must have the following parameters:
+     *          {@code PARAM_CHOICE}: the index of the policy to discard. (Must be in range [0, 2], inclusive.)
+     * @effects Closes the websocket connection with code 400 if a required parameter is missing, the game is not
+     *          running, or the command cannot be executed in the current state.
+     * @return Returns true if the command executed successfully. Otherwise, returns false.
+     */
+    private static boolean onRegisterPresidentChoice(WsMessageContext ctx) {
+        Lobby lobby = userToLobby.get(ctx);
+        String name = ctx.queryParam(PARAM_NAME);
+
+        try {
+            int choice = Integer.parseInt(ctx.queryParam(PARAM_CHOICE,  null));
+            lobby.game().presidentDiscardPolicy(choice);
+            return true;
+        } catch (NullPointerException e) {
+            ctx.session.close(400, "NullPointerException: " + e.toString());
+        } catch (RuntimeException e) {
+            ctx.session.close(400, "RuntimeException: " + e.toString());
+        }
+        return false;
+    }
+
+    // </editor-fold>
 
     private static void onWebSocketClose(WsContext ctx) {
         // if this is the last connection in a server, delete the server.
     }
 
     //</editor-fold>
-
-    //////// Lobby Management
 
 }

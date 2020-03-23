@@ -15,7 +15,10 @@ public class Player {
 
     /**
      * Constructs a new Player with the given username.
-     * @param username
+     * @param username The username of the player.
+     * @modifies this
+     * @effects this is a new Player that is alive, has an unassigned Identity,
+     *          and has not been investigated.
      */
     public Player(String username) {
         this.username = username;

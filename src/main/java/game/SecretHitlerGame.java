@@ -15,7 +15,7 @@ import java.util.*;
  * Keeps track of the state of a game of Secret Hitler.
  *
  * Secret Hitler is a social deduction game for 5-10 players, originally
- * created by Goat, Wolf & Cabbage (c) 2016. You can find more details on their
+ * created by Goat, Wolf {@literal &} Cabbage (c) 2016. You can find more details on their
  * website, or order the physical game, at https://www.secrethitler.com/.
  *
  * Secret Hitler is licensed through Creative Commons.
@@ -140,7 +140,7 @@ public class SecretHitlerGame {
 
     /**
      * Checks if the game has a player with the given username.
-     * @param username
+     * @param username the String username of the player to search for.
      * @return true iff the player is in the game.
      */
     public boolean hasPlayer(String username) {

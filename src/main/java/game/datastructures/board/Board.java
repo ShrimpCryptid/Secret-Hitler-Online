@@ -80,7 +80,7 @@ public abstract class Board {
 
     /**
      * Determines whether the liberal party won by policy count.
-     * @return true if the number of Liberal Policies >= {@code LIBERAL_POLICIES_TO_WIN}
+     * @return true if the number of Liberal Policies {@literal >=} {@code LIBERAL_POLICIES_TO_WIN}
      */
     public boolean isLiberalVictory() {
         return getNumLiberalPolicies() >= LIBERAL_POLICIES_TO_WIN;
@@ -89,7 +89,7 @@ public abstract class Board {
 
     /**
      * Determines whether the fascist party won by policy count.
-     * @return true if the number of Fascist Policies >= {@code FASCIST_POLICIES_TO_WIN}
+     * @return true if the number of Fascist Policies {@literal >=} {@code FASCIST_POLICIES_TO_WIN}
      */
     public boolean isFascistVictory() {
         return getNumFascistPolicies() >= FASCIST_POLICIES_TO_WIN;

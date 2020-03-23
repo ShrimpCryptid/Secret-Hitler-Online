@@ -105,20 +105,31 @@ public class Lobby {
      *          to each connected WsContext. ({@code GameToJSONConverter.convert()})
      */
     public void updateAllUsers() {
-        JSONObject updatedGame = GameToJSONConverter.convert(game);
         for (WsContext ws : userToUsername.keySet()) {
-            ws.send(updatedGame);
+            updateUser(ws);
         }
     }
 
     /**
      * Sends a message to the specified user with the current game state.
+     * @param ctx the WsContext websocket context.
      * @effects a message containing a JSONObject representing the state of the SecretHitlerGame is sent
      *          to the specified WsContext. ({@code GameToJSONConverter.convert()})
      */
     public void updateUser(WsContext ctx) {
-        JSONObject updatedGame = GameToJSONConverter.convert(game);
-        ctx.send(updatedGame);
+        JSONObject message;
+
+        if (isInGame()) {
+            message = GameToJSONConverter.convert(game); // sends the game state
+            message.put("in-game", true);
+        } else {
+            message = new JSONObject();
+            message.put("in-game", false);
+            message.put("user-count", getUserCount());
+            message.put("usernames", usernames);
+        }
+
+        ctx.send(message);
     }
 
     //</editor-fold>

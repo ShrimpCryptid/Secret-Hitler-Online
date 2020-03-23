@@ -49,7 +49,7 @@ public class Deck {
     /**
      * Peeks at a Policy in the deck.
      * @param index the index of the Policy in the deck, where {@code index} = 0 is the top of the deck.
-     * @throws IndexOutOfBoundsException if {@code index} \< 0 or {@code index} \>= this.getSize()
+     * @throws IndexOutOfBoundsException if {@code index} {@literal <} 0 or {@code index} {@literal >=} this.getSize()
      * @return the Policy at the given index.
      */
     public Policy peek(int index) {
