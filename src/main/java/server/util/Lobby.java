@@ -100,15 +100,25 @@ public class Lobby {
 
 
     /**
-     * Sends a message to every connected user with the updated game state.
+     * Sends a message to every connected user with the current game state.
      * @effects a message containing a JSONObject representing the state of the SecretHitlerGame is sent
-     *          to each WsContext in the username map. ({@code GameToJSONConverter.convert()})
+     *          to each connected WsContext. ({@code GameToJSONConverter.convert()})
      */
     public void updateAllUsers() {
         JSONObject updatedGame = GameToJSONConverter.convert(game);
         for (WsContext ws : userToUsername.keySet()) {
             ws.send(updatedGame);
         }
+    }
+
+    /**
+     * Sends a message to the specified user with the current game state.
+     * @effects a message containing a JSONObject representing the state of the SecretHitlerGame is sent
+     *          to the specified WsContext. ({@code GameToJSONConverter.convert()})
+     */
+    public void updateUser(WsContext ctx) {
+        JSONObject updatedGame = GameToJSONConverter.convert(game);
+        ctx.send(updatedGame);
     }
 
     //</editor-fold>

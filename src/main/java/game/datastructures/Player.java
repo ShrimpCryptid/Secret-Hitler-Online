@@ -11,6 +11,7 @@ public class Player {
     private String username;
     private Identity id;
     private boolean isAlive;
+    private boolean investigated;
 
     /**
      * Constructs a new Player with the given username.
@@ -20,6 +21,7 @@ public class Player {
         this.username = username;
         id = Identity.UNASSIGNED;
         isAlive = true;
+        investigated = false;
     }
 
     public String getUsername() {
@@ -47,6 +49,12 @@ public class Player {
 
     public boolean isAlive() { return this.isAlive; }
 
+    public void investigate() {
+        investigated = true;
+    }
+
+    public boolean hasBeenInvestigated() { return this.investigated; };
+
     /**
      * @return true if the player is fascist or hitler.
      */
@@ -57,7 +65,8 @@ public class Player {
     public JSONObject toJSONObject() {
         JSONObject out = new JSONObject();
         out.put("username", this.username);
-        out.put("is_alive", isAlive());
+        out.put("is-alive", isAlive());
+        out.put("investigated", hasBeenInvestigated());
         return out;
     }
 }

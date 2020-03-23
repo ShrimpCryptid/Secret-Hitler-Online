@@ -1,5 +1,6 @@
 package server.util;
 
+import game.GameState;
 import game.SecretHitlerGame;
 import game.datastructures.Player;
 import org.json.JSONArray;
@@ -20,17 +21,22 @@ public class GameToJSONConverter {
      * @return a JSONObject with the following properties:
      *          {@code state}: the state of the game.
      *          {@code players}: an array of JSONObjects of players in the game.
-     *              Each player has {@code username} (String), {@code identity} (String), and {@code alive} (boolean).
+     *              Each player has {@code username} (String), {@code identity} (String), {@code alive} (boolean),
+     *              and {@code investigated} (boolean).
      *              The identity is either this.HITLER, this.FASCIST, or this.LIBERAL.
      *          {@code president}: the username of the current president.
      *          {@code chancellor}: the username of the current chancellor (can be null).
-     *          {@code lastPresident}: The username of the last president that presided over a legislative session.
-     *          {@code lastChancellor}: The username of the last chancellor that presided over a legislative session.
-     *          {@code drawSize}: The size of the draw deck.
-     *          {@code discardSize}: The size of the discard deck.
-     *          {@code fascistPolicies}: The number of passed fascist policies.
-     *          {@code liberalPolicies}: The number of passed liberal policies.:
-     *          {@code userToVote}: A map from each user to their vote from the last chancellor nomination.
+     *          {@code last-president}: The username of the last president that presided over a legislative session.
+     *          {@code last-chancellor}: The username of the last chancellor that presided over a legislative session.
+     *          {@code draw-size}: The size of the draw deck.
+     *          {@code discard-size}: The size of the discard deck.
+     *          {@code fascist-policies}: The number of passed fascist policies.
+     *          {@code liberal-policies}: The number of passed liberal policies.:
+     *          {@code user-votes}: A map from each user to their vote from the last chancellor nomination.
+     *          {@code president-choices}: The choices for the president during the legislative session (only if in
+     *                  game state LEGISLATIVE_PRESIDENT).
+     *          {@code chancellor-choices}: The choices for the chancellor during the legislative session (only if in
+     *                  game state LEGISLATIVE_CHANCELLOR).
      */
     public static JSONObject convert(SecretHitlerGame game) {
         if (game == null) {
@@ -52,6 +58,7 @@ public class GameToJSONConverter {
                 id = FASCIST;
             }
             playerObj.put("identity", id);
+            playerObj.put("investigated", player.hasBeenInvestigated());
         }
 
         out.put("players", playerArray);
@@ -59,15 +66,22 @@ public class GameToJSONConverter {
         out.put("president", game.getCurrentPresident());
         out.put("chancellor", game.getCurrentChancellor());
         out.put("state", game.getState().toString());
-        out.put("lastPresident", game.getLastPresident());
-        out.put("lastChancellor", game.getLastChancellor());
-        out.put("electionTracker", game.getElectionTracker());
+        out.put("last-president", game.getLastPresident());
+        out.put("last-chancellor", game.getLastChancellor());
+        out.put("election-tracker", game.getElectionTracker());
 
-        out.put("drawSize", game.getDrawSize());
-        out.put("discardSize", game.getDiscardSize());
-        out.put("fascistPolicies", game.getNumFascistPolicies());
-        out.put("liberalPolicies", game.getNumLiberalPolicies());
-        out.put("userToVote", game.getVotes());
+        out.put("draw-size", game.getDrawSize());
+        out.put("discard-size", game.getDiscardSize());
+        out.put("fascist-policies", game.getNumFascistPolicies());
+        out.put("liberal-policies", game.getNumLiberalPolicies());
+        out.put("user-votes", game.getVotes());
+
+        if (game.getState() == GameState.LEGISLATIVE_PRESIDENT) {
+            out.put("president-choices", game.getPresidentLegislativeChoices());
+        }
+        if (game.getState() == GameState.LEGISLATIVE_CHANCELLOR) {
+            out.put("chancellor-choices", game.getChancellorLegislativeChoices());
+        }
 
         return out;
     }

@@ -428,7 +428,7 @@ public class SecretHitlerGame {
 
             onEnactPolicy();
         } else {
-            concludeTerm();
+            concludePresidentialActions();
         }
     }
 
@@ -437,11 +437,11 @@ public class SecretHitlerGame {
     /////////////////// President Management
     // <editor-fold desc="President Management">
     /**
-     * Called when the president's term is over.
+     * Called when the president's actions are over.
      * @modifies this
      * @effects advances the state to {@code POST_LEGISLATIVE}.
      */
-    private void concludeTerm() {
+    private void concludePresidentialActions() {
         this.state = GameState.POST_LEGISLATIVE;
     }
 
@@ -454,7 +454,7 @@ public class SecretHitlerGame {
      *          If the election round finished, returns to the next player in the normal round ordering.
      *          Otherwise, chooses the next eligible (alive) player in the ordering to become president.
      */
-    public void endPresidentialTurn() {
+    public void endPresidentialTerm() {
         if (this.state == GameState.POST_LEGISLATIVE) {
             throw new IllegalStateException();
         }
@@ -660,7 +660,7 @@ public class SecretHitlerGame {
         } else if (draw.getSize() < 3) {
             throw new IllegalStateException("Insufficient cards in the draw deck.");
         }
-        concludeTerm();
+        concludePresidentialActions();
         return new Policy[] {draw.peek(0), draw.peek(1), draw.peek(2)};
     }
 
@@ -668,7 +668,7 @@ public class SecretHitlerGame {
      * Investigates the party identity of a given player.
      * @param username the username of the player to investigate.
      * @throws IllegalStateException if called when state is not {@code PRESIDENTIAL_POWER_INVESTIGATE}.
-     * @throws IllegalArgumentException if the player is not alive or in the game.
+     * @throws IllegalArgumentException if the player is not alive, is not in the game, or has been investigated previously.
      * @return the party membership of the player. If the player is fascist or Hitler, returns Identity.FASCIST.
      *         if the player is liberal, returns Identity.LIBERAL.
      *         Once called, advances the state of the game to POST_LEGISLATIVE.
@@ -679,10 +679,13 @@ public class SecretHitlerGame {
         } else if (!hasPlayer(username)) {
             throw new IllegalArgumentException("Player " + username + " does not exist.");
         } else if (!getPlayer(username).isAlive()) {
-            throw new IllegalArgumentException("Cannot investigate killed player " + username + "");
+            throw new IllegalArgumentException("Cannot investigate a dead player (" + username + ").");
+        } else if (getPlayer(username).hasBeenInvestigated()) {
+            throw new IllegalArgumentException("Cannot investigate a player twice (" + username + ").");
         }
 
-        concludeTerm();
+        getPlayer(username).investigate(); // sets a flag that this player has been investigated.
+        concludePresidentialActions();
 
         if (getPlayer(username).isFascist()) {
             return Identity.FASCIST;
@@ -717,7 +720,7 @@ public class SecretHitlerGame {
         if(playerToKill.isHitler()) { // game ends and liberals win.
             state = GameState.LIBERAL_VICTORY_EXECUTION;
         } else {
-            concludeTerm();
+            concludePresidentialActions();
         }
     }
 
@@ -743,7 +746,7 @@ public class SecretHitlerGame {
 
         nextPresident = getNextActivePlayer(currentPresident);
         electedPresident = username;
-        concludeTerm();
+        concludePresidentialActions();
     }
 
     //</editor-fold>
