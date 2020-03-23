@@ -1,6 +1,5 @@
 package server.util;
 
-import game.GameState;
 import game.SecretHitlerGame;
 import io.javalin.websocket.WsContext;
 import org.json.JSONObject;
@@ -94,10 +93,9 @@ public class Lobby {
      * Returns the number of active users connected to the Lobby.
      * @return the number of active websocket connections currently in the lobby.
      */
-    public int getUserCount() {
+    public int getActiveUserCount() {
         return userToUsername.size();
     }
-
 
     /**
      * Sends a message to every connected user with the current game state.
@@ -125,7 +123,7 @@ public class Lobby {
         } else {
             message = new JSONObject();
             message.put("in-game", false);
-            message.put("user-count", getUserCount());
+            message.put("user-count", getActiveUserCount());
             message.put("usernames", usernames);
         }
 

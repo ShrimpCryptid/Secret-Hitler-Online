@@ -2,12 +2,16 @@ package server;
 
 import game.GameState;
 import game.SecretHitlerGame;
+import game.datastructures.Identity;
+import game.datastructures.Policy;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
+import io.javalin.websocket.WsCloseContext;
 import io.javalin.websocket.WsConnectContext;
 import io.javalin.websocket.WsContext;
 import io.javalin.websocket.WsMessageContext;
 import org.eclipse.jetty.websocket.api.CloseStatus;
+import org.json.JSONObject;
 import server.util.Lobby;
 
 import java.util.Map;
@@ -22,14 +26,25 @@ public class SecretHitlerServer {
 
     public static final int PORT_NUMBER = 4000;
 
-
+    // Passed to server
     public static final String PARAM_LOBBY = "lobby";
     public static final String PARAM_NAME = "name";
     public static final String PARAM_COMMAND = "command";
     public static final String PARAM_TARGET = "target-user";
     public static final String PARAM_VOTE = "vote";
+    public static final String PARAM_VETO = "veto";
     public static final String PARAM_CHOICE = "choice"; // the index of the chosen policy.
 
+    // Passed to client
+    public static final String PARAM_IDENTITY = "identity";
+    public static final String PARAM_PEEK = "peek";
+    public static final String PARAM_TYPE = "type";
+
+    // These specify the kind of JSON Object being sent to the client.
+    public static final String TYPE_INVESTIGATION = "investigation";
+    public static final String TYPE_PEEK = "peek";
+    public static final String FASCIST = "fascist";
+    public static final String LIBERAL = "liberal";
 
     // These are the commands that can be passed via a websocket connection.
     public static final String COMMAND_START_GAME = "start-game";
@@ -60,6 +75,7 @@ public class SecretHitlerServer {
 
     private static Map<WsContext, Lobby> userToLobby = new ConcurrentHashMap<>();
     private static Map<String, Lobby> codeToLobby = new ConcurrentHashMap<>();
+    private static Map<Lobby, String> lobbyToCode = new ConcurrentHashMap<>();
 
     // </editor-fold>
 
@@ -93,10 +109,10 @@ public class SecretHitlerServer {
      *          {@code name}: the username of the user.
      *          {@code command}: the command
      * @effects Result status is one of the following:
-     *          400 if the {@code lobby} or {@code name} parameters are missing.
-     *          404 if there is no lobby with the given code
-     *          403 the username is invalid (there is already another user with that name in the lobby.)
-     *          200 success. There is a lobby with the given name and the user can open a websocket connection with
+     *          <p>- 400: if the {@code lobby} or {@code name} parameters are missing.
+     *          <p>- 404: if there is no lobby with the given code
+     *          <p>- 403: the username is invalid (there is already another user with that name in the lobby.)
+     *          <p>- 200: Success. There is a lobby with the given name and the user can open a websocket connection with
      *              these login credentials.
      */
     public static void checkLogin(Context ctx) {
@@ -133,7 +149,9 @@ public class SecretHitlerServer {
             newCode = generateCode();
         }
 
-        codeToLobby.put(newCode, new Lobby()); // add a new lobby with the given code.
+        Lobby lobby = new Lobby();
+        codeToLobby.put(newCode, lobby); // add a new lobby with the given code.
+        lobbyToCode.put(lobby, newCode);
 
         ctx.status(200);
         ctx.result(newCode);
@@ -205,10 +223,11 @@ public class SecretHitlerServer {
      *          {@code lobby}: a String representing the lobby code.
      *          {@code name}: a String username. Cannot already exist in the given lobby.
      *          {@code command}: a String command.
-     * @effects Ends the websocket command if:
-     *              - 404: the specified lobby does not exist.
-     *              - 403: the user is not allowed to make this action. (Usually because they are not a president/chancellor).
-     *              - 400: a required parameter is missing, or the command cannot be executed in this state.
+     * @modifies this
+     * @effects Ends the websocket command with code 400 if the specified lobby does not exist, the user is not allowed
+     *          to make this action (usually because they are not a president/chancellor), if a required parameter is
+     *          missing, or the command cannot be executed in this state.
+     *          <p>
      *          Updates the game state according to the specified command and updates every other connected user
      *          with the new state.
      */
@@ -244,36 +263,86 @@ public class SecretHitlerServer {
                     break;
 
                 case COMMAND_NOMINATE_CHANCELLOR: // params: PARAM_TARGET (String)
-                    if (!onCommandNominateChancellor(ctx)) {
-                        return; // the command failed.
-                    }
+                    verifyIsPresident(name, lobby);
+                    lobby.game().nominateChancellor(ctx.queryParam(PARAM_TARGET));
                     break;
 
                 case COMMAND_REGISTER_VOTE: // params: PARAM_VOTE (boolean)
-                    if (!onRegisterVote(ctx)) {
-                        return;
-                    }
+                    boolean vote = Boolean.parseBoolean(ctx.queryParam(PARAM_VOTE));
+                    lobby.game().registerVote(name, vote);
                     break;
 
-                case COMMAND_REGISTER_PRESIDENT_CHOICE: // params: PARAM_CHOICE
+                case COMMAND_REGISTER_PRESIDENT_CHOICE: // params: PARAM_CHOICE (int)
+                    verifyIsPresident(name, lobby);
+                    int discard = Integer.parseInt(ctx.queryParam(PARAM_CHOICE));
+                    lobby.game().presidentDiscardPolicy(discard);
+                    break;
 
-                case COMMAND_REGISTER_CHANCELLOR_CHOICE: // params: PARAM_CHOICE
+                case COMMAND_REGISTER_CHANCELLOR_CHOICE: // params: PARAM_CHOICE (int)
+                    verifyIsChancellor(name, lobby);
+                    int enact = Integer.parseInt(ctx.queryParam(PARAM_CHOICE));
+                    lobby.game().chancellorEnactPolicy(enact);
+                    break;
 
                 case COMMAND_REGISTER_CHANCELLOR_VETO:
+                    verifyIsChancellor(name, lobby);
+                    lobby.game().chancellorVeto();
 
-                case COMMAND_REGISTER_PRESIDENT_VETO:
+                case COMMAND_REGISTER_PRESIDENT_VETO: // params: PARAM_VETO (boolean)
+                    verifyIsPresident(name, lobby);
+                    boolean veto = Boolean.parseBoolean(ctx.queryParam(PARAM_VETO));
+                    lobby.game().presidentialVeto(veto);
+                    break;
 
-                case COMMAND_REGISTER_EXECUTION: // params: PARAM_TARGET
+                case COMMAND_REGISTER_EXECUTION: // params: PARAM_TARGET (String)
+                    verifyIsPresident(name, lobby);
+                    lobby.game().executePlayer(ctx.queryParam(PARAM_TARGET));
+                    break;
 
-                case COMMAND_REGISTER_SPECIAL_ELECTION: // params: PARAM_TARGET
+                case COMMAND_REGISTER_SPECIAL_ELECTION: // params: PARAM_TARGET (String)
+                    verifyIsPresident(name, lobby);
+                    lobby.game().electNextPresident(ctx.queryParam(PARAM_TARGET));
+                    break;
 
-                case COMMAND_GET_INVESTIGATION: // params: PARAM_TARGET
+                case COMMAND_GET_INVESTIGATION: // params: PARAM_TARGET (String)
+                    verifyIsPresident(name, lobby);
+                    Identity id = lobby.game().investigatePlayer(ctx.queryParam(PARAM_TARGET));
+                    // Construct and send a JSONObject.
+                    JSONObject obj = new JSONObject();
+                    obj.put(PARAM_TYPE, TYPE_INVESTIGATION);
+                    if (id == Identity.FASCIST) {
+                        obj.put(PARAM_IDENTITY, FASCIST);
+                    } else {
+                        obj.put(PARAM_IDENTITY, LIBERAL);
+                    }
+                    ctx.send(obj);
+                    break;
 
                 case COMMAND_GET_PEEK:
+                    verifyIsPresident(name, lobby);
+                    Policy[] policies = lobby.game().getPeek();
+                    // Turn Policy array into a String array
+                    String[] stringPolicies = new String[policies.length];
+                    for (int i = 0; i < policies.length; i++) {
+                        if (policies[i].getType() == Policy.Type.FASCIST) {
+                            stringPolicies[i] = FASCIST;
+                        } else {
+                            stringPolicies[i] = LIBERAL;
+                        }
+                    }
+                    // Construct and send JSONObject
+                    JSONObject msg = new JSONObject();
+                    msg.put(PARAM_TYPE, TYPE_PEEK);
+                    msg.put(PARAM_PEEK, stringPolicies);
+                    ctx.send(msg);
+                    break;
 
                 case COMMAND_END_TERM:
+                    verifyIsPresident(name, lobby);
+                    lobby.game().endPresidentialTerm();
 
                 default: //This is an invalid command.
+                    throw new RuntimeException("Unrecognized command " + ctx.queryParam(PARAM_COMMAND) + ".");
 
             }
         } catch (NullPointerException e) {
@@ -281,13 +350,55 @@ public class SecretHitlerServer {
         } catch (RuntimeException e) {
             ctx.session.close(400, "RuntimeException:" + e.toString());
         }
+
         lobby.updateAllUsers();
     }
 
-    // </editor-fold>
+    /**
+     * Verifies that the user is the president.
+     * @param name String name of the user.
+     * @param lobby the Lobby that the game is in.
+     * @throws RuntimeException if the user is not the president.
+     */
+    private static void verifyIsPresident(String name, Lobby lobby) {
+        if (!lobby.game().getCurrentPresident().equals(name)) {
+            throw new RuntimeException("The player '" + name + "' is not currently president.");
+        }
+    }
 
-    private static void onWebSocketClose(WsContext ctx) {
-        // if this is the last connection in a server, delete the server.
+    /**
+     * Verifies that the user is the chancellor.
+     * @param name String name of the user.
+     * @param lobby the Lobby that the game is in.
+     * @throws RuntimeException if the user is not the chancellor.
+     */
+    private static void verifyIsChancellor(String name, Lobby lobby) {
+        if (!lobby.game().getCurrentChancellor().equals(name)) {
+            throw new RuntimeException("The player '" + name + "' is not currently chancellor.");
+        }
+    }
+
+    /**
+     * Called when a websocket is closed.
+     * @param ctx the WsContext of the websocket.
+     * @modifies this
+     * @effects Removes the user from any connected lobbies. If the user was the last active user in the lobby,
+     *          shuts down the lobby.
+     */
+    private static void onWebSocketClose(WsCloseContext ctx) {
+        // if this is the last connection in a lobby, delete the lobby.
+        if (userToLobby.containsKey(ctx)) {
+            Lobby lobby = userToLobby.get(ctx);
+            if (lobby.hasUser(ctx)) {
+                lobby.removeUser(ctx);
+                if (lobby.getActiveUserCount() == 0) { // Lobby is now empty; remove references for Java GC.
+                    String code = lobbyToCode.get(lobby);
+                    lobbyToCode.remove(lobby);
+                    codeToLobby.remove(code);
+                }
+            }
+            userToLobby.remove(ctx);
+        }
     }
 
     //</editor-fold>
