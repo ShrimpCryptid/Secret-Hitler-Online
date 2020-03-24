@@ -129,6 +129,7 @@ public class SecretHitlerGame {
         state = GameState.SETUP;
         random = new Random();
         electionTracker = 0;
+        voteMap = new HashMap<>();
         start();
     }
 
@@ -392,8 +393,7 @@ public class SecretHitlerGame {
 
         if (allPlayersHaveVoted) {
             if (((float) totalYesVotes / (float) totalVotes) > VOTING_CUTOFF) { // vote passed successfully
-                currentChancellor = username;
-                if (getPlayer(username).isHitler() && board.fascistsCanWinByElection()) {
+                if (getPlayer(currentChancellor).isHitler() && board.fascistsCanWinByElection()) {
                     state = GameState.FASCIST_VICTORY_ELECTION; // Fascists won by electing Hitler: game ends.
                 } else {
                     startLegislativeSession();

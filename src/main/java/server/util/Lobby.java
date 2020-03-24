@@ -126,8 +126,8 @@ public class Lobby {
             message.put("user-count", getActiveUserCount());
             message.put("usernames", usernames);
         }
-
-        ctx.send(message);
+        System.out.println("Updating user with message: " + message.toString());
+        ctx.send(message.toString());
     }
 
     //</editor-fold>

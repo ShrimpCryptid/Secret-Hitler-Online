@@ -90,7 +90,7 @@ public class SecretHitlerServer {
         serverApp.get("/check-login", SecretHitlerServer::checkLogin); // Checks if a login is valid.
         serverApp.get("/new-lobby", SecretHitlerServer::createNewLobby); // Creates and returns the code for a new lobby
 
-        serverApp.ws("/game/", wsHandler -> {
+        serverApp.ws("/game", wsHandler -> {
             wsHandler.onConnect(SecretHitlerServer::onWebsocketConnect);
             wsHandler.onMessage(SecretHitlerServer::onWebSocketMessage);
             wsHandler.onClose(SecretHitlerServer::onWebSocketClose);
@@ -155,6 +155,8 @@ public class SecretHitlerServer {
 
         ctx.status(200);
         ctx.result(newCode);
+        System.out.println("New lobby: " + newCode);
+        System.out.println("Available lobbies: " + codeToLobby.keySet());
     }
 
     /**
@@ -189,6 +191,7 @@ public class SecretHitlerServer {
      *          Otherwise, connects the user to the lobby.
      */
     private static void onWebsocketConnect(WsConnectContext ctx) {
+        System.out.println("New connection " + ctx.toString());
         if (ctx.queryParam(PARAM_LOBBY) == null || ctx.queryParam(PARAM_NAME) == null) {
             ctx.session.close(400, "Must have the '" + PARAM_LOBBY + "' and '" + PARAM_NAME + "' parameters.");
             return;
@@ -209,6 +212,7 @@ public class SecretHitlerServer {
 
         lobby.addUser(ctx, name);
         userToLobby.put(ctx, lobby); // keep track of which lobby this connection is in.
+        System.out.println("Successfully connected with user " + name);
 
         if (lobby.isInGame()) { // updates the user (in case they are a spectator)
             lobby.updateUser(ctx);
@@ -232,19 +236,27 @@ public class SecretHitlerServer {
      *          with the new state.
      */
     private static void onWebSocketMessage(WsMessageContext ctx) {
-        if (ctx.queryParam(PARAM_LOBBY) == null || ctx.queryParam(PARAM_NAME) == null || ctx.queryParam(PARAM_COMMAND) == null) {
+        // Parse message to JSON object.
+        JSONObject message = new JSONObject(ctx.message());
+
+        if (message.getString(PARAM_LOBBY) == null
+                || message.getString(PARAM_NAME) == null
+                || message.getString(PARAM_COMMAND) == null) {
+            System.out.println("Missing a parameter.");
             ctx.session.close(400, "A required parameter is missing.");
             return;
-        } else if (!codeToLobby.containsKey(ctx.queryParam(PARAM_LOBBY))) {
+        } else if (!codeToLobby.containsKey(message.get(PARAM_LOBBY))) {
+            System.out.println("Lobby requested does not exist.");
             ctx.session.close(404, "The lobby does not exist.");
             return;
         }
 
-        String lobbyCode = ctx.queryParam(PARAM_LOBBY);
+        String lobbyCode = message.getString(PARAM_LOBBY);
         Lobby lobby = codeToLobby.get(lobbyCode);
-        String name = ctx.queryParam(PARAM_NAME);
+        String name = message.getString(PARAM_NAME);
 
         if (!lobby.hasUser(ctx)) {
+            System.out.println("Lobby does not have user.");
             ctx.session.close(403, "The user is not connected to the lobby " + lobbyCode + ".");
             return;
         } else if (!lobby.hasUsername(name)) {
@@ -253,7 +265,7 @@ public class SecretHitlerServer {
         }
 
         try {
-            switch (Objects.requireNonNull(ctx.queryParam(PARAM_COMMAND))) {
+            switch (message.getString(PARAM_COMMAND)) {
                 case COMMAND_START_GAME: // Starts the game.
                     lobby.startNewGame();
                     break;
@@ -264,23 +276,23 @@ public class SecretHitlerServer {
 
                 case COMMAND_NOMINATE_CHANCELLOR: // params: PARAM_TARGET (String)
                     verifyIsPresident(name, lobby);
-                    lobby.game().nominateChancellor(ctx.queryParam(PARAM_TARGET));
+                    lobby.game().nominateChancellor(message.getString(PARAM_TARGET));
                     break;
 
                 case COMMAND_REGISTER_VOTE: // params: PARAM_VOTE (boolean)
-                    boolean vote = Boolean.parseBoolean(ctx.queryParam(PARAM_VOTE));
+                    boolean vote = message.getBoolean(PARAM_VOTE);
                     lobby.game().registerVote(name, vote);
                     break;
 
                 case COMMAND_REGISTER_PRESIDENT_CHOICE: // params: PARAM_CHOICE (int)
                     verifyIsPresident(name, lobby);
-                    int discard = Integer.parseInt(ctx.queryParam(PARAM_CHOICE));
+                    int discard = message.getInt(PARAM_CHOICE);
                     lobby.game().presidentDiscardPolicy(discard);
                     break;
 
                 case COMMAND_REGISTER_CHANCELLOR_CHOICE: // params: PARAM_CHOICE (int)
                     verifyIsChancellor(name, lobby);
-                    int enact = Integer.parseInt(ctx.queryParam(PARAM_CHOICE));
+                    int enact = message.getInt(PARAM_CHOICE);
                     lobby.game().chancellorEnactPolicy(enact);
                     break;
 
@@ -290,23 +302,23 @@ public class SecretHitlerServer {
 
                 case COMMAND_REGISTER_PRESIDENT_VETO: // params: PARAM_VETO (boolean)
                     verifyIsPresident(name, lobby);
-                    boolean veto = Boolean.parseBoolean(ctx.queryParam(PARAM_VETO));
+                    boolean veto = message.getBoolean(PARAM_VETO);
                     lobby.game().presidentialVeto(veto);
                     break;
 
                 case COMMAND_REGISTER_EXECUTION: // params: PARAM_TARGET (String)
                     verifyIsPresident(name, lobby);
-                    lobby.game().executePlayer(ctx.queryParam(PARAM_TARGET));
+                    lobby.game().executePlayer(message.getString(PARAM_TARGET));
                     break;
 
                 case COMMAND_REGISTER_SPECIAL_ELECTION: // params: PARAM_TARGET (String)
                     verifyIsPresident(name, lobby);
-                    lobby.game().electNextPresident(ctx.queryParam(PARAM_TARGET));
+                    lobby.game().electNextPresident(message.getString(PARAM_TARGET));
                     break;
 
                 case COMMAND_GET_INVESTIGATION: // params: PARAM_TARGET (String)
                     verifyIsPresident(name, lobby);
-                    Identity id = lobby.game().investigatePlayer(ctx.queryParam(PARAM_TARGET));
+                    Identity id = lobby.game().investigatePlayer(message.getString(PARAM_TARGET));
                     // Construct and send a JSONObject.
                     JSONObject obj = new JSONObject();
                     obj.put(PARAM_TYPE, TYPE_INVESTIGATION);
@@ -342,15 +354,17 @@ public class SecretHitlerServer {
                     lobby.game().endPresidentialTerm();
 
                 default: //This is an invalid command.
-                    throw new RuntimeException("Unrecognized command " + ctx.queryParam(PARAM_COMMAND) + ".");
+                    throw new RuntimeException("Unrecognized command " + message.get(PARAM_COMMAND) + ".");
 
             }
         } catch (NullPointerException e) {
+            System.out.println(e.toString());
             ctx.session.close(400, "NullPointerException:" + e.toString());
         } catch (RuntimeException e) {
+            System.out.println(e.toString());
             ctx.session.close(400, "RuntimeException:" + e.toString());
         }
-
+        System.out.println("Active users in lobby " + lobbyToCode.get(lobby) + ": " + lobby.getActiveUserCount());
         lobby.updateAllUsers();
     }
 
