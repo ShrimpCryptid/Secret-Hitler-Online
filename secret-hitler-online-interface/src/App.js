@@ -78,12 +78,12 @@ class App extends Component {
                 <p>Lobby field here</p>
                 <p>Name field here</p>
                 <h6>Error messages can go here.</h6>
-                <p style={{color:this.colorFontHighlight}}>Button labeled 'JOIN' goes here.</p>
+                <button>JOIN GAME</button>
                 <br/>
                 <h2>CREATE A LOBBY</h2>
                 <p>Name field here</p>
                 <h6>Error messages can go here.</h6>
-                <p style={{color:this.colorFontHighlight}}>Button labeled 'CREATE LOBBY' goes here.</p>
+                <button>CREATE LOBBY</button>
         </div>
         );
     }

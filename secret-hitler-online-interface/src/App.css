@@ -16,6 +16,7 @@ h1 { /*Big sweeping labels/headers*/
     font-family: var(--headerFont);
     color: var(--headerTextColor);
     font-weight: normal;
+    font-style: italic;
 }
 
 h2 { /*Large labels.*/
@@ -40,3 +41,42 @@ p {
     color: var(--textColorOnDark);
 }
 
+/* Credit to https://designtheway.com/css-buttons/ for the CSS source code.*/
+button {
+    background:transparent;
+    border: 2px solid transparent;
+    box-sizing: border-box;
+    cursor: pointer;
+    font-size: calc(6px + 4vmin);
+    font-family: var(--headerFont);
+    color: var(--headerTextColor);
+    background: var(--buttonFill);
+    line-height: 1;
+    margin: 18px;
+    padding: 10px 25px;
+    text-align: center;
+    text-decoration: none;
+    display:inline-block;
+    outline:none;
+    position:relative;
+    border-radius: 10px;
+    top:0;
+    -webkit-transition: all 0.2s ease-in-out 0s;
+    -moz-transition: all 0.2s ease-in-out 0s;
+    -ms-transition: all 0.2s ease-in-out 0s;
+    transition: all 0.2s ease-in-out 0s;
+    box-shadow: 0 5px 0 var(--buttonShadowFill);
+}
+
+button:hover{
+    background: var(--buttonHoverFill);
+}
+
+button:focus{
+    top:5px;
+    box-shadow: 0 0px 0 var(--buttonShadowFill);
+}
+
+button:disabled{
+
+}

@@ -8,4 +8,7 @@
     --textColorOnWhite: #69645e;
     --textColorOnDark: #bbbbbb;
     --textColorHighlight: var(--headerFill);
+    --buttonFill: var(--headerFill);
+    --buttonShadowFill: #b4431a;
+    --buttonHoverFill: #e67a53;
 }
