@@ -6,6 +6,8 @@
       <module name="junit.test" target="11" />
       <module name="secret-hitler-server.main" target="1.8" />
       <module name="secret-hitler-server.test" target="1.8" />
+      <module name="server.main" target="1.8" />
+      <module name="server.test" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

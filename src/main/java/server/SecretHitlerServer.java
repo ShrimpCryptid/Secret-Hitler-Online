@@ -1,7 +1,5 @@
 package server;
 
-import game.GameState;
-import game.SecretHitlerGame;
 import game.datastructures.Identity;
 import game.datastructures.Policy;
 import io.javalin.Javalin;
@@ -10,12 +8,10 @@ import io.javalin.websocket.WsCloseContext;
 import io.javalin.websocket.WsConnectContext;
 import io.javalin.websocket.WsContext;
 import io.javalin.websocket.WsMessageContext;
-import org.eclipse.jetty.websocket.api.CloseStatus;
 import org.json.JSONObject;
 import server.util.Lobby;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SecretHitlerServer {
@@ -245,7 +241,7 @@ public class SecretHitlerServer {
             System.out.println("Missing a parameter.");
             ctx.session.close(400, "A required parameter is missing.");
             return;
-        } else if (!codeToLobby.containsKey(message.get(PARAM_LOBBY))) {
+        } else if (!codeToLobby.containsKey(message.getString(PARAM_LOBBY))) {
             System.out.println("Lobby requested does not exist.");
             ctx.session.close(404, "The lobby does not exist.");
             return;
