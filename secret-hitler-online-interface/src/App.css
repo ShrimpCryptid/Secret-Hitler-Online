@@ -1,38 +1,42 @@
-.App {
-  text-align: center;
+@import './variables.css';
+
+header { /*This is the bar that appears at the top of the game.*/
+    background-color: #E05B2B; /*var(--headerFill);*/
+    min-height: 6vh; /*This means 8% of the viewport height.*/
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: calc(6px + 4vmin); /*This means 10px plus 2% of the window's smallest dimension.*/
+    font-family: var(--headerFont);
+    color: var(--headerTextColor);
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+h1 { /*Big sweeping labels/headers*/
+    font-size: calc(6px + 10vmin); /*This means 10px plus 2% of the window's smallest dimension.*/
+    font-family: var(--headerFont);
+    color: var(--headerTextColor);
+    font-weight: normal;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+h2 { /*Large labels.*/
+    font-size: calc(6px + 4vmin); /*This means 10px plus 2% of the window's smallest dimension.*/
+    font-family: var(--headerFont);
+    color: var(--headerTextColor);
+    font-weight: normal;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+h6 { /*Notification and/or error text.*/
+    font-family: var(--textFont);
+    font-weight: normal;
+    font-size: calc(3px + 1.5vmin);
+    color: var(--textColorHighlight);
+    margin: 3px;
 }
 
-.App-link {
-  color: #61dafb;
+p {
+    font-family: var(--textFont);
+    font-weight: normal;
+    font-size: calc(4px + 2vmin);
+    color: var(--textColorOnDark);
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
