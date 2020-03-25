@@ -11,4 +11,6 @@
     --buttonFill: var(--headerFill);
     --buttonShadowFill: #b4431a;
     --buttonHoverFill: #e67a53;
+    --buttonDisabledFill: #928079;
+    --buttonDisabledShadowFill: #766058;
 }

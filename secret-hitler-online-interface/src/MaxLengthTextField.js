@@ -1,37 +1,58 @@
-import {Component} from "react";
+import React, {Component} from "react";
 
+/**
+ * A MaxLengthTextField is a text field that has a constrained
+ * String length, and includes labels and remaining character counters.
+ */
 class MaxLengthTextField extends Component {
     constructor(props) {
         super(props);
-        this.state = {
-            text:"",
-            maxLength:6,
+    }
+
+    charactersLeft() {
+        if (this.props.showCharCount) {
+            return this.props.maxLength - this.props.value.length;
+        } else {
+            return "";
         }
     }
 
-    defaultStyle() {
-        return {
-            fontSize: "calc(4px + 2vmin)", /*This means 10px plus 2% of the window's smallest dimension.*/
-            fontFamily: this.bodyFont,
-            color: "#69645e"
-        };
-    }
-
-    getLabelStyle() {
-        if (this.props.labelStyle === undefined) {
-            return this.defaultStyle();
+    handleChange = (event) => {
+        let text = event.target.value;
+        if (text.length > this.props.maxLength) {
+            text = text.substr(0, this.props.maxLength); // cut down the value.
+        }
+        if(this.props.forceUpperCase) {
+            this.props.onChange(text.toUpperCase());
         } else {
-            return this.props.labelStyle;
+            this.props.onChange(text);
         }
     }
 
     render() {
         return (
-            <p style = {this.props.labelStyle}>{this.props.label}</p>
+            <div style={{flexDirection:"column", margin:"10px"}}>
+                <div style={{display:"flex", width:"calc(10px + 40vmin)", flexDirection:"row", marginLeft:"auto", marginRight:"auto"}}>
+                    <p style={{margin:"2px"}}>{this.props.label}</p>
+                    <p style={{margin:"2px", marginLeft:"auto"}}>{this.charactersLeft()}</p>
+                </div>
+                <input  id="MaxLengthTextField"
+                        value={this.props.value}
+                        onChange={this.handleChange}
+                        placeholder={this.props.placeholder}
+                />
+            </div>
         );
     }
 }
 
 MaxLengthTextField.defaultProps = {
+    maxLength: 12,
+    label: "Label",
+    placeholder: "",
+    textAreaLabel: "Prompt Here",
+    showCharCount: true, /*Shows the remaining characters left (before hitting the maxLength).*/
+    forceUpperCase: false /*Set to true to make all character input uppercase.*/
+};
 
-}
+export default MaxLengthTextField;

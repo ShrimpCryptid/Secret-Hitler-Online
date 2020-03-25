@@ -1,11 +1,20 @@
 @import './variables.css';
 
+body {
+    background-color: var(--backgroundLight);
+}
+
+div {
+    text-align:center;
+}
+
 header { /*This is the bar that appears at the top of the game.*/
     background-color: #E05B2B; /*var(--headerFill);*/
     min-height: 6vh; /*This means 8% of the viewport height.*/
     display: flex;
     flex-direction: column;
     align-items: center;
+    padding-top: calc(1vh);
     font-size: calc(6px + 4vmin); /*This means 10px plus 2% of the window's smallest dimension.*/
     font-family: var(--headerFont);
     color: var(--headerTextColor);
@@ -24,12 +33,14 @@ h2 { /*Large labels.*/
     font-family: var(--headerFont);
     color: var(--headerTextColor);
     font-weight: normal;
+    margin-block-start: 0.5em;
+    margin-block-end: 0.5em;
 }
 
 h6 { /*Notification and/or error text.*/
     font-family: var(--textFont);
     font-weight: normal;
-    font-size: calc(3px + 1.5vmin);
+    font-size: calc(3px + 1.8vmin);
     color: var(--textColorHighlight);
     margin: 3px;
 }
@@ -78,5 +89,22 @@ button:focus{
 }
 
 button:disabled{
+    box-shadow: 0 5px 0 var(--buttonDisabledShadowFill);
+    background: var(--buttonDisabledFill);
+    cursor: not-allowed;
+}
 
+input {
+    font-family: var(--textFont);
+    width: 40vmin;
+    min-width: 20px;
+    font-size: calc(4px + 3vmin);
+    color: var(--textColorOnWhite);
+    border-radius: 5px;
+    padding: 5px;
+    border: 2px solid transparent;
+    outline:none;
+}
+input::placeholder {
+    color: var(--textColorOnDark);
 }
