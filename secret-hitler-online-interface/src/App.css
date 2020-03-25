@@ -72,10 +72,10 @@ button {
     position:relative;
     border-radius: 10px;
     top:0;
-    -webkit-transition: all 0.2s ease-in-out 0s;
-    -moz-transition: all 0.2s ease-in-out 0s;
-    -ms-transition: all 0.2s ease-in-out 0s;
-    transition: all 0.2s ease-in-out 0s;
+    -webkit-transition: all 0.15s ease-in-out 0s;
+    -moz-transition: all 0.15s ease-in-out 0s;
+    -ms-transition: all 0.15s ease-in-out 0s;
+    transition: all 0.15s ease-in-out 0s;
     box-shadow: 0 5px 0 var(--buttonShadowFill);
 }
 
@@ -83,8 +83,9 @@ button:hover{
     background: var(--buttonHoverFill);
 }
 
-button:focus{
+button:active{
     top:5px;
+    background: var(--buttonFill);
     box-shadow: 0 0px 0 var(--buttonShadowFill);
 }
 

@@ -43,6 +43,7 @@ public class SecretHitlerServer {
     public static final String LIBERAL = "liberal";
 
     // These are the commands that can be passed via a websocket connection.
+    public static final String COMMAND_PING = "ping";
     public static final String COMMAND_START_GAME = "start-game";
     public static final String COMMAND_GET_STATE = "get-state";
 
@@ -81,7 +82,10 @@ public class SecretHitlerServer {
 
     public static void main(String[] args) {
 
-        Javalin serverApp = Javalin.create().start(PORT_NUMBER);
+        Javalin serverApp = Javalin.create(config -> {
+            config.enableCorsForOrigin("http://localhost:3000/");
+
+        }).start(PORT_NUMBER);
 
         serverApp.get("/check-login", SecretHitlerServer::checkLogin); // Checks if a login is valid.
         serverApp.get("/new-lobby", SecretHitlerServer::createNewLobby); // Creates and returns the code for a new lobby
@@ -116,7 +120,7 @@ public class SecretHitlerServer {
         String name = ctx.queryParam(PARAM_NAME);
         if (lobbyCode == null || name == null) {
             ctx.status(400);
-            ctx.result("Requires lobby and name parameters");
+            ctx.result("Lobby and name must be specified.");
         }
 
         if (!codeToLobby.containsKey(lobbyCode)) { // lobby does not exist
@@ -140,6 +144,7 @@ public class SecretHitlerServer {
      * @param ctx the HTTP get request context.
      */
     public static void createNewLobby(Context ctx) {
+
         String newCode = generateCode();
         while(codeToLobby.containsKey(newCode)) {
             newCode = generateCode();
@@ -189,6 +194,7 @@ public class SecretHitlerServer {
     private static void onWebsocketConnect(WsConnectContext ctx) {
         System.out.println("New connection " + ctx.toString());
         if (ctx.queryParam(PARAM_LOBBY) == null || ctx.queryParam(PARAM_NAME) == null) {
+            System.out.println("Missing parameter.");
             ctx.session.close(400, "Must have the '" + PARAM_LOBBY + "' and '" + PARAM_NAME + "' parameters.");
             return;
         }
@@ -196,18 +202,21 @@ public class SecretHitlerServer {
         String code = ctx.queryParam(PARAM_LOBBY);
         String name = ctx.queryParam(PARAM_NAME);
         if (!codeToLobby.containsKey(ctx.queryParam(PARAM_LOBBY))) { // the lobby does not exist.
+            System.out.println("The lobby " + PARAM_LOBBY + " does not exist.");
             ctx.session.close(404, "The lobby '" + ctx.queryParam(PARAM_LOBBY) + "' does not exist.");
             return;
         }
 
         Lobby lobby = codeToLobby.get(code);
         if (lobby.hasUsername(name)) { // duplicate names not allowed
+            System.out.println("Repeat username");
             ctx.session.close(403, "A user with the name " + name + " is already in the lobby.");
             return;
         }
 
         lobby.addUser(ctx, name);
         userToLobby.put(ctx, lobby); // keep track of which lobby this connection is in.
+        lobby.updateUser(ctx);
         System.out.println("Successfully connected with user " + name);
 
         if (lobby.isInGame()) { // updates the user (in case they are a spectator)
@@ -260,8 +269,13 @@ public class SecretHitlerServer {
             return;
         }
 
+        boolean updateUsers = true; // this flag can be disabled by certain commands.
         try {
             switch (message.getString(PARAM_COMMAND)) {
+                case COMMAND_PING:
+                    updateUsers = false;
+                    break;
+
                 case COMMAND_START_GAME: // Starts the game.
                     lobby.startNewGame();
                     break;
@@ -361,7 +375,9 @@ public class SecretHitlerServer {
             ctx.session.close(400, "RuntimeException:" + e.toString());
         }
         System.out.println("Active users in lobby " + lobbyToCode.get(lobby) + ": " + lobby.getActiveUserCount());
-        lobby.updateAllUsers();
+        if (updateUsers) {
+            lobby.updateAllUsers();
+        }
     }
 
     /**
@@ -405,6 +421,8 @@ public class SecretHitlerServer {
                     String code = lobbyToCode.get(lobby);
                     lobbyToCode.remove(lobby);
                     codeToLobby.remove(code);
+                } else {
+                    lobby.updateAllUsers();
                 }
             }
             userToLobby.remove(ctx);

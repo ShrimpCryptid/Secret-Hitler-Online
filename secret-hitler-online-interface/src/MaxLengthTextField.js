@@ -19,7 +19,7 @@ class MaxLengthTextField extends Component {
 
     handleChange = (event) => {
         let text = event.target.value;
-        if (text.length > this.props.maxLength) {
+        if (text.length > this.props.maxLength && this.props.maxLength !== -1) {
             text = text.substr(0, this.props.maxLength); // cut down the value.
         }
         if(this.props.forceUpperCase) {
@@ -47,7 +47,7 @@ class MaxLengthTextField extends Component {
 }
 
 MaxLengthTextField.defaultProps = {
-    maxLength: 12,
+    maxLength: 12, /*Set to -1 to disable.*/
     label: "Label",
     placeholder: "",
     textAreaLabel: "Prompt Here",
