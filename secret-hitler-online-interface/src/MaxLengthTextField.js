@@ -17,8 +17,17 @@ class MaxLengthTextField extends Component {
         }
     }
 
+    /**
+     * Called when the text field changes.
+     * @param event the change event.
+     * @effects Calls {@code this.props.onChange} with the modified text of the event, where any whitespace (' ' or '\t') from
+     *          the front of the text is removed and the text length is trimmed to be {@literal <=} {@code this.props.maxLength}
+     */
     handleChange = (event) => {
         let text = event.target.value;
+        while(text.charAt(0) === ' ' || text.charAt(0) === '\t') {
+            text = text.substr(1);
+        }
         if (text.length > this.props.maxLength && this.props.maxLength !== -1) {
             text = text.substr(0, this.props.maxLength); // cut down the value.
         }

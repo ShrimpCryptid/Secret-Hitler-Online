@@ -33,8 +33,16 @@ h2 { /*Large labels.*/
     font-family: var(--headerFont);
     color: var(--headerTextColor);
     font-weight: normal;
+    font-style: normal;
     margin-block-start: 0.5em;
     margin-block-end: 0.5em;
+}
+
+h5 { /*Slightly larger than normal text.*/
+    font-family: var(--textFont);
+    font-weight: normal;
+    font-size: calc(8px + 2vmin);
+    color: var(--textColorOnDark);
 }
 
 h6 { /*Notification and/or error text.*/
@@ -106,6 +114,23 @@ input {
     border: 2px solid transparent;
     outline:none;
 }
+
 input::placeholder {
     color: var(--textColorOnDark);
+}
+
+textarea {
+    font-family: var(--textFont);
+    width: 80vmin;
+    height: 5vmin;
+    min-height: 10px;
+    resize: none;
+    font-size: calc(2px + 2vmin);
+    user-modify: false;
+    color: var(--textColorOnWhite);
+    border-radius: 5px;
+    padding: 5px;
+    padding-top: calc(5px + 1.5vmin);
+    border: 2px solid transparent;
+    outline:none;
 }

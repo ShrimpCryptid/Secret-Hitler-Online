@@ -112,6 +112,8 @@ public class SecretHitlerServer {
      *          <p>- 400: if the {@code lobby} or {@code name} parameters are missing.
      *          <p>- 404: if there is no lobby with the given code
      *          <p>- 403: the username is invalid (there is already another user with that name in the lobby.)
+     *          <p>- 488: the lobby is currently in a game.
+     *          <p>- 489: the lobby is full.
      *          <p>- 200: Success. There is a lobby with the given name and the user can open a websocket connection with
      *              these login credentials.
      */
@@ -129,7 +131,20 @@ public class SecretHitlerServer {
         } else { // the lobby exists
             Lobby lobby = codeToLobby.get(lobbyCode);
 
-            if (lobby.hasUsername(name)) { // repeat username.
+            if(lobby.isFull()) {
+                ctx.status(489);
+                ctx.result("The lobby is currently full.");
+            }
+
+            if (lobby.isInGame()) {
+                if (lobby.canAddUserDuringGame(name)) {
+                    ctx.status(200);
+                    ctx.result("Login request valid (re-joining an existing game).");
+                } else {
+                    ctx.status(488);
+                    ctx.result("The lobby is currently in a game.");
+                }
+            } else if (lobby.hasUsername(name)) { // repeat username.
                 ctx.status(403);
                 ctx.result("There is already a user with the name " + name + " in the lobby.");
             } else { // unique username found. Return OK.
@@ -216,12 +231,8 @@ public class SecretHitlerServer {
 
         lobby.addUser(ctx, name);
         userToLobby.put(ctx, lobby); // keep track of which lobby this connection is in.
-        lobby.updateUser(ctx);
-        System.out.println("Successfully connected with user " + name);
-
-        if (lobby.isInGame()) { // updates the user (in case they are a spectator)
-            lobby.updateUser(ctx);
-        }
+        lobby.updateAllUsers();
+        System.out.println("Successfully connected user " + name + " to lobby " + code + ".");
     }
 
 
@@ -417,13 +428,7 @@ public class SecretHitlerServer {
             Lobby lobby = userToLobby.get(ctx);
             if (lobby.hasUser(ctx)) {
                 lobby.removeUser(ctx);
-                if (lobby.getActiveUserCount() == 0) { // Lobby is now empty; remove references for Java GC.
-                    String code = lobbyToCode.get(lobby);
-                    lobbyToCode.remove(lobby);
-                    codeToLobby.remove(code);
-                } else {
-                    lobby.updateAllUsers();
-                }
+                lobby.updateAllUsers();
             }
             userToLobby.remove(ctx);
         }

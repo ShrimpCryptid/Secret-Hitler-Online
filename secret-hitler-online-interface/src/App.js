@@ -14,6 +14,22 @@ const NEW_LOBBY = '/new-lobby';
 const WEBSOCKET = '/game';
 const LOBBY_CODE_LENGTH = 6;
 
+const MIN_PLAYERS = 5;
+const MAX_PLAYERS = 10;
+
+//////// JSON Packet Data
+const PARAM_IN_GAME = "in-game";
+
+const PARAM_USER_COUNT = "user-count";
+const PARAM_USERNAMES = "usernames";
+
+const PARAM_STATE = "state";
+const PARAM_PLAYERS = "players";
+const PLAYER_NAME = "username";
+const PLAYER_IDENTITY = "identity";
+const PLAYER_IS_ALIVE = "alive";
+const PLAYER_INVESTIGATED = "investigated";
+
 class App extends Component {
 
     //<editor-fold desc="Style Constants">
@@ -23,7 +39,7 @@ class App extends Component {
     constructor(props) {
         super(props);
         this.state={
-            page:PAGE.LOBBY,
+            page:PAGE.LOGIN,
             joinName:"",
             joinLobby:"",
             joinError:"",
@@ -31,15 +47,86 @@ class App extends Component {
             createLobbyError:"",
             name:"",
             lobby:"AAAAAA",
-            websocket:null
+            websocket:null,
+
+            usernames:[],
+            userCount:1
         }
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
+
     }
 
-    onWebSocketMessage(msg) {
-        console.log(msg);
+    async onWebSocketMessage(msg) {
+        console.log(msg.data);
+        let message = JSON.parse(msg.data);
+        if (message.hasOwnProperty(PARAM_IN_GAME) && !message[PARAM_IN_GAME]) {
+            console.log("Not in game. Unpacking message contents...");
+            if (message.hasOwnProperty(PARAM_USER_COUNT) && message.hasOwnProperty(PARAM_USERNAMES)) {
+                this.setState({
+                    userCount:message[PARAM_USER_COUNT],
+                    usernames:message[PARAM_USERNAMES]
+                });
+            } else {
+                console.log("Some data missing from lobby packet.");
+            }
+        }
+    };
+
+    /**
+     * Attempts to request the server to create a new lobby and returns the response.
+     * @return {Promise<Response>}
+     */
+    async tryCreateLobby() {
+        return fetch(SERVER_ADDRESS_HTTP + NEW_LOBBY);
+    }
+
+    /**
+     * Checks if the login is valid.
+     * @param name the name of the user.
+     * @param lobby the lobby code.
+     * @return {Promise<Response>} The response from the server.
+     */
+    async tryLogin(name, lobby) {
+        return await fetch(SERVER_ADDRESS_HTTP + CHECK_LOGIN + "?name=" + encodeURIComponent(name)
+                            + "&lobby=" + encodeURIComponent(lobby));
+    }
+
+    /**
+     * Attempts to open a WebSocket with the server.
+     * @param name the name of the user to connect with.
+     * @param lobby the lobby to connect with.
+     * @effects If a connection was successfully established, sets the state with the {@code name}, {@code lobby},
+     *          and {@code ws} parameters. The WebSocket has a message callback to this.onWebSocketMessage().
+     * @return {boolean} true if the connection was opened successfully. Otherwise, returns false.
+     */
+    tryOpenWebSocket(name, lobby) {
+        console.log("Opening connection with lobby: " + lobby);
+        let ws = new WebSocket('ws://' + SERVER_ADDRESS + WEBSOCKET + "?name=" + encodeURIComponent(name) + "&lobby=" + encodeURIComponent(lobby));
+        if (ws.OPEN) {
+            this.setState({
+                page: PAGE.LOBBY,
+                websocket: ws,
+                name: name,
+                lobby: lobby,
+                joinName:"",
+                joinLobby:"",
+                joinError:"",
+                createLobbyName:"",
+                createLobbyError:""
+            });
+            ws.onmessage = msg => this.onWebSocketMessage(msg);
+            ws.onclose = () => {this.setState({
+                page:PAGE.LOGIN,
+                joinName:name,
+                joinLobby:lobby,
+                joinError:"Disconnected from the lobby."
+            })};
+            return true;
+        } else {
+            return false;
+        }
     }
 
     //////////// Login Page
@@ -86,81 +173,55 @@ class App extends Component {
     /**
      * Attempts to connect to the lobby via websocket.
      */
-    onClickJoin = async () => {
+    onClickJoin = () => {
         this.setState({joinError:"Connecting..."});
-        let response = await this.tryLogin(this.state.joinName, this.state.joinLobby);
-        if (response.ok) {
-            // Username and lobby were verified. Try to open websocket.
-            if (!this.tryOpenWebSocket(this.state.joinName, this.state.joinLobby)){
-                this.setState({joinError:"There was an error connecting to the server. Please try again."});
-            }
-        } else if (response.status === 404) {
-            this.setState({joinError:"The lobby could not be found."});
-        } else if (response.status === 400) {
-            this.setState({joinError:"There is already a user with the name '" + this.state.joinName + "' in the lobby."});
-        } else {
-            this.setState({joinError:"There was an error connecting to the server. Please try again."});
-        }
+        this.tryLogin(this.state.joinName, this.state.joinLobby)
+            .then(response => {
+                if (!response.ok) {
+                    console.log("Response is not ok");
+                    if (response.status === 404) {
+                        this.setState({joinError:"The lobby could not be found."});
+                    } else if (response.status === 403) {
+                        this.setState({joinError:"There is already a user with the name '" + this.state.joinName + "' in the lobby."});
+                    } else if (response.status === 488) {
+                        this.setState({joinError:"The lobby is currently in a game."});
+                    } else if (response.status === 489) {
+                        this.setState({joinError:"The lobby is currently full."})
+                    } else {
+                        this.setState({joinError:"There was an error connecting to the server. Please try again."});
+                    }
+                } else {
+                    // Username and lobby were verified. Try to open websocket.
+                    if (!this.tryOpenWebSocket(this.state.joinName, this.state.joinLobby)){
+                        this.setState({joinError:"There was an error connecting to the server. Please try again."});
+                    }
+                }
+            })
+            .catch((error) => {
+                this.setState({joinError:"There was an error contacting to the server. Please wait and try again."});
+            });
     };
 
     /**
      * Attempts to connect to the server and create a new lobby, and then opens a connection to the lobby.
      */
-    onClickCreateLobby = async () => {
+    onClickCreateLobby = () => {
         this.setState({createLobbyError:"Connecting..."});
-        let response = await this.tryCreateLobby();
-        if (response.ok) {
-            let lobbyCode = await response.text();
-            if (!this.tryOpenWebSocket(this.state.createLobbyName, lobbyCode)) {
-                this.setState({createLobbyError:"There was an error connecting to the server. Please try again."})
+        this.tryCreateLobby().then(response => {
+            if (response.ok) {
+                response.text().then(lobbyCode => {
+                    if (!this.tryOpenWebSocket(encodeURIComponent(this.state.createLobbyName), lobbyCode)) {
+                        this.setState({createLobbyError:"There was an error connecting to the server. Please try again."})
+                    }
+                });
+            } else {
+                this.setState({createLobbyError:"There was an error connecting to the server. Please try again."});
             }
-        } else {
+        })
+        .catch(error => {
             this.setState({createLobbyError:"There was an error connecting to the server. Please try again."});
-        }
+        });
     };
-
-    /**
-     * Attempts to request the server to create a new lobby and returns the response.
-     * @return {Promise<Response>}
-     */
-    async tryCreateLobby() {
-        return fetch(SERVER_ADDRESS_HTTP + NEW_LOBBY);
-    }
-
-    /**
-     * Checks if the login is valid.
-     * @param name the name of the user.
-     * @param lobby the lobby code.
-     * @return {Promise<Response>} The response from the server.
-     */
-    async tryLogin(name, lobby) {
-        return await fetch(SERVER_ADDRESS_HTTP + CHECK_LOGIN + "?name=" + name + "&lobby=" + lobby);
-    }
-
-    /**
-     * Attempts to open a WebSocket with the server.
-     * @param name the name of the user to connect with.
-     * @param lobby the lobby to connect with.
-     * @effects If a connection was successfully established, sets the state with the {@code name}, {@code lobby},
-     *          and {@code ws} parameters. The WebSocket has a message callback to this.onWebSocketMessage().
-     * @return {boolean} true if the connection was opened successfully. Otherwise, returns false.
-     */
-    tryOpenWebSocket(name, lobby) {
-        let ws = new WebSocket('ws://' + SERVER_ADDRESS + WEBSOCKET + "?name=" + name + "&lobby=" + lobby);
-        if (ws.OPEN) {
-            this.setState({
-                page: PAGE.LOBBY,
-                websocket: ws,
-                name: this.state.joinName,
-                lobby: this.state.joinLobby
-            });
-            ws.onmessage = msg => this.onWebSocketMessage(msg);
-            ws.onclose = () => this.tryOpenWebSocket(name, lobby); //TODO: Maybe change this to another method?
-            return true;
-        } else {
-            return false;
-        }
-    }
 
     renderLoginPage() {
         return (
@@ -220,16 +281,66 @@ class App extends Component {
     /////////////////// Lobby Page
     //<editor-fold desc="Lobby Page">
 
+    /**
+     * Renders the playerlist as a sequence of paragraph tags.
+     * Written as "{@literal <p>} - {@code username} {@literal </p>}".
+     */
+    renderPlayerList() {
+        console.log("Lobby: " + this.state.lobby);
+        let out = [];
+        let i = 0;
+        for (i; i < this.state.userCount; i++) {
+            let name = this.state.usernames[i];
+            if(name === this.state.name) {
+                name += " (you)";
+            }
+            out[i] = <p style={{marginBottom:"0px", marginTop:"2px"}}>{" - " + name}</p>;
+        }
+        return out;
+    }
+
+    /**
+     * Determines whether the 'Start Game' button in the lobby should be enabled.
+     */
+    shouldStartGameBeEnabled() {
+        return (this.state.userCount >= MIN_PLAYERS) && (this.state.userCount <= MAX_PLAYERS)
+    }
+
+    /**
+     * Contacts the server and requests to start the game.
+     */
+    onClickStartGame() {
+
+    }
+
     renderLobbyPage() {
         return (
             <div className="App">
                 <header className="App-header">
                     SECRET HITLER ONLINE
                 </header>
-                <div style={{textAlign:"left", marginLeft:"15px"}}>
+                <div style={{textAlign:"left", marginLeft:"20px"}}>
                     <div style={{display:"flex", flexDirection:"row"}}>
-                        <h2>Lobby Code: </h2>
-                        <h2 style={{marginLeft:"5px"}}>{this.state.lobby}</h2>
+                        <h2>LOBBY CODE: </h2>
+                        <h2 style={{marginLeft:"5px", color:"var(--textColorHighlight)"}}>{this.state.lobby}</h2>
+                    </div>
+                    <p style={{marginBottom:"2px"}}>Copy and share this link to invite other players.</p>
+                    <div style={{textAlign:"left", display:"flex", flexDirection:"row", alignItems:"center"}}>
+                        <textarea>{"secret-hitler-web.heroku.com/join/" + this.state.lobby}</textarea>
+                        <button>COPY</button>
+                    </div>
+
+                    <div style={{display:"flex", flexDirection:"row", width:"100vw"}}>
+                        <div style={{textAlign:"left", width:"50vw"}}>
+                            <p>Players ({this.state.userCount}/10)</p>
+                            <p>{this.renderPlayerList()}</p>
+                        </div>
+                        <div style={{display:"flex", flexDirection:"column", alignItems:"right"}}>
+                            <button
+                                disabled={!this.shouldStartGameBeEnabled()}
+                            >START GAME</button>
+                            <button>LEAVE LOBBY</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -242,6 +353,7 @@ class App extends Component {
         switch (this.state.page) {
             case PAGE.LOGIN:
                 return this.renderLoginPage();
+                break;
             case PAGE.LOBBY:
                 return this.renderLobbyPage();
                 break;

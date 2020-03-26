@@ -14,7 +14,7 @@ public class Lobby {
 
     private SecretHitlerGame game;
     private Map<WsContext, String> userToUsername;
-    private Set<String> usernames;
+    private Set<String> activeUsernames;
     private Set<String> usersInGame;
 
     /**
@@ -22,8 +22,8 @@ public class Lobby {
      */
     public Lobby() {
         userToUsername = new HashMap<>();
-        usernames = new HashSet<>();
-        usersInGame = new HashSet<>();
+        activeUsernames = new LinkedHashSet<>();
+        usersInGame = new LinkedHashSet<>();
     }
 
     /////// User Management
@@ -44,32 +44,62 @@ public class Lobby {
      * @return true iff the username {@code name} is in this lobby.
      */
     public boolean hasUsername(String name) {
-        return usernames.contains(name);
+        return activeUsernames.contains(name);
+    }
+
+    /**
+     * Checks if a user can be added back to the lobby while a game is running.
+     * @param name the name of the user to add.
+     * @return true if the user can be added. A user can only be added back if they were in the current game but were then
+     *         removed from the lobby.
+     *
+     */
+    public boolean canAddUserDuringGame(String name) {
+        return (usersInGame.contains(name) && activeUsernames.contains(name)); // the user was in the game but was disconnected.
+    }
+
+    /**
+     * Checks whether the lobby is full.
+     * @return Returns true if the number of players in the lobby is {@literal >= } {@code SecretHitlerGame.MAX_PLAYERS}.
+     */
+    public boolean isFull() {
+        return activeUsernames.size() >= SecretHitlerGame.MAX_PLAYERS;
     }
 
     /**
      * Adds a user (websocket connection) to the lobby.
      * @param context the websocket connection context.
      * @param name the name of the player to be added.
-     * @throws IllegalArgumentException if a duplicate websocket is added, or if there is already a websocket with the
-     *         given name in the game.
+     * @throws IllegalArgumentException if a duplicate websocket is added, if there is already a websocket with the
+     *         given name in the game, if the lobby is full, if the player has a duplicate name,
+     *         or if a new player is added during a game.
      * @modifies this
-     * @effects adds the given user to the lobby. If the game has already started, the player is added as a spectator
-     *          and cannot play in the game.
-     *          If the username {@code name} is already in the game but there is no websocket associated with it
-     *          (ie, if the user has been removed), the new {@code context} is associated with it.
+     * @effects adds the given user to the lobby.
+     *          If the game has already started, the player can only join if a player with the name {@name} was
+     *          previously in the same game but was removed.
      */
     public void addUser(WsContext context, String name) {
         if(userToUsername.containsKey(context)) {
             throw new IllegalArgumentException("Duplicate websockets cannot be added to a lobby.");
         } else {
-            if (usernames.contains(name)) { // This username exists in this context but no websocket is associated.
-                // We allow this user to become the new websocket associated with the username.
-                userToUsername.put(context, name);
-
-            } else { // This is a new user with a new name, so we add them to the Lobby.
-                userToUsername.put(context, name);
-                usernames.add(name);
+            if (isInGame()) {
+                if(canAddUserDuringGame(name)) { // This username is in the game but is not currently connected.
+                    // allow the user to be connected.
+                    userToUsername.put(context, name);
+                } else {
+                    throw new IllegalArgumentException("Cannot add a new player to a lobby currently in a game.");
+                }
+            } else {
+                if (isFull()) {
+                    if (!hasUsername(name)) { // This is a new user with a new name, so we add them to the Lobby.
+                        userToUsername.put(context, name);
+                        activeUsernames.add(name);
+                    } else {
+                        throw new IllegalArgumentException("Cannot add duplicate names.");
+                    }
+                } else {
+                    throw new IllegalArgumentException("Cannot add the player because the lobby is full.");
+                }
             }
         }
     }
@@ -85,6 +115,7 @@ public class Lobby {
         if (!hasUser(context)) {
             throw new IllegalArgumentException("Cannot remove a websocket that is not in the Lobby.");
         } else {
+            activeUsernames.remove(userToUsername.get(context));
             userToUsername.remove(context);
         }
     }
@@ -124,7 +155,7 @@ public class Lobby {
             message = new JSONObject();
             message.put("in-game", false);
             message.put("user-count", getActiveUserCount());
-            message.put("usernames", usernames);
+            message.put("usernames", activeUsernames);
         }
         System.out.println("Updating user with message: " + message.toString());
         ctx.send(message.toString());
@@ -159,7 +190,8 @@ public class Lobby {
         } else if (isInGame()) {
             throw new RuntimeException("Cannot start a new game while a game is in progress.");
         }
-
+        usersInGame.clear();
+        usersInGame.addAll(userToUsername.values());
         List<String> playerNames = new ArrayList<>(userToUsername.values());
         Collections.shuffle(playerNames);
         game = new SecretHitlerGame(playerNames);
