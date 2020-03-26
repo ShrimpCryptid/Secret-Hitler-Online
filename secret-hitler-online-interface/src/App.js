@@ -12,7 +12,7 @@ const SERVER_ADDRESS_HTTP = "http://" + SERVER_ADDRESS;
 const CHECK_LOGIN = "/check-login";
 const NEW_LOBBY = '/new-lobby';
 const WEBSOCKET = '/game';
-const MAX_FAILED_CONNECTIONS = 5;
+const MAX_FAILED_CONNECTIONS = 3;
 const LOBBY_CODE_LENGTH = 6;
 
 //////// Game Constants
@@ -83,6 +83,7 @@ class App extends Component {
         };
         this.onWebSocketClose = this.onWebSocketClose.bind(this);
         this.tryOpenWebSocket = this.tryOpenWebSocket.bind(this);
+        this.onClickLeaveLobby = this.onClickLeaveLobby.bind(this);
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -121,6 +122,7 @@ class App extends Component {
      */
     tryOpenWebSocket(name, lobby) {
         console.log("Opening connection with lobby: " + lobby);
+        console.log("Failed connections: " + this.failedConnections);
         let ws = new WebSocket('ws://' + SERVER_ADDRESS + WEBSOCKET + "?name=" + encodeURIComponent(name) + "&lobby=" + encodeURIComponent(lobby));
         if (ws.OPEN) {
             this.websocket = ws;
@@ -155,12 +157,18 @@ class App extends Component {
         if (this.failedConnections < MAX_FAILED_CONNECTIONS && this.reconnectOnConnectionClosed) {
             this.failedConnections += 1;
             this.tryOpenWebSocket(this.state.name, this.state.lobby);
-        } else {
+        } else if (this.reconnectOnConnectionClosed) {
             this.setState({
                 page: PAGE.LOGIN,
                 joinName: this.state.name,
                 joinLobby: this.state.lobby,
                 joinError: "Disconnected from the lobby."
+            });
+        } else { // User purposefully closed the connection.
+            this.setState({
+                page: PAGE.LOGIN,
+                joinName: this.state.name,
+                joinError: ""
             });
         }
     }
