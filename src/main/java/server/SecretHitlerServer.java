@@ -134,9 +134,7 @@ public class SecretHitlerServer {
             if(lobby.isFull()) {
                 ctx.status(489);
                 ctx.result("The lobby is currently full.");
-            }
-
-            if (lobby.isInGame()) {
+            } else if (lobby.isInGame()) {
                 if (lobby.canAddUserDuringGame(name)) {
                     ctx.status(200);
                     ctx.result("Login request valid (re-joining an existing game).");
@@ -144,7 +142,7 @@ public class SecretHitlerServer {
                     ctx.status(488);
                     ctx.result("The lobby is currently in a game.");
                 }
-            } else if (lobby.hasUsername(name)) { // repeat username.
+            } else if (lobby.hasUserWithName(name)) { // repeat username.
                 ctx.status(403);
                 ctx.result("There is already a user with the name " + name + " in the lobby.");
             } else { // unique username found. Return OK.
@@ -204,35 +202,45 @@ public class SecretHitlerServer {
      *              400 if the {@code lobby} or {@code name} parameters are missing.
      *              404 if there is no lobby with the given code
      *              403 the username is invalid (there is already another user with that name in the lobby).
+     *              488 if the lobby is currently in a game and the user is not a rejoining player.
+     *              489 if the lobby is full.
      *          Otherwise, connects the user to the lobby.
      */
     private static void onWebsocketConnect(WsConnectContext ctx) {
-        System.out.println("New connection " + ctx.toString());
         if (ctx.queryParam(PARAM_LOBBY) == null || ctx.queryParam(PARAM_NAME) == null) {
-            System.out.println("Missing parameter.");
+            System.out.println("A websocket request was missing a parameter and was disconnected.");
             ctx.session.close(400, "Must have the '" + PARAM_LOBBY + "' and '" + PARAM_NAME + "' parameters.");
             return;
         }
 
         String code = ctx.queryParam(PARAM_LOBBY);
         String name = ctx.queryParam(PARAM_NAME);
-        if (!codeToLobby.containsKey(ctx.queryParam(PARAM_LOBBY))) { // the lobby does not exist.
-            System.out.println("The lobby " + PARAM_LOBBY + " does not exist.");
-            ctx.session.close(404, "The lobby '" + ctx.queryParam(PARAM_LOBBY) + "' does not exist.");
+        System.out.print("Attempting to connect user " + name + " to lobby " + code +": ");
+        if (!codeToLobby.containsKey(code)) { // the lobby does not exist.
+            System.out.println("FAILED (The lobby does not exist)");
+            ctx.session.close(404, "The lobby '" + code + "' does not exist.");
             return;
         }
 
         Lobby lobby = codeToLobby.get(code);
-        if (lobby.hasUsername(name)) { // duplicate names not allowed
-            System.out.println("Repeat username");
+        if (lobby.hasUserWithName(name)) { // duplicate names not allowed
+            System.out.println("FAILED (Repeat username)");
             ctx.session.close(403, "A user with the name " + name + " is already in the lobby.");
+            return;
+        } else if (lobby.isFull()) {
+            System.out.println("FAILED (Lobby is full)");
+            ctx.session.close(489, "The lobby " + code + " is currently full.");
+            return;
+        } else if (lobby.isInGame() && !lobby.canAddUserDuringGame(name)) {
+            System.out.println("FAILED (Lobby in game)");
+            ctx.session.close(488, "The lobby " + code + " is currently in a game..");
             return;
         }
 
         lobby.addUser(ctx, name);
         userToLobby.put(ctx, lobby); // keep track of which lobby this connection is in.
         lobby.updateAllUsers();
-        System.out.println("Successfully connected user " + name + " to lobby " + code + ".");
+        System.out.println("SUCCESS");
     }
 
 
@@ -261,22 +269,23 @@ public class SecretHitlerServer {
             System.out.println("Missing a parameter.");
             ctx.session.close(400, "A required parameter is missing.");
             return;
-        } else if (!codeToLobby.containsKey(message.getString(PARAM_LOBBY))) {
-            System.out.println("Lobby requested does not exist.");
+        }
+
+        String name = message.getString(PARAM_NAME);
+        String lobbyCode = message.getString(PARAM_LOBBY);
+        System.out.print("Received a message from user " + name + " in lobby " + lobbyCode +" (" + ctx.message() + "): ");
+
+        if (!codeToLobby.containsKey(lobbyCode)) {
+            System.out.println("FAILED (Lobby requested does not exist)");
             ctx.session.close(404, "The lobby does not exist.");
             return;
         }
 
-        String lobbyCode = message.getString(PARAM_LOBBY);
         Lobby lobby = codeToLobby.get(lobbyCode);
-        String name = message.getString(PARAM_NAME);
 
-        if (!lobby.hasUser(ctx)) {
-            System.out.println("Lobby does not have user.");
-            ctx.session.close(403, "The user is not connected to the lobby " + lobbyCode + ".");
-            return;
-        } else if (!lobby.hasUsername(name)) {
-            ctx.session.close(403, "The name of the user making this request is not in the lobby " + lobbyCode + ".");
+        if (!lobby.hasUser(ctx, name)) {
+            System.out.println("FAILED (Lobby does not have the user)");
+            ctx.session.close(403, "The user is not in the lobby " + lobbyCode + ".");
             return;
         }
 
@@ -373,19 +382,19 @@ public class SecretHitlerServer {
                 case COMMAND_END_TERM:
                     verifyIsPresident(name, lobby);
                     lobby.game().endPresidentialTerm();
+                    break;
 
                 default: //This is an invalid command.
-                    throw new RuntimeException("Unrecognized command " + message.get(PARAM_COMMAND) + ".");
-
+                    throw new RuntimeException("FAILED (unrecognized command " + message.get(PARAM_COMMAND) + ")");
             }
+            System.out.println("SUCCESS");
         } catch (NullPointerException e) {
-            System.out.println(e.toString());
+            System.out.println("FAILED (" + e.toString() + ")");
             ctx.session.close(400, "NullPointerException:" + e.toString());
         } catch (RuntimeException e) {
-            System.out.println(e.toString());
+            System.out.println("FAILED (" + e.toString() + ")");
             ctx.session.close(400, "RuntimeException:" + e.toString());
         }
-        System.out.println("Active users in lobby " + lobbyToCode.get(lobby) + ": " + lobby.getActiveUserCount());
         if (updateUsers) {
             lobby.updateAllUsers();
         }

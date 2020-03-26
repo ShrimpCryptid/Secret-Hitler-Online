@@ -9,6 +9,8 @@ import java.util.*;
 /**
  * A Lobby holds a collection of websocket connections, each representing a player.
  * It maintains the game that the connections are associated with.
+ *
+ * A user is defined as an active websocket connection.
  */
 public class Lobby {
 
@@ -39,11 +41,19 @@ public class Lobby {
     }
 
     /**
+     * Returns whether a user with the given name exists in this lobby.
+     * @param context the Websocket context of the user.
+     * @param name the name of the user.
+     * @return true iff {@code context} is a user in the lobby with the name {@code name}.
+     */
+    public boolean hasUser(WsContext context, String name) {return userToUsername.containsKey(context) && userToUsername.get(context).equals(name); }
+
+    /**
      * Returns true if the lobby has a user with a given username.
      * @param name the username to check the Lobby for.
      * @return true iff the username {@code name} is in this lobby.
      */
-    public boolean hasUsername(String name) {
+    public boolean hasUserWithName(String name) {
         return activeUsernames.contains(name);
     }
 
@@ -91,7 +101,7 @@ public class Lobby {
                 }
             } else {
                 if (isFull()) {
-                    if (!hasUsername(name)) { // This is a new user with a new name, so we add them to the Lobby.
+                    if (!hasUserWithName(name)) { // This is a new user with a new name, so we add them to the Lobby.
                         userToUsername.put(context, name);
                         activeUsernames.add(name);
                     } else {
@@ -124,7 +134,7 @@ public class Lobby {
      * Returns the number of active users connected to the Lobby.
      * @return the number of active websocket connections currently in the lobby.
      */
-    public int getActiveUserCount() {
+    public int getUserCount() {
         return userToUsername.size();
     }
 
@@ -154,7 +164,7 @@ public class Lobby {
         } else {
             message = new JSONObject();
             message.put("in-game", false);
-            message.put("user-count", getActiveUserCount());
+            message.put("user-count", getUserCount());
             message.put("usernames", activeUsernames);
         }
         System.out.println("Updating user with message: " + message.toString());
