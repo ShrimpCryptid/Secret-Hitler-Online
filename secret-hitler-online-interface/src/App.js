@@ -12,12 +12,40 @@ const SERVER_ADDRESS_HTTP = "http://" + SERVER_ADDRESS;
 const CHECK_LOGIN = "/check-login";
 const NEW_LOBBY = '/new-lobby';
 const WEBSOCKET = '/game';
+const MAX_FAILED_CONNECTIONS = 5;
 const LOBBY_CODE_LENGTH = 6;
 
+//////// Game Constants
 const MIN_PLAYERS = 5;
 const MAX_PLAYERS = 10;
 
 //////// JSON Packet Data
+
+// Commands
+//<editor-fold desc="Commands">
+const PARAM_COMMAND = "command";
+const PARAM_NAME = "name";
+const PARAM_LOBBY = "lobby";
+
+const COMMAND_PING = "ping";
+const COMMAND_START_GAME = "start-game";
+const COMMAND_GET_STATE = "get-state";
+const COMMAND_NOMINATE_CHANCELLOR = "nominate-chancellor";
+const COMMAND_REGISTER_VOTE = "register-vote";
+const COMMAND_REGISTER_PRESIDENT_CHOICE = "register-president-choice";
+const COMMAND_REGISTER_CHANCELLOR_CHOICE = "register-chancellor-choice";
+const COMMAND_REGISTER_CHANCELLOR_VETO = "chancellor-veto";
+const COMMAND_REGISTER_PRESIDENT_VETO = "president-veto";
+const COMMAND_REGISTER_EXECUTION = "register-execution";
+const COMMAND_REGISTER_SPECIAL_ELECTION = "register-special-election";
+const COMMAND_GET_INVESTIGATION = "get-investigation";
+const COMMAND_GET_PEEK = "get-peek";
+const COMMAND_END_TERM = "end-term";
+
+//</editor-fold>
+
+// Params
+// <editor-fold desc="Params">
 const PARAM_IN_GAME = "in-game";
 
 const PARAM_USER_COUNT = "user-count";
@@ -30,11 +58,13 @@ const PLAYER_IDENTITY = "identity";
 const PLAYER_IS_ALIVE = "alive";
 const PLAYER_INVESTIGATED = "investigated";
 
+// </editor-fold>
+
 class App extends Component {
 
-    //<editor-fold desc="Style Constants">
-
-    //</editor-fold>
+    websocket = undefined;
+    failedConnections = 0;
+    reconnectOnConnectionClosed = true;
 
     constructor(props) {
         super(props);
@@ -47,32 +77,20 @@ class App extends Component {
             createLobbyError:"",
             name:"",
             lobby:"AAAAAA",
-            websocket:null,
 
             usernames:[],
             userCount:1
-        }
+        };
+        this.onWebSocketClose = this.onWebSocketClose.bind(this);
+        this.tryOpenWebSocket = this.tryOpenWebSocket.bind(this);
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
 
     }
 
-    async onWebSocketMessage(msg) {
-        console.log(msg.data);
-        let message = JSON.parse(msg.data);
-        if (message.hasOwnProperty(PARAM_IN_GAME) && !message[PARAM_IN_GAME]) {
-            console.log("Not in game. Unpacking message contents...");
-            if (message.hasOwnProperty(PARAM_USER_COUNT) && message.hasOwnProperty(PARAM_USERNAMES)) {
-                this.setState({
-                    userCount:message[PARAM_USER_COUNT],
-                    usernames:message[PARAM_USERNAMES]
-                });
-            } else {
-                console.log("Some data missing from lobby packet.");
-            }
-        }
-    };
+    /////////// Contacting Server
+    // <editor-fold desc="Contacting Server">
 
     /**
      * Attempts to request the server to create a new lobby and returns the response.
@@ -105,9 +123,11 @@ class App extends Component {
         console.log("Opening connection with lobby: " + lobby);
         let ws = new WebSocket('ws://' + SERVER_ADDRESS + WEBSOCKET + "?name=" + encodeURIComponent(name) + "&lobby=" + encodeURIComponent(lobby));
         if (ws.OPEN) {
+            this.websocket = ws;
+            this.reconnectOnConnectionClosed = true;
+            this.failedConnections = 0;
             this.setState({
                 page: PAGE.LOBBY,
-                websocket: ws,
                 name: name,
                 lobby: lobby,
                 joinName:"",
@@ -117,17 +137,78 @@ class App extends Component {
                 createLobbyError:""
             });
             ws.onmessage = msg => this.onWebSocketMessage(msg);
-            ws.onclose = () => {this.setState({
-                page:PAGE.LOGIN,
-                joinName:name,
-                joinLobby:lobby,
-                joinError:"Disconnected from the lobby."
-            })};
+            ws.onclose = () => this.onWebSocketClose();
             return true;
         } else {
             return false;
         }
     }
+
+    /**
+     * Called when the websocket closes.
+     * @effects attempts to reopen the websocket connection.
+     *          If the user pressed the "Leave Lobby" button or a maximum number of attempts has been reached
+     *          ({@code MAX_FAILED_CONNECTIONS}), does not reopen the websocket connection and returns the user to the
+     *          login screen with a relevant error message.
+     */
+    onWebSocketClose() {
+        if (this.failedConnections < MAX_FAILED_CONNECTIONS && this.reconnectOnConnectionClosed) {
+            this.failedConnections += 1;
+            this.tryOpenWebSocket(this.state.name, this.state.lobby);
+        } else {
+            this.setState({
+                page: PAGE.LOGIN,
+                joinName: this.state.name,
+                joinLobby: this.state.lobby,
+                joinError: "Disconnected from the lobby."
+            });
+        }
+    }
+
+    async onWebSocketMessage(msg) {
+        console.log(msg.data);
+        let message = JSON.parse(msg.data);
+        if (message.hasOwnProperty(PARAM_IN_GAME) && !message[PARAM_IN_GAME]) {
+            console.log("Not in game. Unpacking message contents...");
+            if (message.hasOwnProperty(PARAM_USER_COUNT) && message.hasOwnProperty(PARAM_USERNAMES)) {
+                this.setState({
+                    userCount:message[PARAM_USER_COUNT],
+                    usernames:message[PARAM_USERNAMES]
+                });
+            } else {
+                console.log("Some data missing from lobby packet.");
+            }
+        }
+    };
+
+    /**
+     * Sends a specified command to the server.
+     * @param command the String command label.
+     * @param params a dictionary of any parameters that need to be provided with the command.
+     * @effects sends a message to the server with the following parameters:
+     *          {@code PARAM_COMMAND}: {@code command}
+     *          {@code PARAM_LOBBY}: {@code this.state.lobby}
+     *          {@code PARAM_NAME}: {@code this.state.name}
+     *          and each (key, value) pair in {@code params}.
+     */
+    sendWSCommand(command, params) {
+        let data = {};
+        data["name"] = this.state.name;
+        data["lobby"] = this.state.lobby;
+        data[PARAM_COMMAND] = command;
+
+        if (params !== undefined) {
+            for (let key in params) {
+                if (!data.hasOwnProperty(key)) { data[key] = params[key]; }
+            }
+        }
+
+        this.websocket.send(JSON.stringify(data));
+    }
+
+
+
+    //</editor-fold>
 
     //////////// Login Page
     // <editor-fold desc="Login Page">
@@ -210,7 +291,7 @@ class App extends Component {
         this.tryCreateLobby().then(response => {
             if (response.ok) {
                 response.text().then(lobbyCode => {
-                    if (!this.tryOpenWebSocket(encodeURIComponent(this.state.createLobbyName), lobbyCode)) {
+                    if (!this.tryOpenWebSocket(encodeURIComponent(this.state.createLobbyName), lobbyCode)) { // if the connection failed
                         this.setState({createLobbyError:"There was an error connecting to the server. Please try again."})
                     }
                 });
@@ -310,7 +391,12 @@ class App extends Component {
      * Contacts the server and requests to start the game.
      */
     onClickStartGame() {
+        this.sendWSCommand(COMMAND_START_GAME);
+    }
 
+    onClickLeaveLobby() {
+        this.websocket.close();
+        this.reconnectOnConnectionClosed = false;
     }
 
     renderLobbyPage() {
@@ -319,29 +405,41 @@ class App extends Component {
                 <header className="App-header">
                     SECRET HITLER ONLINE
                 </header>
+
                 <div style={{textAlign:"left", marginLeft:"20px"}}>
+
                     <div style={{display:"flex", flexDirection:"row"}}>
                         <h2>LOBBY CODE: </h2>
                         <h2 style={{marginLeft:"5px", color:"var(--textColorHighlight)"}}>{this.state.lobby}</h2>
                     </div>
+
+
                     <p style={{marginBottom:"2px"}}>Copy and share this link to invite other players.</p>
                     <div style={{textAlign:"left", display:"flex", flexDirection:"row", alignItems:"center"}}>
                         <textarea>{"secret-hitler-web.heroku.com/join/" + this.state.lobby}</textarea>
                         <button>COPY</button>
                     </div>
 
+
                     <div style={{display:"flex", flexDirection:"row", width:"100vw"}}>
                         <div style={{textAlign:"left", width:"50vw"}}>
                             <p>Players ({this.state.userCount}/10)</p>
-                            <p>{this.renderPlayerList()}</p>
+                            {this.renderPlayerList()}
                         </div>
+
                         <div style={{display:"flex", flexDirection:"column", alignItems:"right"}}>
                             <button
+                                onClick={this.onClickStartGame}
                                 disabled={!this.shouldStartGameBeEnabled()}
                             >START GAME</button>
-                            <button>LEAVE LOBBY</button>
+                            <button
+                                onClick={this.onClickLeaveLobby}
+                            >
+                                LEAVE LOBBY
+                            </button>
                         </div>
                     </div>
+
                 </div>
             </div>
         )

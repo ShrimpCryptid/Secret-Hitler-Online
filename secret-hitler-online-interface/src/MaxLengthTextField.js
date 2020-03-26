@@ -49,6 +49,7 @@ class MaxLengthTextField extends Component {
                         value={this.props.value}
                         onChange={this.handleChange}
                         placeholder={this.props.placeholder}
+                        autoComplete={"off"}
                 />
             </div>
         );

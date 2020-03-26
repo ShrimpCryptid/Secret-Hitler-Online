@@ -100,7 +100,7 @@ public class Lobby {
                     throw new IllegalArgumentException("Cannot add a new player to a lobby currently in a game.");
                 }
             } else {
-                if (isFull()) {
+                if (!isFull()) {
                     if (!hasUserWithName(name)) { // This is a new user with a new name, so we add them to the Lobby.
                         userToUsername.put(context, name);
                         activeUsernames.add(name);
@@ -167,7 +167,6 @@ public class Lobby {
             message.put("user-count", getUserCount());
             message.put("usernames", activeUsernames);
         }
-        System.out.println("Updating user with message: " + message.toString());
         ctx.send(message.toString());
     }
 

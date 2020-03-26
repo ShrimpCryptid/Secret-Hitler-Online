@@ -144,7 +144,7 @@ public class SecretHitlerServer {
                 }
             } else if (lobby.hasUserWithName(name)) { // repeat username.
                 ctx.status(403);
-                ctx.result("There is already a user with the name " + name + " in the lobby.");
+                ctx.result("There is already a user with the name '" + name + "' in the lobby.");
             } else { // unique username found. Return OK.
                 ctx.status(200);
                 ctx.result("Login request valid.");
@@ -169,7 +169,7 @@ public class SecretHitlerServer {
 
         ctx.status(200);
         ctx.result(newCode);
-        System.out.println("New lobby: " + newCode);
+        System.out.println("New lobby created: " + newCode);
         System.out.println("Available lobbies: " + codeToLobby.keySet());
     }
 
@@ -215,7 +215,7 @@ public class SecretHitlerServer {
 
         String code = ctx.queryParam(PARAM_LOBBY);
         String name = ctx.queryParam(PARAM_NAME);
-        System.out.print("Attempting to connect user " + name + " to lobby " + code +": ");
+        System.out.print("Attempting to connect user '" + name + "' to lobby '" + code + "': ");
         if (!codeToLobby.containsKey(code)) { // the lobby does not exist.
             System.out.println("FAILED (The lobby does not exist)");
             ctx.session.close(404, "The lobby '" + code + "' does not exist.");
@@ -236,11 +236,10 @@ public class SecretHitlerServer {
             ctx.session.close(488, "The lobby " + code + " is currently in a game..");
             return;
         }
-
+        System.out.println("SUCCESS");
         lobby.addUser(ctx, name);
         userToLobby.put(ctx, lobby); // keep track of which lobby this connection is in.
         lobby.updateAllUsers();
-        System.out.println("SUCCESS");
     }
 
 
@@ -266,14 +265,14 @@ public class SecretHitlerServer {
         if (message.getString(PARAM_LOBBY) == null
                 || message.getString(PARAM_NAME) == null
                 || message.getString(PARAM_COMMAND) == null) {
-            System.out.println("Missing a parameter.");
+            System.out.println("Message request failed: missing a parameter.");
             ctx.session.close(400, "A required parameter is missing.");
             return;
         }
 
         String name = message.getString(PARAM_NAME);
         String lobbyCode = message.getString(PARAM_LOBBY);
-        System.out.print("Received a message from user " + name + " in lobby " + lobbyCode +" (" + ctx.message() + "): ");
+        System.out.print("Received a message from user '" + name + "' in lobby '" + lobbyCode + "' (" + ctx.message() + "): ");
 
         if (!codeToLobby.containsKey(lobbyCode)) {
             System.out.println("FAILED (Lobby requested does not exist)");
