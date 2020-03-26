@@ -2,6 +2,17 @@ import React, {Component} from 'react';
 import './App.css';
 import MaxLengthTextField from "./MaxLengthTextField";
 
+import PolicyBack from "./assets/board-policy.png";
+import PolicyLiberal from "./assets/board-policy-liberal.png";
+import PolicyFascist from "./assets/board-policy-fascist.png";
+import LiberalBoard from "./assets/board-liberal.png";
+import FascistBoard56 from "./assets/board-fascist-5-6.png";
+import ElectionTracker from "./assets/board-tracker.png";
+
+import DrawDeck from "./assets/board-draw.png";
+import DiscardDeck from "./assets/board-discard.png";
+
+
 const PAGE = {
     LOGIN: 'login',
     LOBBY: 'lobby',
@@ -69,7 +80,7 @@ class App extends Component {
     constructor(props) {
         super(props);
         this.state={
-            page:PAGE.LOGIN,
+            page:PAGE.GAME,
             joinName:"",
             joinLobby:"",
             joinError:"",
@@ -79,11 +90,19 @@ class App extends Component {
             lobby:"AAAAAA",
 
             usernames:[],
-            userCount:1
+            userCount:1,
+
+            drawDeckSize: 17,
+            discardDeckSize: 0,
+
+            snackbarMessage:""
         };
         this.onWebSocketClose = this.onWebSocketClose.bind(this);
         this.tryOpenWebSocket = this.tryOpenWebSocket.bind(this);
         this.onClickLeaveLobby = this.onClickLeaveLobby.bind(this);
+        this.onClickCopy = this.onClickCopy.bind(this);
+        this.onClickStartGame = this.onClickStartGame.bind(this);
+        this.sendWSCommand = this.sendWSCommand.bind(this);
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -218,7 +237,7 @@ class App extends Component {
 
     //</editor-fold>
 
-    //////////// Login Page
+    /////////////////// Login Page
     // <editor-fold desc="Login Page">
 
     /**
@@ -407,6 +426,17 @@ class App extends Component {
         this.reconnectOnConnectionClosed = false;
     }
 
+    onClickCopy() {
+        let text = document.getElementById("linkText");
+        text.select();
+        text.setSelectionRange(0, 999999);
+        document.execCommand("copy");
+        this.setState({snackbarMessage: "Copied!"});
+        let snackbar = document.getElementById("snackbar");
+        snackbar.className = "show";
+        setTimeout(() => {snackbar.className = snackbar.className.replace("show", "");}, 3000);
+    }
+
     renderLobbyPage() {
         return (
             <div className="App">
@@ -414,7 +444,7 @@ class App extends Component {
                     SECRET HITLER ONLINE
                 </header>
 
-                <div style={{textAlign:"left", marginLeft:"20px"}}>
+                <div style={{textAlign:"left", marginLeft:"20px", marginRight:"20px"}}>
 
                     <div style={{display:"flex", flexDirection:"row"}}>
                         <h2>LOBBY CODE: </h2>
@@ -424,12 +454,16 @@ class App extends Component {
 
                     <p style={{marginBottom:"2px"}}>Copy and share this link to invite other players.</p>
                     <div style={{textAlign:"left", display:"flex", flexDirection:"row", alignItems:"center"}}>
-                        <textarea>{"secret-hitler-web.heroku.com/join/" + this.state.lobby}</textarea>
-                        <button>COPY</button>
+                        <textarea id="linkText" readOnly={true} value={"secret-hitler-web.heroku.com/join/" + this.state.lobby}/>
+                        <button
+                            onClick={this.onClickCopy}
+                        >
+                            COPY
+                        </button>
                     </div>
 
 
-                    <div style={{display:"flex", flexDirection:"row", width:"100vw"}}>
+                    <div style={{display:"flex", flexDirection:"row", width:"90vw"}}>
                         <div style={{textAlign:"left", width:"50vw"}}>
                             <p>Players ({this.state.userCount}/10)</p>
                             {this.renderPlayerList()}
@@ -447,13 +481,51 @@ class App extends Component {
                             </button>
                         </div>
                     </div>
-
+                </div>
+                <div style={{textAlign:"center"}}>
+                    <div id="snackbar">{this.state.snackbarMessage}</div>
                 </div>
             </div>
         )
     }
 
     //</editor-fold>
+
+    /////////////////// Game Page
+
+
+    /**
+     * Renders the game page.
+     */
+    renderGamePage() {
+
+        return (
+            <div className="App" style={{textAlign:"center"}}>
+                <header className="App-header">
+                    SECRET HITLER ONLINE
+                </header>
+
+                <div style={{display:"inline-block"}}>
+                    <div id={"Board Layout"} style={{alignItems:"center", display:"flex", flexDirection:"row", margin:"0 auto"}}>
+                        <div id={"Draw Deck"}>
+                            <img src={DrawDeck} style={{width:"11vmin"}} alt={"The draw deck. (" + this.state.drawDeckSize + " cards)"}/>
+                        </div>
+
+                        <div style={{display:"flex", flexDirection:"column", position:"relative"}}>
+                            <img src={LiberalBoard} style={{width:"70vmin", margin:"4px 10px"}}/>
+                            <img src={FascistBoard56} style={{width:"70vmin", margin:"4px 10px"}}/>
+                            <img src={ElectionTracker} style={{position:"absolute", top:"36.5%", left:"calc(34.5% + 8.86% + 8.86% + 8.86%)", width:"2.5vmin"}} />
+                        </div>
+
+                        <div id={"Discard Deck"}>
+                            <img src={DiscardDeck} style={{width:"11vmin"}} alt={"The discard deck. (" + this.state.discardDeckSize + " cards)"}/>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        );
+    }
 
     render() {
         switch (this.state.page) {
@@ -464,6 +536,7 @@ class App extends Component {
                 return this.renderLobbyPage();
                 break;
             case PAGE.GAME:
+                return this.renderGamePage();
                 break;
         }
     }
