@@ -60,6 +60,13 @@ p {
     color: var(--textColorOnDark);
 }
 
+.highlight {
+    font-family: var(--textFont);
+    font-weight: normal;
+    font-size: calc(4px + 2vmin);
+    color: var(--textColorHighlight);
+}
+
 /* Credit to https://designtheway.com/css-buttons/ for the CSS source code.*/
 button {
     background:transparent;
@@ -227,14 +234,15 @@ textarea {
     100% {left: -100%; opacity: 0; visibility: hidden}
 }
 
-#overlay {
+#alert {
     position: absolute;
     width: 100%;
     height: 93vh;
     align-items: center;
+    display: flex;
 }
 
-#overlay-background {
+#alert-background {
     position: absolute;
     width: 100%;
     height: 100%;
@@ -244,13 +252,32 @@ textarea {
     opacity:var(--alertOverlayOpacity);
 }
 
-#overlay-box {
+#alert-box {
     position: relative;
     z-index: 60;
     opacity: 1;
     width: 80vmin;
-    height: 60vmin;
+    min-height: 60vmin;
     margin: auto auto;
-    padding:10px;
+    padding: 20px;
     background-color: var(--alertFill);
+    text-align: center;
+}
+
+#alert-header {
+    text-align: left;
+    margin: 10px;
+}
+
+#role {
+    width: 25vmin;
+    height: auto;
+    display: inline;
+    align-self: center;
+    margin: 10px;
+}
+
+.textbox {
+    text-align: left;
+    margin: 10px;
 }

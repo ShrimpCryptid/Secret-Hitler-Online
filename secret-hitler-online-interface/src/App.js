@@ -9,8 +9,12 @@ import LiberalBoard from "./assets/board-liberal.png";
 import FascistBoard56 from "./assets/board-fascist-5-6.png";
 import ElectionTracker from "./assets/board-tracker.png";
 
+import RoleHitler from "./assets/role-hitler.png";
+
 import DrawDeck from "./assets/board-draw.png";
 import DiscardDeck from "./assets/board-discard.png";
+import CustomAlert from "./CustomAlert";
+import RoleAlert from "./RoleAlert";
 
 
 const PAGE = {
@@ -512,13 +516,9 @@ class App extends Component {
                     SECRET HITLER ONLINE
                 </header>
 
-                <div id="overlay">
-                    <div id="overlay-background"/>
-                    <div id="overlay-box">
-                        <h2>YOU ARE:</h2>
-                        <button>Okay</button>
-                    </div>
-                </div>
+                <CustomAlert>
+                    <RoleAlert role={"HITLER"} roleID={3}/>
+                </CustomAlert>
 
                 <div style={{display:"inline-block"}}>
                     <div id={"Board Layout"} style={{alignItems:"center", display:"flex", flexDirection:"row", margin:"0 auto"}}>
