@@ -96,6 +96,7 @@ class App extends Component {
             discardDeckSize: 0,
 
             snackbarMessage:""
+
         };
         this.onWebSocketClose = this.onWebSocketClose.bind(this);
         this.tryOpenWebSocket = this.tryOpenWebSocket.bind(this);
@@ -512,13 +513,21 @@ class App extends Component {
                         </div>
 
                         <div style={{display:"flex", flexDirection:"column", position:"relative"}}>
-                            <img src={LiberalBoard} style={{width:"70vmin", margin:"4px 10px"}}/>
+                            <div style ={{margin:"4px 10px"}}>
+                                <img src={LiberalBoard} style={{width:"70vmin"}}/>
+                                <img src={ElectionTracker} style={{position:"absolute", top:"36.5%", left:"calc(34.5% + 8.86% + 8.86% + 8.86%)", width:"2.5vmin"}} />
+                            </div>
                             <img src={FascistBoard56} style={{width:"70vmin", margin:"4px 10px"}}/>
-                            <img src={ElectionTracker} style={{position:"absolute", top:"36.5%", left:"calc(34.5% + 8.86% + 8.86% + 8.86%)", width:"2.5vmin"}} />
                         </div>
 
-                        <div id={"Discard Deck"}>
+                        <div id={"Discard Deck"} style={{position:"relative"}}>
                             <img src={DiscardDeck} style={{width:"11vmin"}} alt={"The discard deck. (" + this.state.discardDeckSize + " cards)"}/>
+                            <img id="Discard1" src={PolicyBack} style={{width:"7.5vmin", position:"absolute", top:"10%", left:"16%"}} />
+                            <img id="Discard2" src={PolicyBack} style={{width:"7.5vmin", position:"absolute", top:"7%", left:"16%"}} />
+                            <img id="Discard3" src={PolicyBack} style={{width:"7.5vmin", position:"absolute", top:"4%", left:"16%"}} />
+                            <img id="Discard3" src={PolicyBack} style={{width:"7.5vmin", position:"absolute", top:"1%", left:"16%"}} />
+                            <img id="Discard3" src={PolicyBack} style={{width:"7.5vmin", position:"absolute", top:"-2%", left:"16%"}} />
+                            <p style={{marginTop:"0px"}}>4</p>
                         </div>
                     </div>
                 </div>
