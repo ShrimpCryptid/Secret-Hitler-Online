@@ -99,7 +99,8 @@ class App extends Component {
             drawDeckSize: 17,
             discardDeckSize: 0,
 
-            snackbarMessage:""
+            snackbarMessage:"",
+            showAlert: false
 
         };
         this.onWebSocketClose = this.onWebSocketClose.bind(this);
@@ -108,6 +109,7 @@ class App extends Component {
         this.onClickCopy = this.onClickCopy.bind(this);
         this.onClickStartGame = this.onClickStartGame.bind(this);
         this.sendWSCommand = this.sendWSCommand.bind(this);
+        this.playAnimationTest = this.playAnimationTest.bind(this);
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -500,9 +502,16 @@ class App extends Component {
 
 
     playAnimationTest() {
-        let target = document.getElementById("target");
+        /*let target = document.getElementById("target");
         target.className = "removeTile";
-        setTimeout(() => {target.className = target.className.replace("removeTile", "invisible");}, 500);
+        setTimeout(() => {target.className = target.className.replace("removeTile", "invisible");}, 500);*/
+        if (this.state.showAlert) {
+            console.log("Setting state to hide alert");
+            this.setState({showAlert: false});
+        } else {
+            this.setState({showAlert: true});
+            console.log("Show Alert");
+        }
     }
 
     /**
@@ -516,8 +525,8 @@ class App extends Component {
                     SECRET HITLER ONLINE
                 </header>
 
-                <CustomAlert>
-                    <RoleAlert role={"HITLER"} roleID={3}/>
+                <CustomAlert show={this.state.showAlert}>
+                    <RoleAlert role={"HITLER"} roleID={3} onClick={() => {this.setState({showAlert:false}); console.log("click disappear");}}/>
                 </CustomAlert>
 
                 <div style={{display:"inline-block"}}>

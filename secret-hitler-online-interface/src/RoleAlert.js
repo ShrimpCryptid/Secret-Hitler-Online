@@ -58,6 +58,9 @@ class RoleAlert extends Component {
                 break;
             case "FASCIST":
                 imageArray = FascistImages;
+                break;
+            default:
+                imageArray = HitlerImages;
         }
         if (this.props.roleID >= imageArray.length || this.props.roleID < 0) {
             return imageArray[0];
@@ -88,6 +91,9 @@ class RoleAlert extends Component {
                 return this.getIndexWithDefault(FascistImagesAltText, this.props.roleID);
             case HITLER:
                 return this.getIndexWithDefault(HitlerImagesAltText, this.props.roleID);
+            default:
+                return this.getIndexWithDefault(HitlerImagesAltText, this.props.roleID);
+
         }
     }
 

@@ -1,0 +1,127 @@
+@import './variables.css';
+
+#alert {
+    position: absolute;
+    width: 100%;
+    height: 93vh;
+    align-items: center;
+    display: flex;
+    visibility: hidden;
+    z-index: 75;
+}
+
+#alert.default {
+
+}
+
+#alert-background {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    z-index: 50;
+    background-color: var(--alertFill);
+    opacity:var(--alertOverlayOpacity);
+}
+
+/* DEFAULT APPEAR */
+
+.appear{
+    transition-timing-function: ease-in-out;
+    -webkit-animation: appear 0.5s;
+    animation: appear 0.5s;
+    visibility: visible;
+    transition: visibility 0.5s;
+    opacity: 1;
+}
+
+.disappear {
+    transition-timing-function: ease-in-out;
+    -webkit-animation: disappear 0.5s;
+    animation: disappear 0.5s;
+    visibility: hidden;
+    transition: visibility 0.5s;
+}
+
+@-webkit-keyframes appear {
+    0% {opacity: 0;}
+    100% {opacity: 1;}
+}
+
+@keyframes appear {
+    0% {opacity: 0;}
+    100% {opacity: 1;}
+}
+
+@-webkit-keyframes disappear {
+    0% {opacity: 1;}
+    100% {opacity: 0;}
+}
+
+@keyframes disappear {
+    0% {opacity: 1;}
+    100% {opacity: 0;}
+}
+
+
+/* BACKGROUND APPEAR/DISAPPEAR */
+
+#alert-background.appear {
+    -webkit-animation: appear-background 0.5s;
+    animation: appear-background 0.5s;
+}
+
+#alert-background.disappear {
+    -webkit-animation: disappear-background 0.5s;
+    animation: disappear-background 0.5s;
+}
+
+@-webkit-keyframes appear-background {
+    0% {opacity: 0; visibility: visible}
+    100% {opacity: var(--alertOverlayOpacity);}
+}
+
+@keyframes appear-background {
+    0% {opacity: 0; visibility: visible}
+    100% {opacity: var(--alertOverlayOpacity);}
+}
+
+@-webkit-keyframes disappear-background {
+    0% {opacity: var(--alertOverlayOpacity);}
+    100% {opacity: 0; visibility: hidden}
+}
+
+@keyframes disappear-background {
+    0% {opacity: var(--alertOverlayOpacity);}
+    100% {opacity: 0; visibility: hidden}
+}
+
+#alert-box {
+    position: relative;
+    z-index: 60;
+    opacity: 1;
+    width: 80vmin;
+    min-height: 60vmin;
+    margin: auto auto;
+    padding: 20px;
+    background-color: var(--alertFill);
+    text-align: center;
+}
+
+#alert-header {
+    text-align: left;
+    margin: 10px;
+}
+
+#role {
+    width: 25vmin;
+    height: auto;
+    display: inline;
+    align-self: center;
+    margin: 10px;
+}
+
+.textbox {
+    text-align: left;
+    margin: 10px;
+}

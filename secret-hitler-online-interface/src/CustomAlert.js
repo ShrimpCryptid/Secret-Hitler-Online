@@ -1,27 +1,53 @@
 import React, {Component} from 'react';
-import RoleHitler from "./assets/role-hitler.png";
+import './CustomAlert.css'
 
 class CustomAlert extends Component {
 
     constructor(props) {
         super(props);
-        this.setState({
-            lastValueShow: false
-        })
+        this.state = {
+            lastValueShow: false,
+            backgroundClass: "",
+            alertBoxClass: ""
+        };
     }
 
     /**
-     * If the value of {@code this.props.show} changes, changes the className from
+     * If the value of {@code this.props.show} changes from false to true, adds/replaces class with "show".
+     * If it changes from true to false, adds/replaces class with "hide".
      */
-    getClassName() {
+    updateClasses() {
+        if (this.props.show !== this.state.lastValueShow) {
+            this.setState({lastValueShow: this.props.show});
+            if (this.props.show) { // alert box should appear
+                console.log("Make appear");
+                this.setState({
+                    backgroundClass: "appear",
+                    alertBoxClass: "appear"
+                });
+            } else {
+                console.log("Make disappear");
+                this.setState({
+                    backgroundClass: "disappear",
+                    alertBoxClass: "disappear"
+                });
+            }
+        }
+    }
 
+    getClass() {
+        if(this.props.show) {
+            return "appear";
+        } else {
+            return "disappear";
+        }
     }
 
     render() {
         return (
-            <div id="alert" className={this.props.show}>
-                <div id="alert-background"/>
-                <div id="alert-box">
+            <div id="alert" className={this.getClass()}>
+                <div id="alert-background" className={this.getClass()}/>
+                <div id="alert-box" className={this.getClass()}>
                     {this.props.children}
                 </div>
             </div>
