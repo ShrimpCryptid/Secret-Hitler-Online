@@ -496,8 +496,9 @@ class App extends Component {
 
 
     playAnimationTest() {
-        let target = document.getElementById("Liberal5");
-        target.className = "showTile";
+        let target = document.getElementById("target");
+        target.className = "removeTile";
+        setTimeout(() => {target.className = target.className.replace("removeTile", "invisible");}, 500);
     }
 
     /**
@@ -510,6 +511,14 @@ class App extends Component {
                 <header className="App-header">
                     SECRET HITLER ONLINE
                 </header>
+
+                <div id="overlay">
+                    <div id="overlay-background"/>
+                    <div id="overlay-box">
+                        <h2>YOU ARE:</h2>
+                        <button>Okay</button>
+                    </div>
+                </div>
 
                 <div style={{display:"inline-block"}}>
                     <div id={"Board Layout"} style={{alignItems:"center", display:"flex", flexDirection:"row", margin:"0 auto"}}>
@@ -525,7 +534,7 @@ class App extends Component {
                                 <img src={PolicyLiberal} style={{width:"7vmin", position:"absolute", top:"30%", left:"calc(18.2% + 1*13.54%)"}} />
                                 <img src={PolicyLiberal} style={{width:"7vmin", position:"absolute", top:"30%", left:"calc(18.2% + 2*13.54%)"}} />
                                 <img src={PolicyLiberal} style={{width:"7vmin", position:"absolute", top:"30%", left:"calc(18.2% + 3*13.54%)"}} />
-                                <img className="invisible" id="Liberal5" src={PolicyLiberal} style={{width:"7vmin", position:"absolute", top:"30%", left:"calc(18.2% + 4*13.54%)"}} />
+                                <img src={PolicyLiberal} style={{width:"7vmin", position:"absolute", top:"30%", left:"calc(18.2% + 4*13.54%)"}} />
                             </div>
                             <div style={{margin:"4px 10px", position:"relative"}}>
                                 <img src={FascistBoard56} style={{width:"70vmin"}}/>
@@ -549,7 +558,7 @@ class App extends Component {
                             <img id="Discard3" src={PolicyBack} style={{width:"7.5vmin", position:"absolute", top:"3%", left:"16%"}} />
                             <img id="Discard4" src={PolicyBack} style={{width:"7.5vmin", position:"absolute", top:"0%", left:"16%"}} />
                             <div style={{position:"absolute", top:"-3%", left:"16%"}}>
-                                <img id="Discard5" src={PolicyBack} style={{width:"7.5vmin", position:"absolute", left:"30%"}} />
+                                <img className="" id="target" src={PolicyBack} style={{width:"7.5vmin", position:"relative", zIndex:"5"}} />
                             </div>
                             <p style={{marginTop:"0px"}}>4</p>
                         </div>

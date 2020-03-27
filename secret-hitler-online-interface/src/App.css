@@ -94,7 +94,7 @@ button:hover{
 button:active{
     top:5px;
     background: var(--buttonFill);
-    box-shadow: 0 0px 0 var(--buttonShadowFill);
+    box-shadow: 0 0 0 var(--buttonShadowFill);
 }
 
 button:disabled{
@@ -186,16 +186,23 @@ textarea {
 /* Election Tracker */
 
 
-/* Policy Placement */
+/****** Policy Tiles *******/
 .invisible {
     visibility: hidden;
 }
 
-.showTile {
+/* For placing each tile. */
+.placeTile{
     transition-timing-function: ease-in-out;
     visibility: visible;
     -webkit-animation: appearAndDrop 1s;
     animation: appearAndDrop 1s;
+}
+
+.removeTile {
+    transition-timing-function: ease-in-out;
+    -webkit-animation: slideOut 0.5s;
+    animation: slideOut 0.5s;
 }
 
 @-webkit-keyframes appearAndDrop {
@@ -210,7 +217,40 @@ textarea {
     100% {top:30%;}
 }
 
-/*For placing each tile.*/
-.placeTile{
+@-webkit-keyframes slideOut {
+    0% {left:0; opacity: 1;}
+    100% {left: -100%; opacity: 0; visibility: hidden}
+}
 
+@keyframes slideOut {
+    0% {left:0; opacity: 1;}
+    100% {left: -100%; opacity: 0; visibility: hidden}
+}
+
+#overlay {
+    position: absolute;
+    width: 100%;
+    height: 93vh;
+    align-items: center;
+}
+
+#overlay-background {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    z-index: 50;
+    background-color: var(--alertFill);
+    opacity:var(--alertOverlayOpacity);
+}
+
+#overlay-box {
+    position: relative;
+    z-index: 60;
+    opacity: 1;
+    width: 80vmin;
+    height: 60vmin;
+    margin: auto auto;
+    padding:10px;
+    background-color: var(--alertFill);
 }
