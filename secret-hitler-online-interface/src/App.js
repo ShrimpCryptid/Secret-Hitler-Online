@@ -495,6 +495,11 @@ class App extends Component {
     /////////////////// Game Page
 
 
+    playAnimationTest() {
+        let target = document.getElementById("Liberal5");
+        target.className = "showTile";
+    }
+
     /**
      * Renders the game page.
      */
@@ -508,28 +513,50 @@ class App extends Component {
 
                 <div style={{display:"inline-block"}}>
                     <div id={"Board Layout"} style={{alignItems:"center", display:"flex", flexDirection:"row", margin:"0 auto"}}>
-                        <div id={"Draw Deck"}>
+                        <div id={"draw-deck"}>
                             <img src={DrawDeck} style={{width:"11vmin"}} alt={"The draw deck. (" + this.state.drawDeckSize + " cards)"}/>
                         </div>
 
-                        <div style={{display:"flex", flexDirection:"column", position:"relative"}}>
-                            <div style ={{margin:"4px 10px"}}>
+                        <div style={{display:"flex", flexDirection:"column"}}>
+                            <div style ={{margin:"4px 10px", position:"relative"}}>
                                 <img src={LiberalBoard} style={{width:"70vmin"}}/>
-                                <img src={ElectionTracker} style={{position:"absolute", top:"36.5%", left:"calc(34.5% + 8.86% + 8.86% + 8.86%)", width:"2.5vmin"}} />
+                                <img src={ElectionTracker} style={{position:"absolute", top:"73.5%", left:"calc(34.2% + 3*9.16%)", width:"2.25vmin"}} />
+                                <img src={PolicyLiberal} style={{width:"7vmin", position:"absolute", top:"30%", left:"calc(18.2%)"}} />
+                                <img src={PolicyLiberal} style={{width:"7vmin", position:"absolute", top:"30%", left:"calc(18.2% + 1*13.54%)"}} />
+                                <img src={PolicyLiberal} style={{width:"7vmin", position:"absolute", top:"30%", left:"calc(18.2% + 2*13.54%)"}} />
+                                <img src={PolicyLiberal} style={{width:"7vmin", position:"absolute", top:"30%", left:"calc(18.2% + 3*13.54%)"}} />
+                                <img className="invisible" id="Liberal5" src={PolicyLiberal} style={{width:"7vmin", position:"absolute", top:"30%", left:"calc(18.2% + 4*13.54%)"}} />
                             </div>
-                            <img src={FascistBoard56} style={{width:"70vmin", margin:"4px 10px"}}/>
+                            <div style={{margin:"4px 10px", position:"relative"}}>
+                                <img src={FascistBoard56} style={{width:"70vmin"}}/>
+                                <img src={PolicyFascist} style={{width:"7vmin", position:"absolute", top:"30%", left:"calc(11%)"}} />
+                                <img src={PolicyFascist} style={{width:"7vmin", position:"absolute", top:"30%", left:"calc(11% + 1*13.6%)"}} />
+                                <img src={PolicyFascist} style={{width:"7vmin", position:"absolute", top:"30%", left:"calc(11% + 2*13.6%)"}} />
+                                <img src={PolicyFascist} style={{width:"7vmin", position:"absolute", top:"30%", left:"calc(11% + 3*13.6%)"}} />
+                                <img src={PolicyFascist} style={{width:"7vmin", position:"absolute", top:"30%", left:"calc(11% + 4*13.6%)"}} />
+                                <img src={PolicyFascist} style={{width:"7vmin", position:"absolute", top:"30%", left:"calc(11% + 5*13.6%)"}} />
+
+                            </div>
+
                         </div>
 
-                        <div id={"Discard Deck"} style={{position:"relative"}}>
+                        <div id={"discard-deck"} style={{position:"relative"}}>
                             <img src={DiscardDeck} style={{width:"11vmin"}} alt={"The discard deck. (" + this.state.discardDeckSize + " cards)"}/>
-                            <img id="Discard1" src={PolicyBack} style={{width:"7.5vmin", position:"absolute", top:"10%", left:"16%"}} />
-                            <img id="Discard2" src={PolicyBack} style={{width:"7.5vmin", position:"absolute", top:"7%", left:"16%"}} />
-                            <img id="Discard3" src={PolicyBack} style={{width:"7.5vmin", position:"absolute", top:"4%", left:"16%"}} />
-                            <img id="Discard3" src={PolicyBack} style={{width:"7.5vmin", position:"absolute", top:"1%", left:"16%"}} />
-                            <img id="Discard3" src={PolicyBack} style={{width:"7.5vmin", position:"absolute", top:"-2%", left:"16%"}} />
+                            <div>
+                                <img id="Discard1" src={PolicyBack} style={{width:"7.5vmin", position:"absolute", top:"9%", left:"16%"}} />
+                            </div>
+                            <img id="Discard2" src={PolicyBack} style={{width:"7.5vmin", position:"absolute", top:"6%", left:"16%"}} />
+                            <img id="Discard3" src={PolicyBack} style={{width:"7.5vmin", position:"absolute", top:"3%", left:"16%"}} />
+                            <img id="Discard4" src={PolicyBack} style={{width:"7.5vmin", position:"absolute", top:"0%", left:"16%"}} />
+                            <div style={{position:"absolute", top:"-3%", left:"16%"}}>
+                                <img id="Discard5" src={PolicyBack} style={{width:"7.5vmin", position:"absolute", left:"30%"}} />
+                            </div>
                             <p style={{marginTop:"0px"}}>4</p>
                         </div>
                     </div>
+                    <button
+                        onClick={this.playAnimationTest}
+                    >Play Animation</button>
                 </div>
 
             </div>

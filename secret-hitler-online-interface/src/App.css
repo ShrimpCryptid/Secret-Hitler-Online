@@ -185,3 +185,32 @@ textarea {
 
 /* Election Tracker */
 
+
+/* Policy Placement */
+.invisible {
+    visibility: hidden;
+}
+
+.showTile {
+    transition-timing-function: ease-in-out;
+    visibility: visible;
+    -webkit-animation: appearAndDrop 1s;
+    animation: appearAndDrop 1s;
+}
+
+@-webkit-keyframes appearAndDrop {
+    0% {opacity: 0; top: 10%;}
+    50% {opacity: 1; top: 10%;}
+    100% {top:30%;}
+}
+
+@keyframes appearAndDrop {
+    0% {opacity: 0; top: 10%;}
+    50% {opacity: 1; top: 10%;}
+    100% {top:30%;}
+}
+
+/*For placing each tile.*/
+.placeTile{
+
+}
