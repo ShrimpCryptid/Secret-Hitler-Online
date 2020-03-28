@@ -16,6 +16,7 @@ import DiscardDeck from "./assets/board-discard.png";
 import CustomAlert from "./CustomAlert";
 import RoleAlert from "./RoleAlert";
 import EventBar from "./EventBar"
+import Player from "./Player";
 
 
 const PAGE = {
@@ -534,6 +535,23 @@ class App extends Component {
 
                 <EventBar show={this.state.showEventBar}/>
 
+                <div style={{display:"flex", flexDirection:"row", flexWrap:"wrap", justifyContent:"center"}}>
+                    <div style={{display:"flex", flexDirection:"row"}}>
+                        <Player />
+                        <Player role={"LIBERAL"} name={"AAAAAAAAAAAA"}/>
+                        <Player />
+                        <Player showRole={false}/>
+                        <Player role={"FASCIST"}/>
+                    </div>
+                    <div style={{display:"flex", flexDirection:"row"}}>
+                        <Player role={"LIBERAL"} name={"Yeeto Cheeto"}/>
+                        <Player role={"HITLER"} name={"Not Hitler"}/>
+                        <Player role={"LIBERAL"}/>
+                        <Player name={"h̸̻͌e̸͙̓l̷͎̐p̷̲̏"}/>
+                        <Player role={"LIBERAL"} name={"Big Boi"}/>
+                    </div>
+                </div>
+
                 <div style={{display:"inline-block"}}>
                     <div id={"Board Layout"} style={{alignItems:"center", display:"flex", flexDirection:"row", margin:"0 auto"}}>
                         <div id={"draw-deck"}>
@@ -577,6 +595,7 @@ class App extends Component {
                             <p style={{marginTop:"0px"}}>4</p>
                         </div>
                     </div>
+
                     <button
                         onClick={this.showAlert}
                     >Show Alert</button>
@@ -584,6 +603,7 @@ class App extends Component {
                         onClick={this.playAnimationTest}>
                         Show Event Bar
                     </button>
+
                 </div>
 
             </div>

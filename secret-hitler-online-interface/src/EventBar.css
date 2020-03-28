@@ -42,6 +42,7 @@
     visibility: visible;
     transition: visibility var(--eventBarIn);
     animation: appear-bar var(--eventBarIn);
+    opacity: var(--eventBarOpacity);
 }
 
 #event-bar-text.appear {
@@ -76,17 +77,17 @@
 
 @keyframes appear-bar {
     0%{opacity: 0; width: 0}
-    60% {opacity: 1; width: 100%}
+    60% {opacity: var(--eventBarOpacity); width: 100%}
 }
 
 @keyframes disappear-text {
-    0%{opacity: 1; visibility: visible}
+    0%  {opacity: 1; visibility: visible}
     40% {opacity: 0; visibility: hidden}
     60% {opacity: 0; visibility: hidden}
 }
 
 @keyframes disappear-bar {
-    0%{opacity: 1; visibility: visible}
-    60%{opacity: 1; visibility: visible}
+    0%   {opacity: var(--eventBarOpacity); visibility: visible}
+    60%  {opacity: var(--eventBarOpacity); visibility: visible}
     100% {opacity: 0; visibility: hidden}
 }

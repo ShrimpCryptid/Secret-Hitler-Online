@@ -51,7 +51,7 @@ const HitlerText = ["You win if you are successfully elected chancellor once 3 f
 class RoleAlert extends Component {
 
     getRoleImage() {
-        let imageArray = HitlerImages;
+        let imageArray;
         switch (this.props.role) {
             case "LIBERAL":
                 imageArray = LiberalImages;

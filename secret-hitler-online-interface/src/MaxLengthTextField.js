@@ -36,7 +36,7 @@ class MaxLengthTextField extends Component {
         } else {
             this.props.onChange(text);
         }
-    }
+    };
 
     render() {
         return (
