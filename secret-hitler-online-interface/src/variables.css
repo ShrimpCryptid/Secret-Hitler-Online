@@ -9,6 +9,7 @@
     --textColorOnDark: #bbbbbb;
     --textColorHighlight: var(--headerFill);
     --textColorLiberal: #5a9ba6;
+    --textColorWhite: #ffffff;
     --buttonFill: var(--headerFill);
     --buttonShadowFill: #b4431a;
     --buttonHoverFill: #e67a53;
@@ -21,4 +22,6 @@
     --eventBarIn: 1s;
     --eventBarOut: 1s;
     --eventBarOpacity: 0.9;
+
+    --statusBarColor: 141414;
 }

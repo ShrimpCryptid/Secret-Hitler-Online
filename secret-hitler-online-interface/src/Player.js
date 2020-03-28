@@ -42,6 +42,7 @@ class Player extends Component {
             case FASCIST:
                 return "Fascist";
             case HITLER:
+            default:
                 return "Hitler";
         }
     }
@@ -57,7 +58,8 @@ class Player extends Component {
     render() {
         return (
             <div id="player-container">
-                <Textfit id={"player-name"} mode="single" forceSingleModeWidth={false}>{this.props.name}</Textfit>
+                <Textfit id={"player-name"} mode="multi" forceSingleModeWidth={false}>{this.props.name}</Textfit>
+
                 <img id="player-icon" src={this.getImg()} alt={this.props.name} />
                 <img id="player-identity-icon" src={this.getIcon()} hidden={!this.props.showRole}/>
                 <p id="player-identity-label" className={this.getRoleClass()} hidden={!this.props.showRole}>{this.getLabel()}</p>

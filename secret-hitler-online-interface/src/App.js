@@ -82,11 +82,12 @@ class App extends Component {
     websocket = undefined;
     failedConnections = 0;
     reconnectOnConnectionClosed = true;
+    snackbarMessages = 0;
 
     constructor(props) {
         super(props);
         this.state={
-            page:PAGE.GAME,
+            page:PAGE.LOGIN,
             joinName:"",
             joinLobby:"",
             joinError:"",
@@ -114,6 +115,7 @@ class App extends Component {
         this.sendWSCommand = this.sendWSCommand.bind(this);
         this.playAnimationTest = this.playAnimationTest.bind(this);
         this.showAlert = this.showAlert.bind(this);
+        this.showSnackBar = this.showSnackBar.bind(this);
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -157,7 +159,6 @@ class App extends Component {
         if (ws.OPEN) {
             this.websocket = ws;
             this.reconnectOnConnectionClosed = true;
-            this.failedConnections = 0;
             this.setState({
                 page: PAGE.LOBBY,
                 name: name,
@@ -186,18 +187,20 @@ class App extends Component {
     onWebSocketClose() {
         if (this.failedConnections < MAX_FAILED_CONNECTIONS && this.reconnectOnConnectionClosed) {
             this.failedConnections += 1;
+            this.showSnackBar("Lost connection to the server: retrying...");
             this.tryOpenWebSocket(this.state.name, this.state.lobby);
         } else if (this.reconnectOnConnectionClosed) {
             this.setState({
                 page: PAGE.LOGIN,
-                joinName: this.state.name,
-                joinLobby: this.state.lobby,
+                joinName: decodeURIComponent(this.state.name),
+                joinLobby: decodeURIComponent(this.state.lobby),
                 joinError: "Disconnected from the lobby."
+
             });
         } else { // User purposefully closed the connection.
             this.setState({
                 page: PAGE.LOGIN,
-                joinName: this.state.name,
+                joinName: decodeURIComponent(this.state.name),
                 joinError: ""
             });
         }
@@ -205,17 +208,21 @@ class App extends Component {
 
     async onWebSocketMessage(msg) {
         console.log(msg.data);
+        this.failedConnections = 0;
         let message = JSON.parse(msg.data);
         if (message.hasOwnProperty(PARAM_IN_GAME) && !message[PARAM_IN_GAME]) {
             console.log("Not in game. Unpacking message contents...");
             if (message.hasOwnProperty(PARAM_USER_COUNT) && message.hasOwnProperty(PARAM_USERNAMES)) {
                 this.setState({
                     userCount:message[PARAM_USER_COUNT],
-                    usernames:message[PARAM_USERNAMES]
+                    usernames:message[PARAM_USERNAMES],
+                    page: PAGE.LOBBY
                 });
             } else {
                 console.log("Some data missing from lobby packet.");
             }
+        } else {
+
         }
     };
 
@@ -413,7 +420,7 @@ class App extends Component {
             if(name === this.state.name) {
                 name += " (you)";
             }
-            out[i] = <p style={{marginBottom:"0px", marginTop:"2px"}}>{" - " + name}</p>;
+            out[i] = <p style={{marginBottom:"0px", marginTop:"2px"}}>{" - " + decodeURIComponent(name)}</p>;
         }
         return out;
     }
@@ -442,10 +449,20 @@ class App extends Component {
         text.select();
         text.setSelectionRange(0, 999999);
         document.execCommand("copy");
-        this.setState({snackbarMessage: "Copied!"});
+        this.showSnackBar("Copied!")
+    }
+
+    showSnackBar(message) {
+        this.setState({snackbarMessage: message});
         let snackbar = document.getElementById("snackbar");
         snackbar.className = "show";
-        setTimeout(() => {snackbar.className = snackbar.className.replace("show", "");}, 3000);
+        this.snackbarMessages++;
+        setTimeout(() => {
+                this.snackbarMessages--;
+                if(this.snackbarMessages === 0) {
+                    snackbar.className = snackbar.className.replace("show", "");
+                }
+            }, 3000);
     }
 
     renderLobbyPage() {
@@ -503,7 +520,7 @@ class App extends Component {
     //</editor-fold>
 
     /////////////////// Game Page
-
+    //<editor-fold desc="Game Page">
 
     playAnimationTest() {
         /*let target = document.getElementById("target");
@@ -535,7 +552,7 @@ class App extends Component {
 
                 <EventBar show={this.state.showEventBar}/>
 
-                <div style={{display:"flex", flexDirection:"row", flexWrap:"wrap", justifyContent:"center"}}>
+                <div style={{display:"flex", flexDirection:"row", flexWrap:"wrap", justifyContent:"center", backgroundColor:"var(--backgroundDark)"}}>
                     <div style={{display:"flex", flexDirection:"row"}}>
                         <Player />
                         <Player role={"LIBERAL"} name={"AAAAAAAAAAAA"}/>
@@ -550,6 +567,10 @@ class App extends Component {
                         <Player name={"h̸̻͌e̸͙̓l̷͎̐p̷̲̏"}/>
                         <Player role={"LIBERAL"} name={"Big Boi"}/>
                     </div>
+                </div>
+
+                <div>
+
                 </div>
 
                 <div style={{display:"inline-block"}}>
@@ -610,17 +631,18 @@ class App extends Component {
         );
     }
 
+    //</editor-fold>
+
     render() {
         switch (this.state.page) {
             case PAGE.LOGIN:
                 return this.renderLoginPage();
-                break;
             case PAGE.LOBBY:
                 return this.renderLobbyPage();
-                break;
             case PAGE.GAME:
                 return this.renderGamePage();
-                break;
+            default:
+                return this.renderLoginPage;
         }
     }
 }

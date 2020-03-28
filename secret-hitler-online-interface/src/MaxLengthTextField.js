@@ -5,9 +5,6 @@ import React, {Component} from "react";
  * String length, and includes labels and remaining character counters.
  */
 class MaxLengthTextField extends Component {
-    constructor(props) {
-        super(props);
-    }
 
     charactersLeft() {
         if (this.props.showCharCount) {
@@ -25,6 +22,7 @@ class MaxLengthTextField extends Component {
      */
     handleChange = (event) => {
         let text = event.target.value;
+        text = this.collapseSpaces(text);
         while(text.charAt(0) === ' ' || text.charAt(0) === '\t') {
             text = text.substr(1);
         }
@@ -37,6 +35,15 @@ class MaxLengthTextField extends Component {
             this.props.onChange(text);
         }
     };
+
+    /**
+     * Collapses whitespace characters (' ' and '\t') to single spaces.
+     * @param text
+     * @return the text, but any repeating sequences of '\t' or ' ' are replaced with a single ' ' character.
+     */
+    collapseSpaces(text) {
+        return text.replace(/\s\s+/g, ' ');
+    }
 
     render() {
         return (

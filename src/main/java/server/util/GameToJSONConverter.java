@@ -59,9 +59,10 @@ public class GameToJSONConverter {
             }
             playerObj.put("identity", id);
             playerObj.put("investigated", player.hasBeenInvestigated());
+            playerArray.put(playerObj);
         }
 
-        out.put("players", playerArray.toString());
+        out.put("players", playerArray);
 
         out.put("president", game.getCurrentPresident());
         out.put("chancellor", game.getCurrentChancellor());

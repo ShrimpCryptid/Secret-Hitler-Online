@@ -12,12 +12,11 @@
 #player-name {
     position:absolute;
     color: var(--backgroundDark);
-
+    font-family: var(--textFont);
     top: 64%;
     left: 8%;
     width: 10vmin;
     height: 2vmin;
-    font-family: var(--textFont);
 }
 
 #player-identity-icon {

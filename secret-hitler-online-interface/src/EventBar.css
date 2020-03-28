@@ -17,7 +17,7 @@
 
 #bar-background {
     width: 100%;
-    min-height: 25vmin;
+    min-height: 15vmin;
     background-color: var(--alertFill);
     z-index: 48;
     animation: ease-in-out;

@@ -171,23 +171,23 @@ textarea {
 
 /* Animations to fade the snackbar in and out */
 @-webkit-keyframes fadein {
-    from {bottom: 0; opacity: 0;}
-    to {bottom: 30px; opacity: 1;}
+    from {bottom: 0; opacity: 0; visibility: visible;}
+    to {bottom: 30px; opacity: 1; visibility: visible;}
 }
 
 @keyframes fadein {
-    from {bottom: 0; opacity: 0;}
-    to {bottom: 30px; opacity: 1;}
+    from {bottom: 0; opacity: 0; visibility: visible;}
+    to {bottom: 30px; opacity: 1; visibility: visible}
 }
 
 @-webkit-keyframes fadeout {
-    from {bottom: 30px; opacity: 1;}
-    to {bottom: 0; opacity: 0;}
+    from {bottom: 30px; opacity: 1; visibility: visible}
+    to {bottom: 0; opacity: 0; visibility: hidden}
 }
 
 @keyframes fadeout {
-    from {bottom: 30px; opacity: 1;}
-    to {bottom: 0; opacity: 0;}
+    from {bottom: 30px; opacity: 1; visibility: visible}
+    to {bottom: 0; opacity: 0; visibility: hidden}
 }
 
 /* Election Tracker */
