@@ -21,7 +21,7 @@ header { /*This is the bar that appears at the top of the game.*/
 }
 
 h1 { /*Big sweeping labels/headers*/
-    font-size: calc(6px + 10vmin); /*This means 10px plus 2% of the window's smallest dimension.*/
+    font-size: calc(6px + 7vmin); /*This means 10px plus 2% of the window's smallest dimension.*/
     font-family: var(--headerFont);
     color: var(--headerTextColor);
     font-weight: normal;

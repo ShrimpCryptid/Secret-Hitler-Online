@@ -16,4 +16,7 @@
 
     --alertFill: #141414;
     --alertOverlayOpacity: 0.8;
+
+    --eventBarIn: 1s;
+    --eventBarOut: 1s;
 }

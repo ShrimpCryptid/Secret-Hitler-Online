@@ -15,6 +15,7 @@ import DrawDeck from "./assets/board-draw.png";
 import DiscardDeck from "./assets/board-discard.png";
 import CustomAlert from "./CustomAlert";
 import RoleAlert from "./RoleAlert";
+import EventBar from "./EventBar"
 
 
 const PAGE = {
@@ -100,7 +101,8 @@ class App extends Component {
             discardDeckSize: 0,
 
             snackbarMessage:"",
-            showAlert: false
+            showAlert: false,
+            showEventBar: false
 
         };
         this.onWebSocketClose = this.onWebSocketClose.bind(this);
@@ -110,6 +112,7 @@ class App extends Component {
         this.onClickStartGame = this.onClickStartGame.bind(this);
         this.sendWSCommand = this.sendWSCommand.bind(this);
         this.playAnimationTest = this.playAnimationTest.bind(this);
+        this.showAlert = this.showAlert.bind(this);
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -505,13 +508,13 @@ class App extends Component {
         /*let target = document.getElementById("target");
         target.className = "removeTile";
         setTimeout(() => {target.className = target.className.replace("removeTile", "invisible");}, 500);*/
-        if (this.state.showAlert) {
-            console.log("Setting state to hide alert");
-            this.setState({showAlert: false});
-        } else {
-            this.setState({showAlert: true});
-            console.log("Show Alert");
-        }
+        this.setState({showEventBar:true});
+        setTimeout(() => {this.setState({showEventBar:false})}, 3000);
+
+    }
+
+    showAlert() {
+        this.setState({showAlert: true});
     }
 
     /**
@@ -528,6 +531,8 @@ class App extends Component {
                 <CustomAlert show={this.state.showAlert}>
                     <RoleAlert role={"HITLER"} roleID={3} onClick={() => {this.setState({showAlert:false}); console.log("click disappear");}}/>
                 </CustomAlert>
+
+                <EventBar show={this.state.showEventBar}/>
 
                 <div style={{display:"inline-block"}}>
                     <div id={"Board Layout"} style={{alignItems:"center", display:"flex", flexDirection:"row", margin:"0 auto"}}>
@@ -573,8 +578,12 @@ class App extends Component {
                         </div>
                     </div>
                     <button
-                        onClick={this.playAnimationTest}
-                    >Play Animation</button>
+                        onClick={this.showAlert}
+                    >Show Alert</button>
+                    <button
+                        onClick={this.playAnimationTest}>
+                        Show Event Bar
+                    </button>
                 </div>
 
             </div>

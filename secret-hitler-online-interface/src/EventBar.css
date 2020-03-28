@@ -1,0 +1,92 @@
+@import './variables.css';
+
+
+
+#event-bar {
+    position: absolute;
+    width: 100%;
+    height: 93vh;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    visibility: hidden;
+    z-index: 48;
+    transition: visibility var(--eventBarIn);
+}
+
+#bar-background {
+    width: 100%;
+    min-height: 25vmin;
+    background-color: var(--alertFill);
+    z-index: 48;
+    animation: ease-in-out;
+}
+
+#event-bar-text {
+    position: absolute;
+    z-index: 49;
+    display: flex;
+    font-style: italic;
+    margin: 0 auto;
+    animation: ease-out;
+    opacity: 0;
+}
+
+#event-bar.appear {
+    visibility: visible;
+    transition: visibility var(--eventBarIn);
+}
+
+#bar-background.appear {
+    visibility: visible;
+    transition: visibility var(--eventBarIn);
+    animation: appear-bar var(--eventBarIn);
+}
+
+#event-bar-text.appear {
+    visibility: visible;
+    transition: visibility var(--eventBarIn);
+    animation: appear-text var(--eventBarIn);
+    opacity: 1;
+}
+
+#event-bar.disappear {
+    visibility: hidden;
+    transition: visibility var(--eventBarOut);
+}
+
+#bar-background.disappear {
+    visibility: hidden;
+    transition: visibility var(--eventBarOut);
+    animation: disappear-bar var(--eventBarOut);
+}
+
+#event-bar-text.disappear {
+    visibility: hidden;
+    transition: visibility var(--eventBarOut);
+    animation: disappear-text var(--eventBarOut);
+}
+
+@keyframes appear-text {
+    0%{opacity: 0; padding-top: 20px}
+    60%{opacity: 0; padding-top: 20px}
+    100% {opacity: 1; padding-top: 0}
+}
+
+@keyframes appear-bar {
+    0%{opacity: 0; width: 0}
+    60% {opacity: 1; width: 100%}
+}
+
+@keyframes disappear-text {
+    0%{opacity: 1; visibility: visible}
+    40% {opacity: 0; visibility: hidden}
+    60% {opacity: 0; visibility: hidden}
+}
+
+@keyframes disappear-bar {
+    0%{opacity: 1; visibility: visible}
+    60%{opacity: 1; visibility: visible}
+    100% {opacity: 0; visibility: hidden}
+}
