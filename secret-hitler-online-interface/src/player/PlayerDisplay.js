@@ -32,7 +32,7 @@ class PlayerDisplay extends Component {
 
     constructor(props) {
         super(props);
-        this.determineRolesToShow();
+        this.determineRolesToShow = this.determineRolesToShow.bind(this);
     }
 
     /**
@@ -44,8 +44,10 @@ class PlayerDisplay extends Component {
      */
     determineRolesToShow() {
         let i = 0;
-        let role = FASCIST;
+        let role;
         let players = this.props.gameState[PARAM_PLAYERS];
+
+        /*Get the role of the player.*/
         for (i; i < players.length; i++) {
             let playerData = players[i];
             if (playerData[PLAYER_NAME] === this.props.user) {
@@ -53,6 +55,8 @@ class PlayerDisplay extends Component {
                 break;
             }
         }
+
+        console.log("My role is: " + role);
 
         switch (role) {
             case FASCIST:
@@ -70,6 +74,8 @@ class PlayerDisplay extends Component {
                 this.showRoleByRole = {FASCIST: false, HITLER: false, LIBERAL: false};
                 break;
         }
+
+        console.log(this.showRoleByRole);
     }
 
     /**

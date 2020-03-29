@@ -45,7 +45,7 @@ class App extends Component {
     constructor(props) {
         super(props);
         this.state={
-            page:PAGE.GAME,
+            page:PAGE.LOGIN,
             joinName:"",
             joinLobby:"",
             joinError:"",
@@ -181,7 +181,7 @@ class App extends Component {
                 console.log("Some data missing from lobby packet.");
             }
         } else {
-
+            this.setState({gameState: message, page: PAGE.GAME});
         }
     };
 
@@ -441,7 +441,7 @@ class App extends Component {
 
                     <p style={{marginBottom:"2px"}}>Copy and share this link to invite other players.</p>
                     <div style={{textAlign:"left", display:"flex", flexDirection:"row", alignItems:"center"}}>
-                        <textarea id="linkText" readOnly={true} value={"secret-hitler-web.heroku.com/join/" + this.state.lobby}/>
+                        <textarea id="linkText" readOnly={true} value={"secret-hitler.online/join/" + this.state.lobby}/>
                         <button
                             onClick={this.onClickCopy}
                         >
@@ -521,7 +521,7 @@ class App extends Component {
 
                 <PlayerDisplay
                     gameState={this.state.gameState}
-                    user={"qweq"}
+                    user={this.state.name}
                 />
 
                 <StatusBar>{this.state.statusBarText}</StatusBar>
@@ -588,6 +588,10 @@ class App extends Component {
                         Show Event Bar
                     </button>
 
+                </div>
+
+                <div style={{textAlign:"center"}}>
+                    <div id="snackbar">{this.state.snackbarMessage}</div>
                 </div>
 
             </div>
