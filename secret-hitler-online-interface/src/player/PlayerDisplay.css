@@ -1,2 +1,32 @@
 @import '../variables.css';
 
+#player-display {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    background-color: var(--backgroundDark);
+    padding: 10px;
+}
+
+#player-display-container {
+    display: flex;
+    flex-direction: row;
+
+}
+
+#player-display-text-container {
+    display: inline-block;
+    width: min-content;
+    margin-top: auto;
+}
+
+#player-display-label {
+    display: inline-block;
+    width: 15vmin;
+    font-size: calc(4px + 3vmin);
+    font-weight: normal;
+    font-family: var(--headerFont);
+    color: var(--textColorWhite);
+    margin: 0 auto;
+}

@@ -3,9 +3,9 @@
 
 
 #event-bar {
-    position: absolute;
+    position: fixed;
     width: 100%;
-    height: 93vh;
+    top: 30%;
     align-items: center;
     display: flex;
     justify-content: center;

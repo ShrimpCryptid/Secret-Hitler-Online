@@ -1,11 +1,26 @@
 import React, {Component} from 'react';
 import Player from "./Player";
-import {} from "../GlobalDefinitions";
-import {FASCIST} from "../GlobalDefinitions";
-import {PLAYER_NAME} from "../GlobalDefinitions";
-import {PLAYER_IDENTITY} from "../GlobalDefinitions";
-import {PLAYER_IS_ALIVE} from "../GlobalDefinitions";
-
+import {
+    FASCIST,
+    PARAM_PLAYERS,
+    PLAYER_NAME,
+    PLAYER_IDENTITY,
+    PLAYER_IS_ALIVE,
+    HITLER,
+    LIBERAL,
+    PARAM_CHANCELLOR,
+    PARAM_PRESIDENT,
+    PARAM_STATE,
+    STATE_CHANCELLOR_NOMINATION,
+    STATE_LEGISLATIVE_PRESIDENT,
+    STATE_LEGISLATIVE_PRESIDENT_VETO,
+    STATE_PP_PEEK,
+    STATE_PP_ELECTION,
+    STATE_PP_EXECUTION,
+    STATE_PP_INVESTIGATE,
+    STATE_POST_LEGISLATIVE, STATE_LEGISLATIVE_CHANCELLOR, STATE_CHANCELLOR_VOTING, PARAM_VOTES
+} from "../GlobalDefinitions";
+import './PlayerDisplay.css';
 
 /**
  * Displays a row of player icons and handles displaying busy status, votes, and roles where applicable.
@@ -17,7 +32,6 @@ class PlayerDisplay extends Component {
 
     constructor(props) {
         super(props);
-        this.getUserRole = this.getUserRole.bind(this);
         this.determineRolesToShow();
     }
 
@@ -31,8 +45,9 @@ class PlayerDisplay extends Component {
     determineRolesToShow() {
         let i = 0;
         let role = FASCIST;
-        for (i; i < this.props.playerList.length; i++) {
-            let playerData = this.props.playerList.get(i);
+        let players = this.props.gameState[PARAM_PLAYERS];
+        for (i; i < players.length; i++) {
+            let playerData = players[i];
             if (playerData[PLAYER_NAME] === this.props.user) {
                 role = playerData[PLAYER_IDENTITY];
                 break;
@@ -44,7 +59,7 @@ class PlayerDisplay extends Component {
                 this.showRoleByRole = {FASCIST: true, HITLER: true, LIBERAL: false};
                 break;
             case HITLER:
-                if (this.props.playerList.length <= 6) {
+                if (players.length <= 6) {
                     this.showRoleByRole = {FASCIST: true, HITLER: true, LIBERAL: false};
                 } else {
                     this.showRoleByRole = {FASCIST: false, HITLER: true, LIBERAL: false};
@@ -58,6 +73,45 @@ class PlayerDisplay extends Component {
     }
 
     /**
+     * Returns a set of players that should be considered 'busy' and marked on the interface. A player is considered
+     * busy if the game is waiting for some input from them.
+     */
+    getBusyPlayerSet() {
+        let game = this.props.gameState;
+        let busyPlayers = new Set([]);
+        console.log("Setting busy players...");
+        switch (game[PARAM_STATE]) {
+            case STATE_CHANCELLOR_NOMINATION:
+            case STATE_LEGISLATIVE_PRESIDENT:
+            case STATE_LEGISLATIVE_PRESIDENT_VETO:
+            case STATE_PP_PEEK:
+            case STATE_PP_ELECTION:
+            case STATE_PP_EXECUTION:
+            case STATE_PP_INVESTIGATE:
+            case STATE_POST_LEGISLATIVE:
+                busyPlayers.add(game[PARAM_PRESIDENT]);
+                break;
+            case STATE_LEGISLATIVE_CHANCELLOR:
+                busyPlayers.add(game[PARAM_CHANCELLOR]);
+                break;
+            case STATE_CHANCELLOR_VOTING:
+
+                game[PARAM_PLAYERS].forEach((p, index) => {
+                    let name = p[PLAYER_NAME];
+                    if (!game[PARAM_VOTES].hasOwnProperty(name)) { // player has not voted (is not in the map of votes)
+                        busyPlayers.add(name);
+                    }
+                });
+
+                break;
+            default: // This includes the victory states and setup.
+                break;
+        }
+        console.log(busyPlayers);
+        return busyPlayers;
+    }
+
+    /**
      * Gets the HTML tags for the players in the provided indices.
      * @param start {int} the starting index, inclusive.
      * @param end {int} the ending index, exclusive.
@@ -66,20 +120,34 @@ class PlayerDisplay extends Component {
      */
     getPlayers(start, end) {
         let out = [];
+        let players = this.props.gameState[PARAM_PLAYERS];
+        let busyPlayers = this.getBusyPlayerSet();
         let i = 0;
         for (i; start + i < end; i++) {
             let index = i + start;
-            let playerData = this.props.playerList[index];
+            let playerData = players[index];
+            let playerName = playerData[PLAYER_NAME];
+
+            let roleText = "";
+            if (playerName === this.props.user) {
+                roleText = "(YOU)";
+            }
+            if (playerName === this.props.gameState[PARAM_CHANCELLOR]) {
+                roleText = "CHANCELLOR";
+            } else if (playerName === this.props.gameState[PARAM_PRESIDENT]) {
+                roleText = "PRESIDENT";
+            }
+
             out[i] = (
                 <div id={"player-display-text-container"}>
-                    <p id="player-display-label">CHANCELLOR</p>
+                    <p id="player-display-label">{roleText}</p>
                     <Player
-                        isBusy ={false}
+                        isBusy ={busyPlayers.has(playerName)}
                         role = {playerData[PLAYER_IDENTITY]}
-                        showRole = {this.showRoleByRole[playerData[PLAYER_IDENTITY]] || playerData[PLAYER_NAME] === this.props.user}
-                        isUser = {playerData[PLAYER_NAME] === this.props.user}
-                        disabled = {playerData[PLAYER_IS_ALIVE]}
-                        name = {playerData[PLAYER_NAME]}
+                        showRole = {this.showRoleByRole[playerData[PLAYER_IDENTITY]] || playerName === this.props.user}
+                        isUser = {playerName === this.props.user}
+                        disabled = {!playerData[PLAYER_IS_ALIVE]}
+                        name = {playerName}
                     />
                 </div>
             )
@@ -90,7 +158,8 @@ class PlayerDisplay extends Component {
     /* Note that there are two player-display-containers, so that the player tiles can be split into two rows if there
     * is insufficient space for them.*/
     render() {
-        let middleIndex = Math.floor(this.props.playerList.length / 2);
+        let players = this.props.gameState[PARAM_PLAYERS];
+        let middleIndex = Math.floor(players.length / 2);
         this.determineRolesToShow();
         return (
             <div id="player-display">
@@ -98,7 +167,7 @@ class PlayerDisplay extends Component {
                     {this.getPlayers(0, middleIndex)}
                 </div>
                 <div id="player-display-container">
-                    {this.getPlayers(middleIndex, this.props.playerList.length)}
+                    {this.getPlayers(middleIndex, players.length)}
                 </div>
             </div>
         );
@@ -106,11 +175,8 @@ class PlayerDisplay extends Component {
 }
 
 PlayerDisplay.defaultProps = {
-    playerList: [{"alive":true,"identity":"LIBERAL","investigated":false,"username":"kjh"},{"alive":true,"identity":"LIBERAL","investigated":false,"username":"fff"},{"alive":true,"identity":"FASCIST","investigated":false,"username":"t"},{"alive":true,"identity":"HITLER","investigated":false,"username":"qweq"},{"alive":true,"identity":"LIBERAL","investigated":false,"username":"sdfs"}],
-    busy: [],
-    currentPresident: "kjh",
-    currentChancellor: "fff",
-    user: "kjh", /* The name of the user. */
+    user: "qweq", /* The name of the user. */
+    gameState: {"liberal-policies":0,"fascist-policies":0,"discard-size":0,"draw-size":17,"players":[{"alive":true,"identity":"LIBERAL","investigated":false,"username":"kjh"},{"alive":true,"identity":"LIBERAL","investigated":false,"username":"fff"},{"alive":true,"identity":"FASCIST","investigated":false,"username":"t"},{"alive":true,"identity":"HITLER","investigated":false,"username":"qweq"},{"alive":true,"identity":"LIBERAL","investigated":false,"username":"sdfs"}],"in-game":true,"state":"CHANCELLOR_NOMINATION","president":"kjh","election-tracker":0,"user-votes":{}}
 };
 
 export default PlayerDisplay;

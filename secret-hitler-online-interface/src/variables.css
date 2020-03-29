@@ -20,8 +20,8 @@
     --alertFill: #141414;
     --alertOverlayOpacity: 0.8;
 
-    --playerBrightessFilter: 40%;
-    --playerDisabledTextColor: #888888;
+    --playerBrightnessFilter: 40%;
+    --playerDisabledTextColor: #999999;
 
     --eventBarIn: 1s;
     --eventBarOut: 1s;

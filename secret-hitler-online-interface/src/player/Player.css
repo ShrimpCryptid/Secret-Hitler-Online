@@ -6,9 +6,14 @@
     margin: 5px;
 }
 
-#player-icon {
+#player-image {
     width: 16vmin;
     height: auto;
+    filter: brightness(100%);
+}
+
+#player-image.darken {
+    filter: brightness(calc(var(--playerBrightnessFilter) - 5%));
 }
 
 #player-name {
@@ -22,7 +27,6 @@
 }
 
 #player-name.darken {
-    filter: none;
     color: var(--textShadowed);
 }
 
@@ -31,6 +35,13 @@
     top: 73%;
     left: 8%;
     width: 4.5vmin;
+}
+
+#player-busy-icon {
+    position: absolute;
+    top: 45%;
+    left: 50%;
+    width: 6vmin;
 }
 
 #player-identity-label {
@@ -51,7 +62,7 @@
     left: 0;
     font-family: var(--headerFont);
     color: var(--playerDisabledTextColor);
-    padding: 15% 0%;
+    padding: 15% 0;
     height: 100%;
     width: 100%;
     font-size: 3vmin;
@@ -60,5 +71,5 @@
 }
 
 .darken {
-    filter: brightness(40%);
+    filter: brightness(var(--playerBrightnessFilter));
 }

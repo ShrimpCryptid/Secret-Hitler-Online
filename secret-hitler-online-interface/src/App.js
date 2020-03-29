@@ -32,6 +32,7 @@ import {
     MAX_PLAYERS, MIN_PLAYERS, COMMAND_START_GAME
 } from "./GlobalDefinitions";
 import * as DEF from "./GlobalDefinitions";
+import PlayerDisplay from "./player/PlayerDisplay";
 
 class App extends Component {
 
@@ -55,12 +56,12 @@ class App extends Component {
             usernames:[],
             userCount:1,
 
-            drawDeckSize: 17,
-            discardDeckSize: 0,
+            gameState: {"liberal-policies":0,"fascist-policies":0,"discard-size":0,"draw-size":17,"players":[{"alive":true,"identity":"LIBERAL","investigated":false,"username":"kjh"},{"alive":true,"identity":"LIBERAL","investigated":false,"username":"fff"},{"alive":true,"identity":"FASCIST","investigated":false,"username":"t"},{"alive":true,"identity":"HITLER","investigated":false,"username":"qweq"},{"alive":true,"identity":"LIBERAL","investigated":false,"username":"sdfs"}],"in-game":true,"state":"CHANCELLOR_VOTING","president":"kjh", "chancellor":"t", "election-tracker":0,"user-votes":{"qweq": true, "sdfs": false}},
 
             snackbarMessage:"",
             showAlert: false,
             showEventBar: false
+
 
         };
         this.onWebSocketClose = this.onWebSocketClose.bind(this);
@@ -508,31 +509,40 @@ class App extends Component {
 
                 <EventBar show={this.state.showEventBar}/>
 
-                <div style={{display:"flex", flexDirection:"row", flexWrap:"wrap", justifyContent:"center", backgroundColor:"var(--backgroundDark)"}}>
-                    <div style={{display:"flex", flexDirection:"row"}}>
-                        <Player />
-                        <Player role={"LIBERAL"} name={"It Me"} isUser={true}/>
-                        <Player disabled={true} isUser={true}/>
-                        <Player showRole={true}/>
-                        <Player role={"FASCIST"}/>
-                    </div>
-                    <div style={{display:"flex", flexDirection:"row"}}>
-                        <Player role={"LIBERAL"} name={"Yeeto Cheeto"}/>
-                        <Player role={"HITLER"} name={"Not Hitler"}/>
-                        <Player role={"LIBERAL"} disabled={true} disabledText={"TERM LIMITED"}/>
-                        <Player name={"h̸̻͌e̸͙̓l̷͎̐p̷̲̏"}/>
-                        <Player role={"LIBERAL"} name={"Big Boi"}/>
-                    </div>
-                </div>
+                <PlayerDisplay
+                    gameState={this.state.gameState}
+                    user={this.state.name}
+                />
 
                 <div>
 
                 </div>
 
                 <div style={{display:"inline-block"}}>
-                    <div id={"Board Layout"} style={{alignItems:"center", display:"flex", flexDirection:"row", margin:"0 auto"}}>
-                        <div id={"draw-deck"}>
-                            <img src={DrawDeck} style={{width:"11vmin"}} alt={"The draw deck. (" + this.state.drawDeckSize + " cards)"}/>
+                    <div id={"Board Layout"} style={{alignItems:"center", display:"flex", flexDirection:"column", margin:"10px auto"}}>
+
+                        <div style={{display:"flex", flexDirection:"row"}}>
+                            <div id={"draw-deck"}>
+                                <img src={DrawDeck} style={{width:"11vmin"}} alt={"The draw deck. (" + this.state.drawDeckSize + " cards)"}/>
+                            </div>
+
+                            <div>
+                            <button>END TERM</button>
+                            </div>
+
+                            <div id={"discard-deck"} style={{position:"relative"}}>
+                                <img src={DiscardDeck} style={{width:"11vmin"}} alt={"The discard deck. (" + this.state.discardDeckSize + " cards)"}/>
+                                <div>
+                                    <img id="Discard1" src={PolicyBack} style={{width:"7.5vmin", position:"absolute", top:"9%", left:"16%"}} />
+                                </div>
+                                <img id="Discard2" src={PolicyBack} style={{width:"7.5vmin", position:"absolute", top:"6%", left:"16%"}} />
+                                <img id="Discard3" src={PolicyBack} style={{width:"7.5vmin", position:"absolute", top:"3%", left:"16%"}} />
+                                <img id="Discard4" src={PolicyBack} style={{width:"7.5vmin", position:"absolute", top:"0%", left:"16%"}} />
+                                <div style={{position:"absolute", top:"-3%", left:"16%"}}>
+                                    <img className="" id="target" src={PolicyBack} style={{width:"7.5vmin", position:"relative", zIndex:"5"}} />
+                                </div>
+                                <p style={{marginTop:"0px"}}>4</p>
+                            </div>
                         </div>
 
                         <div style={{display:"flex", flexDirection:"column"}}>
@@ -558,19 +568,7 @@ class App extends Component {
 
                         </div>
 
-                        <div id={"discard-deck"} style={{position:"relative"}}>
-                            <img src={DiscardDeck} style={{width:"11vmin"}} alt={"The discard deck. (" + this.state.discardDeckSize + " cards)"}/>
-                            <div>
-                                <img id="Discard1" src={PolicyBack} style={{width:"7.5vmin", position:"absolute", top:"9%", left:"16%"}} />
-                            </div>
-                            <img id="Discard2" src={PolicyBack} style={{width:"7.5vmin", position:"absolute", top:"6%", left:"16%"}} />
-                            <img id="Discard3" src={PolicyBack} style={{width:"7.5vmin", position:"absolute", top:"3%", left:"16%"}} />
-                            <img id="Discard4" src={PolicyBack} style={{width:"7.5vmin", position:"absolute", top:"0%", left:"16%"}} />
-                            <div style={{position:"absolute", top:"-3%", left:"16%"}}>
-                                <img className="" id="target" src={PolicyBack} style={{width:"7.5vmin", position:"relative", zIndex:"5"}} />
-                            </div>
-                            <p style={{marginTop:"0px"}}>4</p>
-                        </div>
+
                     </div>
 
                     <button

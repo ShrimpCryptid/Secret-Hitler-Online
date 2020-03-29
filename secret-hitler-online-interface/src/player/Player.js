@@ -10,6 +10,8 @@ import IconFascist from "./assets/player-icon-fascist.png";
 import IconHitler from "./assets/player-icon-hitler.png";
 import IconLiberal from "./assets/player-icon-liberal.png";
 
+import IconBusy from "./assets/player-icon-busy.png";
+
 const LIBERAL = "LIBERAL";
 const FASCIST = "FASCIST";
 const HITLER = "HITLER";
@@ -41,14 +43,15 @@ class Player extends Component {
             case FASCIST:
                 return IconFascist;
             case HITLER:
+            default:
                 return IconHitler;
         }
     }
 
     /**
      * Capitalizes only the first character of the given text.
-     * @param text {String} the text to capitalize.
-     * @return text, where only the first character is uppercase.
+     * @param {String} text the text to capitalize.
+     * @return {String} text where only the first character is uppercase.
      */
     capitalizeFirstOnly(text) {
         return text.charAt(0).toUpperCase() + text.toLowerCase().substr(1);
@@ -79,7 +82,7 @@ class Player extends Component {
 
     /**
      * Gets the alt text for all images.
-     * @return {@code this.getNameWithYouTag()}.
+     * @return {String} {@code this.getNameWithYouTag}.
      *          If this.props.showRole, appends a formatted version of "({@code this.props.role"})"
      */
     getAltText() {
@@ -104,16 +107,24 @@ class Player extends Component {
     render() {
         return (
             <div id="player-container">
+                <img id="player-image"
+                     src={PlayerBase}
+                     alt={this.getAltText()}
+                     className={this.getDarken()}
+                />
+
                 <Textfit id={"player-name"}
                          className={this.getDarken()}
                          mode="multi"
-                         forceSingleModeWidth={false}>
+                         forceSingleModeWidth={false}
+                >
                     {this.getNameWithYouTag()}
                 </Textfit>
 
-                <img id="player-icon"
-                     src={this.getImg()}
-                     alt={this.getAltText()}
+                <img id="player-busy-icon"
+                     src={IconBusy}
+                     hidden={!this.props.isBusy}
+                     alt=""
                 />
 
                 <img id="player-identity-icon"
