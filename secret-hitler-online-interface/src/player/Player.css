@@ -1,0 +1,64 @@
+@import '../variables.css';
+
+#player-container {
+    position:relative;
+    display: inline-block;
+    margin: 5px;
+}
+
+#player-icon {
+    width: 16vmin;
+    height: auto;
+}
+
+#player-name {
+    position:absolute;
+    color: var(--backgroundDark);
+    font-family: var(--textFont);
+    top: 64%;
+    left: 10%;
+    width: 13vmin;
+    height: 3vmin;
+}
+
+#player-name.darken {
+    filter: none;
+    color: var(--textShadowed);
+}
+
+#player-identity-icon {
+    position:absolute;
+    top: 73%;
+    left: 8%;
+    width: 4.5vmin;
+}
+
+#player-identity-label {
+    position:absolute;
+    top: 69%;
+    left: 38%;
+    font-size: calc(2vmin);
+    color: var(--textColorHighlight);
+}
+
+#player-identity-label.liberal-text {
+    color: var(--textColorLiberal);
+}
+
+#player-disabled-label {
+    position:absolute;
+    top: 0;
+    left: 0;
+    font-family: var(--headerFont);
+    color: var(--playerDisabledTextColor);
+    padding: 15% 0%;
+    height: 100%;
+    width: 100%;
+    font-size: 3vmin;
+    font-weight: normal;
+    vertical-align: middle;
+}
+
+.darken {
+    filter: brightness(40%);
+}

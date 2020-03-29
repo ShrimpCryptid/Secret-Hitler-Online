@@ -10,6 +10,7 @@
     --textColorHighlight: var(--headerFill);
     --textColorLiberal: #5a9ba6;
     --textColorWhite: #ffffff;
+    --textShadowed: #141414;
     --buttonFill: var(--headerFill);
     --buttonShadowFill: #b4431a;
     --buttonHoverFill: #e67a53;
@@ -18,6 +19,9 @@
 
     --alertFill: #141414;
     --alertOverlayOpacity: 0.8;
+
+    --playerBrightessFilter: 40%;
+    --playerDisabledTextColor: #888888;
 
     --eventBarIn: 1s;
     --eventBarOut: 1s;

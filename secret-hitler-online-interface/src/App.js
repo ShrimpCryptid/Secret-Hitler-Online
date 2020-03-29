@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import './App.css';
-import MaxLengthTextField from "./MaxLengthTextField";
+import MaxLengthTextField from "./util/MaxLengthTextField";
+import './fonts.css';
 
 import PolicyBack from "./assets/board-policy.png";
 import PolicyLiberal from "./assets/board-policy-liberal.png";
@@ -9,73 +10,28 @@ import LiberalBoard from "./assets/board-liberal.png";
 import FascistBoard56 from "./assets/board-fascist-5-6.png";
 import ElectionTracker from "./assets/board-tracker.png";
 
-import RoleHitler from "./assets/role-hitler.png";
-
 import DrawDeck from "./assets/board-draw.png";
 import DiscardDeck from "./assets/board-discard.png";
-import CustomAlert from "./CustomAlert";
-import RoleAlert from "./RoleAlert";
+import CustomAlert from "./custom-alert/CustomAlert";
+import RoleAlert from "./custom-alert/RoleAlert";
 import EventBar from "./EventBar"
-import Player from "./Player";
-
-
-const PAGE = {
-    LOGIN: 'login',
-    LOBBY: 'lobby',
-    GAME: 'game'
-};
-const SERVER_ADDRESS = "localhost:4000";
-const SERVER_ADDRESS_HTTP = "http://" + SERVER_ADDRESS;
-const CHECK_LOGIN = "/check-login";
-const NEW_LOBBY = '/new-lobby';
-const WEBSOCKET = '/game';
-const MAX_FAILED_CONNECTIONS = 3;
-const LOBBY_CODE_LENGTH = 6;
-
-//////// Game Constants
-const MIN_PLAYERS = 5;
-const MAX_PLAYERS = 10;
-
-//////// JSON Packet Data
-
-// Commands
-//<editor-fold desc="Commands">
-const PARAM_COMMAND = "command";
-const PARAM_NAME = "name";
-const PARAM_LOBBY = "lobby";
-
-const COMMAND_PING = "ping";
-const COMMAND_START_GAME = "start-game";
-const COMMAND_GET_STATE = "get-state";
-const COMMAND_NOMINATE_CHANCELLOR = "nominate-chancellor";
-const COMMAND_REGISTER_VOTE = "register-vote";
-const COMMAND_REGISTER_PRESIDENT_CHOICE = "register-president-choice";
-const COMMAND_REGISTER_CHANCELLOR_CHOICE = "register-chancellor-choice";
-const COMMAND_REGISTER_CHANCELLOR_VETO = "chancellor-veto";
-const COMMAND_REGISTER_PRESIDENT_VETO = "president-veto";
-const COMMAND_REGISTER_EXECUTION = "register-execution";
-const COMMAND_REGISTER_SPECIAL_ELECTION = "register-special-election";
-const COMMAND_GET_INVESTIGATION = "get-investigation";
-const COMMAND_GET_PEEK = "get-peek";
-const COMMAND_END_TERM = "end-term";
-
-//</editor-fold>
-
-// Params
-// <editor-fold desc="Params">
-const PARAM_IN_GAME = "in-game";
-
-const PARAM_USER_COUNT = "user-count";
-const PARAM_USERNAMES = "usernames";
-
-const PARAM_STATE = "state";
-const PARAM_PLAYERS = "players";
-const PLAYER_NAME = "username";
-const PLAYER_IDENTITY = "identity";
-const PLAYER_IS_ALIVE = "alive";
-const PLAYER_INVESTIGATED = "investigated";
-
-// </editor-fold>
+import Player from "./player/Player";
+import {
+    PAGE,
+    MAX_FAILED_CONNECTIONS,
+    SERVER_ADDRESS_HTTP,
+    NEW_LOBBY,
+    CHECK_LOGIN,
+    SERVER_ADDRESS,
+    WEBSOCKET,
+    PARAM_IN_GAME,
+    PARAM_USER_COUNT,
+    PARAM_USERNAMES,
+    PARAM_COMMAND,
+    LOBBY_CODE_LENGTH,
+    MAX_PLAYERS, MIN_PLAYERS, COMMAND_START_GAME
+} from "./GlobalDefinitions";
+import * as DEF from "./GlobalDefinitions";
 
 class App extends Component {
 
@@ -87,7 +43,7 @@ class App extends Component {
     constructor(props) {
         super(props);
         this.state={
-            page:PAGE.LOGIN,
+            page:PAGE.GAME,
             joinName:"",
             joinLobby:"",
             joinError:"",
@@ -547,7 +503,7 @@ class App extends Component {
                 </header>
 
                 <CustomAlert show={this.state.showAlert}>
-                    <RoleAlert role={"HITLER"} roleID={3} onClick={() => {this.setState({showAlert:false}); console.log("click disappear");}}/>
+                    <RoleAlert role={"LIBERAL"} roleID={3} onClick={() => {this.setState({showAlert:false}); console.log("click disappear");}}/>
                 </CustomAlert>
 
                 <EventBar show={this.state.showEventBar}/>
@@ -555,15 +511,15 @@ class App extends Component {
                 <div style={{display:"flex", flexDirection:"row", flexWrap:"wrap", justifyContent:"center", backgroundColor:"var(--backgroundDark)"}}>
                     <div style={{display:"flex", flexDirection:"row"}}>
                         <Player />
-                        <Player role={"LIBERAL"} name={"AAAAAAAAAAAA"}/>
-                        <Player />
-                        <Player showRole={false}/>
+                        <Player role={"LIBERAL"} name={"It Me"} isUser={true}/>
+                        <Player disabled={true} isUser={true}/>
+                        <Player showRole={true}/>
                         <Player role={"FASCIST"}/>
                     </div>
                     <div style={{display:"flex", flexDirection:"row"}}>
                         <Player role={"LIBERAL"} name={"Yeeto Cheeto"}/>
                         <Player role={"HITLER"} name={"Not Hitler"}/>
-                        <Player role={"LIBERAL"}/>
+                        <Player role={"LIBERAL"} disabled={true} disabledText={"TERM LIMITED"}/>
                         <Player name={"h̸̻͌e̸͙̓l̷͎̐p̷̲̏"}/>
                         <Player role={"LIBERAL"} name={"Big Boi"}/>
                     </div>

@@ -57,7 +57,7 @@ public class GameToJSONConverter {
             } else if (player.isFascist()) {
                 id = FASCIST;
             }
-            playerObj.put("identity", id);
+            playerObj.put("id", id);
             playerObj.put("investigated", player.hasBeenInvestigated());
             playerArray.put(playerObj);
         }

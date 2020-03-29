@@ -1,4 +1,4 @@
-@import './variables.css';
+@import '../variables.css';
 
 #alert {
     position: absolute;
@@ -11,9 +11,12 @@
 }
 
 #alert-background {
-    position: absolute;
+    position: fixed;
     width: 100%;
-    height: 100%;
+    height: 100ch;
+    min-height: 100%;
+    top: 0;
+    left: 0;
     margin: 0;
     z-index: 50;
     background-color: var(--alertFill);
@@ -24,7 +27,8 @@
     position: relative;
     z-index: 60;
     opacity: 1;
-    width: 80vmin;
+    min-width: 80vmin;
+    max-width: 60vw;
     min-height: 60vmin;
     margin: auto auto;
     padding: 20px;
@@ -33,19 +37,6 @@
 }
 
 #alert-header {
-    text-align: left;
-    margin: 10px;
-}
-
-#role {
-    width: 25vmin;
-    height: auto;
-    display: inline;
-    align-self: center;
-    margin: 10px;
-}
-
-.textbox {
     text-align: left;
     margin: 10px;
 }

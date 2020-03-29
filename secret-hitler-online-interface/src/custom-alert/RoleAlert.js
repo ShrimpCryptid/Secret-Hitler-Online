@@ -1,14 +1,16 @@
 import React, {Component} from 'react';
-import RoleHitler from "./assets/role-hitler.png";
-import RoleLiberal1 from "./assets/role-liberal-1.png"
-import RoleLiberal2 from "./assets/role-liberal-2.png"
-import RoleLiberal3 from "./assets/role-liberal-3.png"
-import RoleLiberal4 from "./assets/role-liberal-4.png"
-import RoleLiberal5 from "./assets/role-liberal-5.png"
-import RoleLiberal6 from "./assets/role-liberal-6.png"
-import RoleFascist1 from "./assets/role-fascist-1.png"
-import RoleFascist2 from "./assets/role-fascist-2.png"
-import RoleFascist3 from "./assets/role-fascist-2.png"
+import RoleHitler from "../assets/role-hitler.png";
+import RoleLiberal1 from "../assets/role-liberal-1.png"
+import RoleLiberal2 from "../assets/role-liberal-2.png"
+import RoleLiberal3 from "../assets/role-liberal-3.png"
+import RoleLiberal4 from "../assets/role-liberal-4.png"
+import RoleLiberal5 from "../assets/role-liberal-5.png"
+import RoleLiberal6 from "../assets/role-liberal-6.png"
+import RoleFascist1 from "../assets/role-fascist-1.png"
+import RoleFascist2 from "../assets/role-fascist-2.png"
+import RoleFascist3 from "../assets/role-fascist-2.png"
+
+import './RoleAlert.css';
 
 const LIBERAL = "LIBERAL";
 const HITLER = "HITLER";
@@ -106,14 +108,13 @@ class RoleAlert extends Component {
         }
         return (
             <div>
-                <h2 id="alert-header">YOU ARE: {this.props.role}</h2>
-                <div style={{display:"flex", flexDirection:"row"}}>
-                <img id="role" src={this.getRoleImage()} alt={this.getRoleImageAltText()}/>
-                <div className="textbox">
-                    <p>{roleText[0]}</p>
-                    <p>{roleText[1]}</p>
-                    <p className="highlight">{roleText[2]}</p>
-                </div>
+                <div>
+                    <h2 id="alert-header">YOU ARE: {this.props.role}</h2>
+                    <img id="role" src={this.getRoleImage()} alt={this.getRoleImageAltText()}/>
+
+                    <p className={"left-align"}>{roleText[0]}</p>
+                    <p className={"left-align"}>{roleText[1]}</p>
+                    <p className="highlight left-align">{roleText[2]}</p>
                 </div>
                 <p>You can review this later by clicking Your Role below.</p>
                 <button onClick={this.props.onClick}>OKAY</button>

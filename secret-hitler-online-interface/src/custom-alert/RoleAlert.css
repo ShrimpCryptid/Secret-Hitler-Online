@@ -1,0 +1,14 @@
+@import '../variables.css';
+
+#role {
+    width: 25vmin;
+    height: auto;
+    display: inline;
+    float:left;
+    align-self: center;
+    margin: 10px;
+}
+
+.left-align {
+    text-align: left;
+}
