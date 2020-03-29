@@ -33,6 +33,7 @@ import {
 } from "./GlobalDefinitions";
 import * as DEF from "./GlobalDefinitions";
 import PlayerDisplay from "./player/PlayerDisplay";
+import StatusBar from "./status-bar/StatusBar";
 
 class App extends Component {
 
@@ -56,12 +57,12 @@ class App extends Component {
             usernames:[],
             userCount:1,
 
-            gameState: {"liberal-policies":0,"fascist-policies":0,"discard-size":0,"draw-size":17,"players":[{"alive":true,"identity":"LIBERAL","investigated":false,"username":"kjh"},{"alive":true,"identity":"LIBERAL","investigated":false,"username":"fff"},{"alive":true,"identity":"FASCIST","investigated":false,"username":"t"},{"alive":true,"identity":"HITLER","investigated":false,"username":"qweq"},{"alive":true,"identity":"LIBERAL","investigated":false,"username":"sdfs"}],"in-game":true,"state":"CHANCELLOR_VOTING","president":"kjh", "chancellor":"t", "election-tracker":0,"user-votes":{"qweq": true, "sdfs": false}},
+            gameState: {"liberal-policies":0,"fascist-policies":0,"discard-size":0,"draw-size":17,"players":[{"alive":true,"identity":"LIBERAL","investigated":false,"username":"kjh"},{"alive":true,"identity":"LIBERAL","investigated":false,"username":"fff"},{"alive":true,"identity":"FASCIST","investigated":false,"username":"t"},{"alive":true,"identity":"HITLER","investigated":false,"username":"qweq"},{"alive":false,"identity":"LIBERAL","investigated":false,"username":"sdfs"}, {"alive":false,"identity":"FASCIST","investigated":false,"username":"potato"}],"in-game":true,"state":"CHANCELLOR_VOTING","president":"kjh", "chancellor":"t", "election-tracker":0,"user-votes":{"qweq": true, "sdfs": false}},
 
             snackbarMessage:"",
             showAlert: false,
-            showEventBar: false
-
+            showEventBar: false,
+            statusBarText:"Empty"
 
         };
         this.onWebSocketClose = this.onWebSocketClose.bind(this);
@@ -73,6 +74,7 @@ class App extends Component {
         this.playAnimationTest = this.playAnimationTest.bind(this);
         this.showAlert = this.showAlert.bind(this);
         this.showSnackBar = this.showSnackBar.bind(this);
+        this.changeStatusBarText = this.changeStatusBarText.bind(this);
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -492,6 +494,14 @@ class App extends Component {
         this.setState({showAlert: true});
     }
 
+    changeStatusBarText() {
+        if (this.state.statusBarText === "Waiting for all players to submit votes...") {
+            this.setState({statusBarText: "Waiting for president to nominate a chancellor..."});
+        } else {
+            this.setState({statusBarText: "Waiting for all players to submit votes..."});
+        }
+    }
+
     /**
      * Renders the game page.
      */
@@ -511,12 +521,11 @@ class App extends Component {
 
                 <PlayerDisplay
                     gameState={this.state.gameState}
-                    user={this.state.name}
+                    user={"qweq"}
                 />
 
-                <div>
-
-                </div>
+                <StatusBar>{this.state.statusBarText}</StatusBar>
+                <button onClick={this.changeStatusBarText}>Test Status Bar Animation</button>
 
                 <div style={{display:"inline-block"}}>
                     <div id={"Board Layout"} style={{alignItems:"center", display:"flex", flexDirection:"column", margin:"10px auto"}}>

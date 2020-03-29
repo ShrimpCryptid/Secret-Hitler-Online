@@ -1,0 +1,39 @@
+@import '../variables.css';
+
+#status-bar {
+    background-color: var(--alertFill);
+}
+
+#status-bar-text {
+    margin: 0;
+    padding: 2vmin 5px;
+    color: var(--textColorWhite);
+    -webkit-animation: show 0.5s;
+    animation: show 0.5s;
+}
+
+#status-bar-text.hide {
+    animation-timing-function: ease-in-out;
+    -webkit-animation: hide 0.5s;
+    animation: hide 0.5s;
+}
+
+@-webkit-keyframes show {
+    0% {opacity: 0;}
+    100% {opacity: 1;}
+}
+
+@keyframes show {
+    0% {opacity: 0;}
+    100% {opacity: 1;}
+}
+
+@-webkit-keyframes hide {
+    0% {opacity: 1;}
+    100% {opacity: 0;}
+}
+
+@keyframes hide {
+    0% {opacity: 1;}
+    100% {opacity: 0;}
+}

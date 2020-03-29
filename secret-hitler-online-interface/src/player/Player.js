@@ -158,7 +158,7 @@ Player.defaultProps = {
     role: "FASCIST",
     showRole: true,
     disabled: false,
-    disabledText: "DECEASED",
+    disabledText: "EXECUTED",
     isUser: false
 };
 

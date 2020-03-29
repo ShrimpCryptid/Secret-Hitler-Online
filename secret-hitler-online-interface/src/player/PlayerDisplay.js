@@ -98,7 +98,8 @@ class PlayerDisplay extends Component {
 
                 game[PARAM_PLAYERS].forEach((p, index) => {
                     let name = p[PLAYER_NAME];
-                    if (!game[PARAM_VOTES].hasOwnProperty(name)) { // player has not voted (is not in the map of votes)
+                    let isAlive = p[PLAYER_IS_ALIVE]
+                    if (!game[PARAM_VOTES].hasOwnProperty(name) && isAlive) { // player has not voted (is not in the map of votes) and is alive
                         busyPlayers.add(name);
                     }
                 });
