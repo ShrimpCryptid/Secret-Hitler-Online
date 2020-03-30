@@ -65,7 +65,7 @@ public class Lobby {
      *
      */
     public boolean canAddUserDuringGame(String name) {
-        return (usersInGame.contains(name) && activeUsernames.contains(name)); // the user was in the game but was disconnected.
+        return (usersInGame.contains(name) && !activeUsernames.contains(name)); // the user was in the game but was disconnected.
     }
 
     /**

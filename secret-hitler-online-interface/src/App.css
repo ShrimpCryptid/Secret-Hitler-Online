@@ -92,6 +92,7 @@ button {
     -ms-transition: all 0.15s ease-in-out 0s, visibility 0s;
     transition: all 0.15s ease-in-out 0s, visibility 0s;
     box-shadow: 0 5px 0 var(--buttonShadowFill);
+    -webkit-tap-highlight-color: transparent;
 }
 
 button:hover{
@@ -192,36 +193,10 @@ textarea {
 
 /* Election Tracker */
 
-
-/****** Policy Tiles *******/
-.invisible {
-    visibility: hidden;
-}
-
-/* For placing each tile. */
-.placeTile{
-    transition-timing-function: ease-in-out;
-    visibility: visible;
-    -webkit-animation: appearAndDrop 1s;
-    animation: appearAndDrop 1s;
-}
-
 .removeTile {
     transition-timing-function: ease-in-out;
     -webkit-animation: slideOut 0.5s;
     animation: slideOut 0.5s;
-}
-
-@-webkit-keyframes appearAndDrop {
-    0% {opacity: 0; top: 10%;}
-    50% {opacity: 1; top: 10%;}
-    100% {top:30%;}
-}
-
-@keyframes appearAndDrop {
-    0% {opacity: 0; top: 10%;}
-    50% {opacity: 1; top: 10%;}
-    100% {top:30%;}
 }
 
 @-webkit-keyframes slideOut {

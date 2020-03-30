@@ -136,9 +136,6 @@ class PlayerDisplay extends Component {
             let playerName = playerData[PLAYER_NAME];
 
             let roleText = "";
-            if (playerName === this.props.user) {
-                roleText = "(YOU)";
-            }
             if (playerName === this.props.gameState[PARAM_CHANCELLOR]) {
                 roleText = "CHANCELLOR";
             } else if (playerName === this.props.gameState[PARAM_PRESIDENT]) {

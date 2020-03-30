@@ -4,18 +4,13 @@ import MaxLengthTextField from "./util/MaxLengthTextField";
 import './fonts.css';
 
 import PolicyBack from "./assets/board-policy.png";
-import PolicyLiberal from "./assets/board-policy-liberal.png";
-import PolicyFascist from "./assets/board-policy-fascist.png";
-import LiberalBoard from "./assets/board-liberal.png";
-import FascistBoard56 from "./assets/board-fascist-5-6.png";
-import ElectionTracker from "./assets/board-tracker.png";
 
 import DrawDeck from "./assets/board-draw.png";
 import DiscardDeck from "./assets/board-discard.png";
 import CustomAlert from "./custom-alert/CustomAlert";
 import RoleAlert from "./custom-alert/RoleAlert";
 import EventBar from "./EventBar"
-import Player from "./player/Player";
+
 import {
     PAGE,
     MAX_FAILED_CONNECTIONS,
@@ -29,11 +24,14 @@ import {
     PARAM_USERNAMES,
     PARAM_COMMAND,
     LOBBY_CODE_LENGTH,
-    MAX_PLAYERS, MIN_PLAYERS, COMMAND_START_GAME
+    MAX_PLAYERS,
+    MIN_PLAYERS,
+    COMMAND_START_GAME
 } from "./GlobalDefinitions";
-import * as DEF from "./GlobalDefinitions";
+
 import PlayerDisplay from "./player/PlayerDisplay";
 import StatusBar from "./status-bar/StatusBar";
+import Board from "./board/Board";
 
 class App extends Component {
 
@@ -51,13 +49,16 @@ class App extends Component {
             joinError:"",
             createLobbyName:"",
             createLobbyError:"",
-            name:"",
+            name:"Player1",
             lobby:"AAAAAA",
 
             usernames:[],
             userCount:1,
 
-            gameState: {"liberal-policies":0,"fascist-policies":0,"discard-size":0,"draw-size":17,"players":[{"alive":true,"identity":"LIBERAL","investigated":false,"username":"kjh"},{"alive":true,"identity":"LIBERAL","investigated":false,"username":"fff"},{"alive":true,"identity":"FASCIST","investigated":false,"username":"t"},{"alive":true,"identity":"HITLER","investigated":false,"username":"qweq"},{"alive":false,"identity":"LIBERAL","investigated":false,"username":"sdfs"}, {"alive":false,"identity":"FASCIST","investigated":false,"username":"potato"}],"in-game":true,"state":"CHANCELLOR_VOTING","president":"kjh", "chancellor":"t", "election-tracker":0,"user-votes":{"qweq": true, "sdfs": false}},
+            gameState: {"liberal-policies":0,"fascist-policies":0,"discard-size":0,"draw-size":17,"players":[{"alive":true,"identity":"LIBERAL","investigated":false,"username":"Player1"},{"alive":true,"identity":"LIBERAL","investigated":false,"username":"Player2"},{"alive":true,"identity":"FASCIST","investigated":false,"username":"Player3"},{"alive":true,"identity":"HITLER","investigated":false,"username":"Player4"},{"alive":false,"identity":"LIBERAL","investigated":false,"username":"Player5"}, {"alive":false,"identity":"FASCIST","investigated":false,"username":"Player6"}],"in-game":true,"state":"CHANCELLOR_VOTING","president":"Player1", "chancellor":"t", "election-tracker":0,"user-votes":{"Player3": true, "Player4": false}},
+            liberalPolicies: 0,
+            fascistPolicies: 0,
+            electionTracker: 0, /*The position of the election tracker, ranging from 0 to 3.*/
 
             snackbarMessage:"",
             showAlert: false,
@@ -525,7 +526,6 @@ class App extends Component {
                 />
 
                 <StatusBar>{this.state.statusBarText}</StatusBar>
-                <button onClick={this.changeStatusBarText}>Test Status Bar Animation</button>
 
                 <div style={{display:"inline-block"}}>
                     <div id={"Board Layout"} style={{alignItems:"center", display:"flex", flexDirection:"column", margin:"10px auto"}}>
@@ -554,28 +554,7 @@ class App extends Component {
                             </div>
                         </div>
 
-                        <div style={{display:"flex", flexDirection:"column"}}>
-                            <div style ={{margin:"4px 10px", position:"relative"}}>
-                                <img src={LiberalBoard} style={{width:"70vmin"}}/>
-                                <img src={ElectionTracker} style={{position:"absolute", top:"73.5%", left:"calc(34.2% + 3*9.16%)", width:"2.25vmin"}} />
-                                <img src={PolicyLiberal} style={{width:"7vmin", position:"absolute", top:"30%", left:"calc(18.2%)"}} />
-                                <img src={PolicyLiberal} style={{width:"7vmin", position:"absolute", top:"30%", left:"calc(18.2% + 1*13.54%)"}} />
-                                <img src={PolicyLiberal} style={{width:"7vmin", position:"absolute", top:"30%", left:"calc(18.2% + 2*13.54%)"}} />
-                                <img src={PolicyLiberal} style={{width:"7vmin", position:"absolute", top:"30%", left:"calc(18.2% + 3*13.54%)"}} />
-                                <img src={PolicyLiberal} style={{width:"7vmin", position:"absolute", top:"30%", left:"calc(18.2% + 4*13.54%)"}} />
-                            </div>
-                            <div style={{margin:"4px 10px", position:"relative"}}>
-                                <img src={FascistBoard56} style={{width:"70vmin"}}/>
-                                <img src={PolicyFascist} style={{width:"7vmin", position:"absolute", top:"30%", left:"calc(11%)"}} />
-                                <img src={PolicyFascist} style={{width:"7vmin", position:"absolute", top:"30%", left:"calc(11% + 1*13.6%)"}} />
-                                <img src={PolicyFascist} style={{width:"7vmin", position:"absolute", top:"30%", left:"calc(11% + 2*13.6%)"}} />
-                                <img src={PolicyFascist} style={{width:"7vmin", position:"absolute", top:"30%", left:"calc(11% + 3*13.6%)"}} />
-                                <img src={PolicyFascist} style={{width:"7vmin", position:"absolute", top:"30%", left:"calc(11% + 4*13.6%)"}} />
-                                <img src={PolicyFascist} style={{width:"7vmin", position:"absolute", top:"30%", left:"calc(11% + 5*13.6%)"}} />
-
-                            </div>
-
-                        </div>
+                        <Board />
 
 
                     </div>

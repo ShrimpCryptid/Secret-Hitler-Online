@@ -3,14 +3,15 @@ import React, {Component} from 'react';
 import './Player.css'
 import {Textfit} from 'react-textfit';
 
-import PlayerBase from "./assets/player-base.png"
-import PlayerBaseDisabled from "./assets/player-base-unselectable.png";
+import PlayerBase from "../assets/player-base.png"
+import PlayerBaseDisabled from "../assets/player-base-unselectable.png";
+import PlayerBaseHighlight from "../assets/player-base-selection.png";
 
-import IconFascist from "./assets/player-icon-fascist.png";
-import IconHitler from "./assets/player-icon-hitler.png";
-import IconLiberal from "./assets/player-icon-liberal.png";
+import IconFascist from "../assets/player-icon-fascist.png";
+import IconHitler from "../assets/player-icon-hitler.png";
+import IconLiberal from "../assets/player-icon-liberal.png";
 
-import IconBusy from "./assets/player-icon-busy.png";
+import IconBusy from "../assets/player-icon-busy.png";
 
 const LIBERAL = "LIBERAL";
 const FASCIST = "FASCIST";
@@ -107,19 +108,19 @@ class Player extends Component {
     render() {
         return (
             <div id="player-container">
+
+                <img id={"player-selection-base"}
+                     alt={""}
+                     src={PlayerBaseHighlight}
+                     hidden={!this.props.isUser}
+                     className={this.getDarken()}
+                />
+
                 <img id="player-image"
                      src={PlayerBase}
                      alt={this.getAltText()}
                      className={this.getDarken()}
                 />
-
-                <Textfit id={"player-name"}
-                         className={this.getDarken()}
-                         mode="multi"
-                         forceSingleModeWidth={false}
-                >
-                    {this.getNameWithYouTag()}
-                </Textfit>
 
                 <img id="player-busy-icon"
                      src={IconBusy}
@@ -139,6 +140,14 @@ class Player extends Component {
                         hidden={!this.props.showRole}>
                     {this.capitalizeFirstOnly(this.props.role)}
                 </p>
+
+                <Textfit id={"player-name"}
+                         className={this.getDarken()}
+                         mode="multi"
+                         forceSingleModeWidth={false}
+                >
+                    {this.props.name}
+                </Textfit>
 
                 <p  id="player-disabled-label"
                     hidden={!this.props.disabled}

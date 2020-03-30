@@ -1,0 +1,64 @@
+@import '../variables.css';
+
+#board-container {
+    display: flex;
+    flex-direction: column;
+}
+
+#board-group {
+    margin:4px 10px;
+    position:relative;
+}
+
+#board {
+    min-width: 40vmin;
+    width: 90vmin;
+    max-width: 90vw;
+}
+
+
+/****** Policy Tiles *******/
+
+#policy {
+    position: absolute;
+    width: 10%;
+    top:30%;
+}
+
+.hide {
+    visibility: hidden;
+}
+
+/* For placing each tile. */
+.show{
+    transition-timing-function: ease-in-out;
+    visibility: visible;
+    -webkit-animation: appear 1s, drop 0.3s 1s;
+    animation: appear 1s, drop 0.3s 1s;
+}
+
+@-webkit-keyframes appear {
+    0% {opacity: 0; top: 10%;}
+    100% {opacity: 1; top: 10%;}
+}
+
+@keyframes appear {
+    0% {opacity: 0; top: 10%;}
+    100% {opacity: 1; top: 10%;}
+}
+
+@-webkit-keyframes drop {
+    0% {top: 10%;}
+    100% {top:30%;}
+}
+
+@keyframes drop {
+    0% {top: 10%;}
+    100% {top:30%;}
+}
+
+
+/* Election Tracker Animations */
+#election-tracker {
+
+}
