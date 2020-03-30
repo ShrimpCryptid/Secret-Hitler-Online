@@ -26,12 +26,20 @@ import {
     LOBBY_CODE_LENGTH,
     MAX_PLAYERS,
     MIN_PLAYERS,
-    COMMAND_START_GAME, PARAM_PLAYERS, PLAYER_NAME, PLAYER_IDENTITY, PARAM_PLAYER_ORDER
+    COMMAND_START_GAME,
+    PARAM_PLAYERS,
+    PLAYER_NAME,
+    PLAYER_IDENTITY,
+    PARAM_PLAYER_ORDER,
+    PARAM_STATE,
+    STATE_CHANCELLOR_NOMINATION
 } from "./GlobalDefinitions";
 
 import PlayerDisplay from "./player/PlayerDisplay";
 import StatusBar from "./status-bar/StatusBar";
 import Board from "./board/Board";
+
+const EVENT_BAR_FADE_OUT_DURATION = 500;
 
 class App extends Component {
 
@@ -45,6 +53,7 @@ class App extends Component {
         super(props);
         this.state={
             page:PAGE.LOGIN,
+
             joinName:"",
             joinLobby:"",
             joinError:"",
@@ -57,17 +66,25 @@ class App extends Component {
             userCount:1,
 
             gameState: {"liberal-policies":0,"fascist-policies":0,"discard-size":0,"draw-size":17,"players":[{"alive":true,"identity":"LIBERAL","investigated":false,"username":"Player1"},{"alive":true,"identity":"LIBERAL","investigated":false,"username":"Player2"},{"alive":true,"identity":"FASCIST","investigated":false,"username":"Player3"},{"alive":true,"identity":"HITLER","investigated":false,"username":"Player4"},{"alive":false,"identity":"LIBERAL","investigated":false,"username":"Player5"}, {"alive":false,"identity":"FASCIST","investigated":false,"username":"Player6"}],"in-game":true,"state":"CHANCELLOR_VOTING","president":"Player1", "chancellor":"t", "election-tracker":0,"user-votes":{"Player3": true, "Player4": false}},
+
+            lastState: {}, /* Stores the last gameState[PARAM_STATE] value to check for changes. */
             liberalPolicies: 0,
             fascistPolicies: 0,
             electionTracker: 0, /*The position of the election tracker, ranging from 0 to 3.*/
 
             snackbarMessage:"",
+
             showAlert: false,
             alertContent: <div />,
+
             showEventBar: false,
-            statusBarText:"Empty"
+            eventBarMessage: "",
+
+            statusBarText:""
 
         };
+
+        // These are necessary for handling class fields (ex: websocket)
         this.onWebSocketClose = this.onWebSocketClose.bind(this);
         this.tryOpenWebSocket = this.tryOpenWebSocket.bind(this);
         this.onClickLeaveLobby = this.onClickLeaveLobby.bind(this);
@@ -78,6 +95,7 @@ class App extends Component {
         this.showAlert = this.showAlert.bind(this);
         this.showSnackBar = this.showSnackBar.bind(this);
         this.changeStatusBarText = this.changeStatusBarText.bind(this);
+        this.onAnimationFinish = this.onAnimationFinish.bind(this);
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -183,7 +201,10 @@ class App extends Component {
             } else {
                 console.log("Some data missing from lobby packet.");
             }
-        } else {
+        } else { // currently in the game. Assume game input is standardized.
+            if (message !== this.state.gameState) {
+                this.onGameStateChanged(message);
+            }
             this.setState({gameState: message, page: PAGE.GAME});
         }
     };
@@ -206,7 +227,9 @@ class App extends Component {
 
         if (params !== undefined) {
             for (let key in params) {
-                if (!data.hasOwnProperty(key)) { data[key] = params[key]; }
+                if (!data.hasOwnProperty(key)) {
+                    data[key] = params[key];
+                }
             }
         }
 
@@ -484,10 +507,48 @@ class App extends Component {
     /////////////////// Game Page
     //<editor-fold desc="Game Page">
 
+    /**
+     * Queues animations for when the game state has changed.
+     * @param newState {Object} the new game state sent from the server.
+     */
+    onGameStateChanged(newState) {
+        // Check for state change
+        if (newState[PARAM_STATE] !== this.state.gameState[PARAM_STATE]) { // state has changed
+            switch (newState[PARAM_STATE]) {
+                case STATE_CHANCELLOR_NOMINATION:
+
+            }
+
+
+        }
+
+        // Check for change in election tracker
+
+        // Check for change in policy counts.
+    }
+
+    /**
+     * Plays the next animation in the queue if it exists.
+     * @effects If {@code this.animationQueue} is not empty,
+     *          removes the function at the front of the animation queue and calls it.
+     */
+    onAnimationFinish() {
+        if (this.animationQueue.length > 0) {
+            let func = this.animationQueue.shift();
+            func(); //call the function.
+        }
+    }
+
+    /**
+     * Adds the specified animation to the end of the queue.
+     * @param func {function} the function to add to the animation queue.
+     * @effects Adds the function to the back of the animation queue.
+     */
+    addAnimationToQueue(func) {
+        this.animationQueue.push(func);
+    }
+
     playAnimationTest() {
-        /*let target = document.getElementById("target");
-        target.className = "removeTile";
-        setTimeout(() => {target.className = target.className.replace("removeTile", "invisible");}, 500);*/
         this.setState({showEventBar:true});
         setTimeout(() => {this.setState({showEventBar:false})}, 3000);
 
@@ -498,7 +559,23 @@ class App extends Component {
     }
 
     /**
-     * Shows the CustomAlert with
+     * Shows the eventBar for a set period of time.
+     * @param message {String} the message for the Event Bar to display.
+     * @param duration {Number} the duration (in ms) for the Event Bar to be visible. (default is 3000 ms).
+     * @effects Calls {@code this.onAnimationFinished()} when closed.
+     */
+    showEventBar(message, duration = 3000) {
+        this.setState({
+            showEventBar: true,
+            eventBarText: message
+        });
+        setTimeout(() => {this.setState({showEventBar:false})}, duration);
+        setTimeout(() => {this.onAnimationFinish()}, duration + EVENT_BAR_FADE_OUT_DURATION);
+    }
+
+
+    /**
+     * Shows the CustomAlert with the RoleAlert.
      */
     showRoleAlert = () => {
         this.setState({
@@ -509,6 +586,7 @@ class App extends Component {
                     onClick={() => {
                         /* Button contents close this and should let the animation queue know that it is finished. */
                         this.setState({showAlert:false});
+                        setTimeout(() => this.onAnimationFinish(), 500);
                     }}
                 />),
             showAlert: true
