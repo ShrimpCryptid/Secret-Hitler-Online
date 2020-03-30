@@ -26,7 +26,7 @@ import {
     LOBBY_CODE_LENGTH,
     MAX_PLAYERS,
     MIN_PLAYERS,
-    COMMAND_START_GAME, PARAM_PLAYERS, PLAYER_NAME, PLAYER_IDENTITY
+    COMMAND_START_GAME, PARAM_PLAYERS, PLAYER_NAME, PLAYER_IDENTITY, PARAM_PLAYER_ORDER
 } from "./GlobalDefinitions";
 
 import PlayerDisplay from "./player/PlayerDisplay";
@@ -518,21 +518,11 @@ class App extends Component {
     /**
      * Returns the role of a player.
      * @param name {String} the name of the player to get the role of.
+     * @requires {@code name} is in the list of active players.
      * @return {String} Returns the {@code PLAYER_IDENTITY} of the player with the name {@code name} from the game state.
      */
     getUserRole(name) {
-        let role;
-        let players = this.state.gameState[PARAM_PLAYERS];
-
-        /*Get the role of the player.*/
-        for (i; i < players.length; i++) {
-            let playerData = players[i];
-            if (playerData[PLAYER_NAME] === name) {
-                role = playerData[PLAYER_IDENTITY];
-                break;
-            }
-        }
-        return role;
+        return this.state.gameState[PARAM_PLAYERS][name][PLAYER_IDENTITY];
     }
 
     changeStatusBarText() {
@@ -594,7 +584,12 @@ class App extends Component {
                             </div>
                         </div>
 
-                        <Board />
+                        <Board
+                            numPlayers={this.state.gameState[PARAM_PLAYER_ORDER].length}
+                            numFascistPolicies={this.state.fascistPolicies}
+                            numLiberalPolicies={this.state.liberalPolicies}
+                            electionTracker={this.state.electionTracker}
+                        />
 
 
                     </div>

@@ -6,6 +6,8 @@ import game.datastructures.Player;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.List;
+
 /**
  * Converts a SecretHitlerGame to a JSONObject that represents the game state.
  */
@@ -20,10 +22,14 @@ public class GameToJSONConverter {
      * @throws NullPointerException if {@code game} is null.
      * @return a JSONObject with the following properties:
      *          {@code state}: the state of the game.
-     *          {@code players}: an array of JSONObjects of players in the game.
-     *              Each player has {@code username} (String), {@code identity} (String), {@code alive} (boolean),
-     *              and {@code investigated} (boolean).
+     *          {@code player-order}: an array of names representing the order of the players in the game.
+     *
+     *          {@code players}: a JSONObject map, with keys that are a player's {@code username}.
+     *              Each {@code username} key maps to an object with the properties {@code id} (String),
+     *              {@code alive} (boolean), and {@code investigated} (boolean), to represent the player.
      *              The identity is either this.HITLER, this.FASCIST, or this.LIBERAL.
+     *              Ex: {"player1":{"alive": true, "investigated": false, "id": "LIBERAL"}}.
+     *
      *          {@code president}: the username of the current president.
      *          {@code chancellor}: the username of the current chancellor (can be null).
      *          {@code last-president}: The username of the last president that presided over a legislative session.
@@ -44,11 +50,14 @@ public class GameToJSONConverter {
         }
 
         JSONObject out = new JSONObject();
+        JSONObject playerData = new JSONObject();
+        String[] playerOrder = new String[game.getPlayerList().size()];
+        List<Player> playerList = game.getPlayerList();
 
-        JSONArray playerArray = new JSONArray();
-        for (Player player : game.getPlayerList()) {
+        for (int i = 0; i < playerList.size(); i++) {
             JSONObject playerObj = new JSONObject();
-            playerObj.put("username", player.getUsername());
+            Player player = playerList.get(i);
+
             playerObj.put("alive", player.isAlive());
 
             String id = LIBERAL;
@@ -59,10 +68,13 @@ public class GameToJSONConverter {
             }
             playerObj.put("id", id);
             playerObj.put("investigated", player.hasBeenInvestigated());
-            playerArray.put(playerObj);
+
+            playerData.put(player.getUsername(), playerObj);
+            playerOrder[i] = player.getUsername();
         }
 
-        out.put("players", playerArray);
+        out.put("players", playerData);
+        out.put("player-order", playerOrder);
 
         out.put("president", game.getCurrentPresident());
         out.put("chancellor", game.getCurrentChancellor());

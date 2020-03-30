@@ -69,6 +69,7 @@ export const PARAM_USER_COUNT = "user-count";
 export const PARAM_USERNAMES = "usernames";
 
 export const PARAM_STATE = "state";
+export const PARAM_PLAYER_ORDER = "player-order";
 export const PARAM_PLAYERS = "players";
 export const PLAYER_NAME = "username";
 export const PLAYER_IDENTITY = "id";

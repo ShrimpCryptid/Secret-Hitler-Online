@@ -23,17 +23,6 @@ const HITLER = "HITLER";
 class Player extends Component {
 
     /**
-     * Gets the player image base, swapping to the darkened version if {@code this.props.disabled} is true.
-     */
-    getImg() {
-        if (this.props.disabled) {
-            return PlayerBaseDisabled;
-        } else {
-            return PlayerBase;
-        }
-    }
-
-    /**
      * Gets the relevant icon for the Player based on {@code this.props.role}
      * @return {image} the image source for either the liberal, fascist, or hitler icons.
      */

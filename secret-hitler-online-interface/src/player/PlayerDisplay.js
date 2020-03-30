@@ -18,7 +18,7 @@ import {
     STATE_PP_ELECTION,
     STATE_PP_EXECUTION,
     STATE_PP_INVESTIGATE,
-    STATE_POST_LEGISLATIVE, STATE_LEGISLATIVE_CHANCELLOR, STATE_CHANCELLOR_VOTING, PARAM_VOTES
+    STATE_POST_LEGISLATIVE, STATE_LEGISLATIVE_CHANCELLOR, STATE_CHANCELLOR_VOTING, PARAM_VOTES, PARAM_PLAYER_ORDER
 } from "../GlobalDefinitions";
 import './PlayerDisplay.css';
 
@@ -44,24 +44,15 @@ class PlayerDisplay extends Component {
      */
     determineRolesToShow() {
         let i = 0;
-        let role;
-        let players = this.props.gameState[PARAM_PLAYERS];
-
-        /*Get the role of the player.*/
-        for (i; i < players.length; i++) {
-            let playerData = players[i];
-            if (playerData[PLAYER_NAME] === this.props.user) {
-                role = playerData[PLAYER_IDENTITY];
-                break;
-            }
-        }
+        let playerOrder = this.props.gameState[PARAM_PLAYER_ORDER];
+        let role = this.props.gameState[PARAM_PLAYERS][this.props.user][PLAYER_IDENTITY];
 
         switch (role) {
             case FASCIST:
                 this.showRoleByRole = {FASCIST: true, HITLER: true, LIBERAL: false};
                 break;
             case HITLER:
-                if (players.length <= 6) {
+                if (playerOrder.length <= 6) {
                     this.showRoleByRole = {FASCIST: true, HITLER: true, LIBERAL: false};
                 } else {
                     this.showRoleByRole = {FASCIST: false, HITLER: true, LIBERAL: false};
@@ -72,8 +63,6 @@ class PlayerDisplay extends Component {
                 this.showRoleByRole = {FASCIST: false, HITLER: false, LIBERAL: false};
                 break;
         }
-
-        console.log(this.showRoleByRole);
     }
 
     /**
@@ -112,7 +101,6 @@ class PlayerDisplay extends Component {
             default: // This includes the victory states and setup.
                 break;
         }
-        console.log(busyPlayers);
         return busyPlayers;
     }
 
@@ -126,12 +114,13 @@ class PlayerDisplay extends Component {
     getPlayers(start, end) {
         let out = [];
         let players = this.props.gameState[PARAM_PLAYERS];
+        let playerOrder = this.props.gameState[PARAM_PLAYER_ORDER];
         let busyPlayers = this.getBusyPlayerSet();
         let i = 0;
         for (i; start + i < end; i++) {
             let index = i + start;
-            let playerData = players[index];
-            let playerName = playerData[PLAYER_NAME];
+            let playerName = playerOrder[index];
+            let playerData = players[playerName];
 
             let roleText = "";
             if (playerName === this.props.gameState[PARAM_CHANCELLOR]) {
@@ -160,8 +149,8 @@ class PlayerDisplay extends Component {
     /* Note that there are two player-display-containers, so that the player tiles can be split into two rows if there
     * is insufficient space for them.*/
     render() {
-        let players = this.props.gameState[PARAM_PLAYERS];
-        let middleIndex = Math.floor(players.length / 2);
+        let playerOrder = this.props.gameState[PARAM_PLAYER_ORDER];
+        let middleIndex = Math.floor(playerOrder.length / 2);
         this.determineRolesToShow();
         return (
             <div id="player-display">
@@ -169,7 +158,7 @@ class PlayerDisplay extends Component {
                     {this.getPlayers(0, middleIndex)}
                 </div>
                 <div id="player-display-container">
-                    {this.getPlayers(middleIndex, players.length)}
+                    {this.getPlayers(middleIndex, playerOrder.length)}
                 </div>
             </div>
         );
@@ -177,7 +166,7 @@ class PlayerDisplay extends Component {
 }
 
 PlayerDisplay.defaultProps = {
-    user: "qweq", /* The name of the user. */
+    user: "", /* The name of the user. */
     gameState: {"liberal-policies":0,"fascist-policies":0,"discard-size":0,"draw-size":17,"players":[{"alive":true,"identity":"LIBERAL","investigated":false,"username":"kjh"},{"alive":true,"identity":"LIBERAL","investigated":false,"username":"fff"},{"alive":true,"identity":"FASCIST","investigated":false,"username":"t"},{"alive":true,"identity":"HITLER","investigated":false,"username":"qweq"},{"alive":true,"identity":"LIBERAL","investigated":false,"username":"sdfs"}],"in-game":true,"state":"CHANCELLOR_NOMINATION","president":"kjh","election-tracker":0,"user-votes":{}}
 };
 
