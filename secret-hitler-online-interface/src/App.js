@@ -9,7 +9,7 @@ import DrawDeck from "./assets/board-draw.png";
 import DiscardDeck from "./assets/board-discard.png";
 import CustomAlert from "./custom-alert/CustomAlert";
 import RoleAlert from "./custom-alert/RoleAlert";
-import EventBar from "./EventBar"
+import EventBar from "./EventBar";
 
 import {
     PAGE,
@@ -26,7 +26,7 @@ import {
     LOBBY_CODE_LENGTH,
     MAX_PLAYERS,
     MIN_PLAYERS,
-    COMMAND_START_GAME
+    COMMAND_START_GAME, PARAM_PLAYERS, PLAYER_NAME, PLAYER_IDENTITY
 } from "./GlobalDefinitions";
 
 import PlayerDisplay from "./player/PlayerDisplay";
@@ -39,6 +39,7 @@ class App extends Component {
     failedConnections = 0;
     reconnectOnConnectionClosed = true;
     snackbarMessages = 0;
+    animationQueue = [];
 
     constructor(props) {
         super(props);
@@ -62,6 +63,7 @@ class App extends Component {
 
             snackbarMessage:"",
             showAlert: false,
+            alertContent: <div />,
             showEventBar: false,
             statusBarText:"Empty"
 
@@ -495,6 +497,44 @@ class App extends Component {
         this.setState({showAlert: true});
     }
 
+    /**
+     * Shows the CustomAlert with
+     */
+    showRoleAlert = () => {
+        this.setState({
+            alertContent:(
+                <RoleAlert
+                    role={this.getUserRole(this.state.name)} //TODO: Fill in with user role and ID when implemented
+                    roleID={3}
+                    onClick={() => {
+                        /* Button contents close this and should let the animation queue know that it is finished. */
+                        this.setState({showAlert:false});
+                    }}
+                />),
+            showAlert: true
+        });
+    };
+
+    /**
+     * Returns the role of a player.
+     * @param name {String} the name of the player to get the role of.
+     * @return {String} Returns the {@code PLAYER_IDENTITY} of the player with the name {@code name} from the game state.
+     */
+    getUserRole(name) {
+        let role;
+        let players = this.state.gameState[PARAM_PLAYERS];
+
+        /*Get the role of the player.*/
+        for (i; i < players.length; i++) {
+            let playerData = players[i];
+            if (playerData[PLAYER_NAME] === name) {
+                role = playerData[PLAYER_IDENTITY];
+                break;
+            }
+        }
+        return role;
+    }
+
     changeStatusBarText() {
         if (this.state.statusBarText === "Waiting for all players to submit votes...") {
             this.setState({statusBarText: "Waiting for president to nominate a chancellor..."});
@@ -515,7 +555,7 @@ class App extends Component {
                 </header>
 
                 <CustomAlert show={this.state.showAlert}>
-                    <RoleAlert role={"LIBERAL"} roleID={3} onClick={() => {this.setState({showAlert:false}); console.log("click disappear");}}/>
+                    {this.state.alertContent}
                 </CustomAlert>
 
                 <EventBar show={this.state.showEventBar}/>

@@ -55,7 +55,7 @@ class Board extends Component {
             images[index] = (
                 <img src={src}
                      id={id}
-                     style={{position: "absolute", left:"calc(" + offset + " + " + index.toString() + "*" + spacing +")"}}
+                     style={{position: "absolute", left:"calc(${} + " + index.toString() + "*" + spacing +")"}}
                      alt={""}
                      className={className}
                 />

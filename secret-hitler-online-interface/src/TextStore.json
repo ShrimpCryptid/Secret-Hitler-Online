@@ -1,0 +1,21 @@
+{
+    "alert": {
+        "roles": {
+            "hitler": {
+                "1": "You win if you are successfully elected chancellor once 3 fascist policies are on the board, or if the board fills with fascist policies.",
+                "2": "You lose if the board fills with liberal policies or if you are executed.",
+                "3": "Try to gain trust and rely on the other fascists to open opportunities for you."
+            },
+            "fascist": {
+                "1": "You win if Hitler is successfully elected chancellor once 3 fascist policies are on the board, or if the board fills with fascist policies.",
+                "2": "You lose if the board fills with liberal policies or if Hitler is executed.",
+                "3": "Keep suspicion off of Hitler and look for ways to throw confusion into the game."
+            },
+            "liberal": {
+                "1": "You win if the board fills with liberal policies, or if Hitler is executed.",
+                "2": "You lose if the board fills with fascist policies, or if Hitler is elected chancellor after 3 fascist policies are passed.",
+                "3": "Keep your eyes open and look for suspicious actions. Suss out Hitler, and remember that anyone might be lying!"
+            }
+        }
+    }
+}

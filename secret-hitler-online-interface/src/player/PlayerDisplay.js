@@ -56,8 +56,6 @@ class PlayerDisplay extends Component {
             }
         }
 
-        console.log("My role is: " + role);
-
         switch (role) {
             case FASCIST:
                 this.showRoleByRole = {FASCIST: true, HITLER: true, LIBERAL: false};

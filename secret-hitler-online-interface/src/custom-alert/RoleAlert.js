@@ -11,10 +11,7 @@ import RoleFascist2 from "../assets/role-fascist-2.png"
 import RoleFascist3 from "../assets/role-fascist-2.png"
 
 import './RoleAlert.css';
-
-const LIBERAL = "LIBERAL";
-const HITLER = "HITLER";
-const FASCIST = "FASCIST";
+import {FASCIST, HITLER, LIBERAL} from "../GlobalDefinitions";
 
 const LiberalImages = [RoleLiberal1, RoleLiberal2, RoleLiberal3, RoleLiberal4, RoleLiberal5, RoleLiberal6];
 const LiberalImagesAltText = [  "Your secret role is LIBERAL. The card shows a bespectacled man with a pipe giving a side-eye.",
