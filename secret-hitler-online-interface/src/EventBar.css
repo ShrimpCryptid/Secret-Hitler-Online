@@ -1,16 +1,14 @@
 @import './variables.css';
 
-
-
 #event-bar {
-    position: fixed;
     width: 100%;
     top: 30%;
+    position: fixed;
     align-items: center;
     display: flex;
     justify-content: center;
     text-align: center;
-    visibility: hidden;
+    visibility: visible;
     z-index: 48;
     transition: visibility var(--eventBarIn);
 }
@@ -33,37 +31,37 @@
     opacity: 0;
 }
 
-#event-bar.appear {
+#event-bar.appear-eventbar {
     visibility: visible;
-    transition: visibility var(--eventBarIn);
+    transition: visibility 0s;
 }
 
-#bar-background.appear {
+#bar-background.appear-eventbar {
     visibility: visible;
-    transition: visibility var(--eventBarIn);
+    transition: 0s;
     animation: appear-bar var(--eventBarIn);
     opacity: var(--eventBarOpacity);
 }
 
-#event-bar-text.appear {
+#event-bar-text.appear-eventbar {
     visibility: visible;
-    transition: visibility var(--eventBarIn);
+    transition: visibility 0s;
     animation: appear-text var(--eventBarIn);
     opacity: 1;
 }
 
-#event-bar.disappear {
+#event-bar.disappear-eventbar {
     visibility: hidden;
     transition: visibility var(--eventBarOut);
 }
 
-#bar-background.disappear {
+#bar-background.disappear-eventbar {
     visibility: hidden;
     transition: visibility var(--eventBarOut);
     animation: disappear-bar var(--eventBarOut);
 }
 
-#event-bar-text.disappear {
+#event-bar-text.disappear-eventbar {
     visibility: hidden;
     transition: visibility var(--eventBarOut);
     animation: disappear-text var(--eventBarOut);

@@ -5,9 +5,9 @@ class EventBar extends Component {
 
     getClass() {
         if (this.props.show) {
-            return "appear";
+            return "appear-eventbar";
         } else {
-            return "disappear";
+            return "disappear-eventbar";
         }
     }
 

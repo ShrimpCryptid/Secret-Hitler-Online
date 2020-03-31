@@ -32,7 +32,11 @@ import {
     PLAYER_IDENTITY,
     PARAM_PLAYER_ORDER,
     PARAM_STATE,
-    STATE_CHANCELLOR_NOMINATION
+    STATE_CHANCELLOR_NOMINATION,
+    PARAM_ELECTION_TRACKER,
+    PARAM_LIBERAL_POLICIES,
+    PARAM_FASCIST_POLICIES,
+    STATE_CHANCELLOR_VOTING, PARAM_PRESIDENT
 } from "./GlobalDefinitions";
 
 import PlayerDisplay from "./player/PlayerDisplay";
@@ -48,25 +52,25 @@ class App extends Component {
     reconnectOnConnectionClosed = true;
     snackbarMessages = 0;
     animationQueue = [];
+    allAnimationsFinished = true;
 
     constructor(props) {
         super(props);
         this.state={
-            page:PAGE.LOGIN,
+            page:PAGE.GAME,
 
             joinName:"",
             joinLobby:"",
             joinError:"",
             createLobbyName:"",
             createLobbyError:"",
-            name:"Player1",
+            name:"P1",
             lobby:"AAAAAA",
 
             usernames:[],
             userCount:1,
 
-            gameState: {"liberal-policies":0,"fascist-policies":0,"discard-size":0,"draw-size":17,"players":[{"alive":true,"identity":"LIBERAL","investigated":false,"username":"Player1"},{"alive":true,"identity":"LIBERAL","investigated":false,"username":"Player2"},{"alive":true,"identity":"FASCIST","investigated":false,"username":"Player3"},{"alive":true,"identity":"HITLER","investigated":false,"username":"Player4"},{"alive":false,"identity":"LIBERAL","investigated":false,"username":"Player5"}, {"alive":false,"identity":"FASCIST","investigated":false,"username":"Player6"}],"in-game":true,"state":"CHANCELLOR_VOTING","president":"Player1", "chancellor":"t", "election-tracker":0,"user-votes":{"Player3": true, "Player4": false}},
-
+            gameState: {"liberal-policies":0,"fascist-policies":0,"discard-size":0,"draw-size":17,"players":{"P1":{"alive":true,"id":"FASCIST","investigated":false},"P2":{"alive":true,"id":"HITLER","investigated":false},"P3":{"alive":true,"id":"LIBERAL","investigated":false},"P4":{"alive":true,"id":"LIBERAL","investigated":false},"P5":{"alive":true,"id":"LIBERAL","investigated":false},"P6":{"alive":true,"id":"FASCIST","investigated":false},"P7":{"alive":true,"id":"LIBERAL","investigated":false}},"in-game":true,"player-order":["P4","P2","P6","P1","P7","P3","P5"],"state":"CHANCELLOR_NOMINATION","president":"P4","election-tracker":0,"user-votes":{}},
             lastState: {}, /* Stores the last gameState[PARAM_STATE] value to check for changes. */
             liberalPolicies: 0,
             fascistPolicies: 0,
@@ -516,15 +520,34 @@ class App extends Component {
         if (newState[PARAM_STATE] !== this.state.gameState[PARAM_STATE]) { // state has changed
             switch (newState[PARAM_STATE]) {
                 case STATE_CHANCELLOR_NOMINATION:
+                    if(newState[PARAM_ELECTION_TRACKER] === 0
+                        && newState[PARAM_LIBERAL_POLICIES] === 0
+                        && newState[PARAM_FASCIST_POLICIES] === 0) {
+                        // If the game has just started (everything in default state), show the player's role.
+                        console.log("First round has started.");
+                        this.addAnimationToQueue(() => this.showRoleAlert(newState));
+                    }
+                    this.addAnimationToQueue(() => this.showEventBar("CHANCELLOR NOMINATION"));
+                    this.setState({statusBarText:"Waiting for president to nominate a chancellor."});
+                    if(this.state.name === newState[PARAM_PRESIDENT]) {
+                        //TODO: Show the chancellor selection window.
+
+                    }
+                    break;
+                case STATE_CHANCELLOR_VOTING:
+                    //TODO: Show the voting window to all players.
+                    this.setState({statusBarText:"Waiting for all players to vote."});
+
 
             }
 
 
         }
 
-        // Check for change in election tracker
+        // Check for change in election tracker.
 
         // Check for change in policy counts.
+        // Show an alert for policies being enacted.
     }
 
     /**
@@ -536,16 +559,24 @@ class App extends Component {
         if (this.animationQueue.length > 0) {
             let func = this.animationQueue.shift();
             func(); //call the function.
+        } else { // the animation queue is empty, so we set a flag.
+            this.allAnimationsFinished = true;
         }
     }
 
     /**
      * Adds the specified animation to the end of the queue.
      * @param func {function} the function to add to the animation queue.
-     * @effects Adds the function to the back of the animation queue.
+     * @effects Adds the function to the back of the animation queue. If no animations are currently playing,
+     *          starts the specified animation.
      */
     addAnimationToQueue(func) {
         this.animationQueue.push(func);
+        if (this.allAnimationsFinished) {
+            this.allAnimationsFinished = false;
+            let func = this.animationQueue.shift();
+            func(); //call the function.
+        }
     }
 
     playAnimationTest() {
@@ -576,12 +607,13 @@ class App extends Component {
 
     /**
      * Shows the CustomAlert with the RoleAlert.
+     * @param gameState {Object} the state of the game to get data from.
      */
-    showRoleAlert = () => {
+    showRoleAlert (gameState= this.state.gameState) {
         this.setState({
             alertContent:(
                 <RoleAlert
-                    role={this.getUserRole(this.state.name)} //TODO: Fill in with user role and ID when implemented
+                    role={gameState[PARAM_PLAYERS][this.state.name][PLAYER_IDENTITY]} //TODO: Fill in with user role and ID when implemented
                     roleID={3}
                     onClick={() => {
                         /* Button contents close this and should let the animation queue know that it is finished. */
@@ -592,16 +624,6 @@ class App extends Component {
             showAlert: true
         });
     };
-
-    /**
-     * Returns the role of a player.
-     * @param name {String} the name of the player to get the role of.
-     * @requires {@code name} is in the list of active players.
-     * @return {String} Returns the {@code PLAYER_IDENTITY} of the player with the name {@code name} from the game state.
-     */
-    getUserRole(name) {
-        return this.state.gameState[PARAM_PLAYERS][name][PLAYER_IDENTITY];
-    }
 
     changeStatusBarText() {
         if (this.state.statusBarText === "Waiting for all players to submit votes...") {

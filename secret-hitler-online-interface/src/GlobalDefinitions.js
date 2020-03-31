@@ -8,7 +8,7 @@ export const PAGE = {
     GAME: 'game'
 };
 
-export const SERVER_ADDRESS = "localhost:4000";
+export const SERVER_ADDRESS = "192.168.29.242:4000";
 export const SERVER_ADDRESS_HTTP = "http://" + SERVER_ADDRESS;
 export const CHECK_LOGIN = "/check-login";
 export const NEW_LOBBY = '/new-lobby';
@@ -79,5 +79,7 @@ export const PARAM_PRESIDENT = "president";
 export const PARAM_CHANCELLOR = "chancellor";
 export const PARAM_ELECTION_TRACKER = "election-tracker";
 export const PARAM_VOTES = "user-votes";
+export const PARAM_LIBERAL_POLICIES = "liberal-policies";
+export const PARAM_FASCIST_POLICIES = "fascist-policies";
 
 // </editor-fold>
