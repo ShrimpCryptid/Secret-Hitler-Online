@@ -28,7 +28,7 @@ class StatusBar extends Component {
 
     getClass() {
         if(this.state.text !== this.props.children) {
-            return "hide";
+            return "hide-statusbar";
         } else {
             return "";
         }

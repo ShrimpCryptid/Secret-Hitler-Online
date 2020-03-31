@@ -12,7 +12,7 @@
     animation: show 0.5s;
 }
 
-#status-bar-text.hide {
+#status-bar-text.hide-statusbar {
     animation-timing-function: ease-in-out;
     -webkit-animation: hide 0.5s;
     animation: hide 0.5s;

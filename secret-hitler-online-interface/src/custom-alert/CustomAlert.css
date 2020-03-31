@@ -43,7 +43,7 @@
 
 /* DEFAULT APPEAR */
 
-.appear{
+.appear-customalert{
     transition-timing-function: ease-in-out;
     -webkit-animation: appear 0.5s;
     animation: appear 0.5s;
@@ -52,7 +52,7 @@
     opacity: 1;
 }
 
-.disappear {
+.disappear-customalert {
     transition-timing-function: ease-in-out;
     -webkit-animation: disappear 1s;
     animation: disappear 1s;
@@ -87,12 +87,12 @@
 
 /* BACKGROUND APPEAR/DISAPPEAR */
 
-#alert-background.appear {
+#alert-background.appear-customalert {
     -webkit-animation: appear-background 0.5s;
     animation: appear-background 0.5s;
 }
 
-#alert-background.disappear {
+#alert-background.disappear-customalert {
     -webkit-animation: disappear-background 1s;
     animation: disappear-background 1s;
 }

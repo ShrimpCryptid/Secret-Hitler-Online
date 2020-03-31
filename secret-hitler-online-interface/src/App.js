@@ -637,7 +637,6 @@ class App extends Component {
      * Renders the game page.
      */
     renderGamePage() {
-
         return (
             <div className="App" style={{textAlign:"center"}}>
                 <header className="App-header">
