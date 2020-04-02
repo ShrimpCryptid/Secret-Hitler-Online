@@ -1,11 +1,10 @@
 import React, {Component} from 'react';
 
 import './Player.css'
+import '../selectable.css'
 import {Textfit} from 'react-textfit';
 
 import PlayerBase from "../assets/player-base.png"
-import PlayerBaseDisabled from "../assets/player-base-unselectable.png";
-import PlayerBaseHighlight from "../assets/player-base-selection.png";
 
 import IconFascist from "../assets/player-icon-fascist.png";
 import IconHitler from "../assets/player-icon-hitler.png";
@@ -60,12 +59,35 @@ class Player extends Component {
     }
 
     /**
-     * Darkens the text, images, and background if disabled.
-     * @return {String} If {@code this.props.disabled} is true, returns " darken", otherwise returns empty string.
+     * Darkens the text, images, and background if disabled and highlights the player.
+     * @return {String} If {@code this.props.disabled} is true, the output will include the substring " darken".
+     *                  If {@code this.props.isUser} is true, the output will include the substring " highlight".
+     *                  Otherwise, the output is the empty string.
      */
-    getDarken() {
+    getClassName() {
+        let out = "";
         if (this.props.disabled) {
-            return " darken";
+            out += " darken";
+        }
+        if (this.props.highlight) {
+            out += " highlight";
+        }
+
+        return out;
+    }
+
+    /**
+     * Gets the classname for the div if selectable.
+     * @return {string} If currently selected, returns " selectable selected" to set the background color of the div.
+     *                  Else if {@code this.props.useAsButton}, returns " selectable". Otherwise, returns "".
+     */
+    getButtonClass() {
+        if (this.props.useAsButton && !this.props.disabled) {
+            if (this.props.isSelected) {
+                return " selectable selected";
+            } else {
+                return " selectable";
+            }
         }
         return "";
     }
@@ -96,19 +118,16 @@ class Player extends Component {
 
     render() {
         return (
-            <div id="player-container">
-
-                <img id={"player-selection-base"}
-                     alt={""}
-                     src={PlayerBaseHighlight}
-                     hidden={!this.props.isUser}
-                     className={this.getDarken()}
-                />
+            <div id="player-container"
+                className={ this.getClassName() + this.getButtonClass()}
+                 onClick = {this.props.onClick}
+                 disabled = {this.props.disabled}
+            >
 
                 <img id="player-image"
                      src={PlayerBase}
                      alt={this.getAltText()}
-                     className={this.getDarken()}
+                     className={this.getClassName()}
                 />
 
                 <img id="player-busy-icon"
@@ -118,20 +137,20 @@ class Player extends Component {
                 />
 
                 <img id="player-identity-icon"
-                     className={this.getDarken()}
+                     className={this.getClassName()}
                      src={this.getIcon()}
                      hidden={!this.props.showRole}
                      alt={this.getAltText()}
                 />
 
                 <p      id="player-identity-label"
-                        className={this.getRoleClass() + this.getDarken()}
+                        className={this.getRoleClass() + this.getClassName()}
                         hidden={!this.props.showRole}>
                     {this.capitalizeFirstOnly(this.props.role)}
                 </p>
 
                 <Textfit id={"player-name"}
-                         className={this.getDarken()}
+                         className={this.getClassName()}
                          mode="multi"
                          forceSingleModeWidth={false}
                 >
@@ -157,7 +176,10 @@ Player.defaultProps = {
     showRole: true,
     disabled: false,
     disabledText: "EXECUTED",
-    isUser: false
+    useAsButton: false,
+    isSelected: false,
+    onClick: () => {},
+    highlight: false
 };
 
 export default Player;

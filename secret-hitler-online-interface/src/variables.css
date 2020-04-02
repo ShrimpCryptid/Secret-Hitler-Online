@@ -23,6 +23,11 @@
     --playerBrightnessFilter: 40%;
     --playerDisabledTextColor: #999999;
 
+    --selectionHover: #f6b53fff;
+    --selectionPressed: #cd8709ff;
+    --selectionSelected: #e46949ff;
+    --selectionNone: #f6b53f00;
+
     --eventBarIn: 1s;
     --eventBarOut: 1s;
     --eventBarOpacity: 0.9;

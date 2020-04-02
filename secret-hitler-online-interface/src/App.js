@@ -36,12 +36,13 @@ import {
     PARAM_ELECTION_TRACKER,
     PARAM_LIBERAL_POLICIES,
     PARAM_FASCIST_POLICIES,
-    STATE_CHANCELLOR_VOTING, PARAM_PRESIDENT
+    STATE_CHANCELLOR_VOTING, PARAM_PRESIDENT, STATE_LEGISLATIVE_PRESIDENT, STATE_LEGISLATIVE_CHANCELLOR
 } from "./GlobalDefinitions";
 
 import PlayerDisplay from "./player/PlayerDisplay";
 import StatusBar from "./status-bar/StatusBar";
 import Board from "./board/Board";
+import NominationPrompt from "./custom-alert/NominationPrompt";
 
 const EVENT_BAR_FADE_OUT_DURATION = 500;
 
@@ -537,6 +538,10 @@ class App extends Component {
                 case STATE_CHANCELLOR_VOTING:
                     //TODO: Show the voting window to all players.
                     this.setState({statusBarText:"Waiting for all players to vote."});
+                case STATE_LEGISLATIVE_PRESIDENT:
+                    // Animate the voting decision being made.
+                    // Animate cards being pulled from the draw deck.
+                case STATE_LEGISLATIVE_CHANCELLOR:
 
 
             }
@@ -544,7 +549,7 @@ class App extends Component {
 
         }
 
-        // Check for change in election tracker.
+        // Check for change in election tracker. => show the change via an alert.
 
         // Check for change in policy counts.
         // Show an alert for policies being enacted.
@@ -586,7 +591,14 @@ class App extends Component {
     }
 
     showAlert() {
-        this.setState({showAlert: true});
+        this.setState({
+            alertContent:(
+                <NominationPrompt
+                    gameState= {this.state.gameState}
+                    user= "P1"
+                />),
+            showAlert: true
+        });
     }
 
     /**

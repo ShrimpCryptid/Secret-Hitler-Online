@@ -36,9 +36,13 @@
     text-align: center;
 }
 
-#alert-header {
+h2 {
     text-align: left;
     margin: 10px;
+}
+
+.left-align {
+    text-align: left;
 }
 
 /* DEFAULT APPEAR */
@@ -83,7 +87,6 @@
     50% {opacity: 0;}
     100%{opacity: 0;}
 }
-
 
 /* BACKGROUND APPEAR/DISAPPEAR */
 

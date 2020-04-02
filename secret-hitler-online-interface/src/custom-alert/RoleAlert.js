@@ -96,6 +96,10 @@ class RoleAlert extends Component {
         }
     }
 
+    getHeader() {
+        return "YOU ARE: " + this.props.role;
+    }
+
     render() {
         let roleText = HitlerText;
         if (this.props.role === FASCIST) {

@@ -1,0 +1,18 @@
+@import './variables.css';
+
+.selectable {
+    background-color: var(--selectionNone);
+    cursor: pointer;
+}
+
+.selectable.selected {
+    background-color: var(--selectionSelected);
+}
+
+.selectable:hover {
+    background-color: var(--selectionHover);
+}
+
+.selectable:active {
+    background-color: var(--selectionPressed);
+}

@@ -122,11 +122,21 @@ class PlayerDisplay extends Component {
             let playerName = playerOrder[index];
             let playerData = players[playerName];
 
+            if(this.props.excludeUser && playerName === this.props.user) { // skip this user
+                continue;
+            }
+
             let roleText = "";
             if (playerName === this.props.gameState[PARAM_CHANCELLOR]) {
                 roleText = "CHANCELLOR";
             } else if (playerName === this.props.gameState[PARAM_PRESIDENT]) {
                 roleText = "PRESIDENT";
+            }
+
+            let disabledText = this.props.playerDisabledFilter(playerName, this.props.gameState);
+            let disabled = false;
+            if (disabledText !== "") {
+                disabled = true;
             }
 
             out[i] = (
@@ -136,9 +146,11 @@ class PlayerDisplay extends Component {
                         isBusy ={busyPlayers.has(playerName)}
                         role = {playerData[PLAYER_IDENTITY]}
                         showRole = {this.showRoleByRole[playerData[PLAYER_IDENTITY]] || playerName === this.props.user}
-                        isUser = {playerName === this.props.user}
-                        disabled = {!playerData[PLAYER_IS_ALIVE]}
+                        highlight = {playerName === this.props.user}
+                        disabled = {disabled}
+                        disabledText = {disabledText}
                         name = {playerName}
+                        useAsButton = {this.props.useAsButtons}
                     />
                 </div>
             )
@@ -150,7 +162,12 @@ class PlayerDisplay extends Component {
     * is insufficient space for them.*/
     render() {
         let playerOrder = this.props.gameState[PARAM_PLAYER_ORDER];
-        let middleIndex = Math.floor(playerOrder.length / 2);
+        let middleIndex;
+        if (this.props.excludeUser) { // if excluding the user, account for smaller set of players.
+            middleIndex = Math.floor((playerOrder.length - 1) / 2);
+        } else {
+            middleIndex = Math.floor(playerOrder.length / 2);
+        }
         this.determineRolesToShow();
         return (
             <div id="player-display">
@@ -167,7 +184,20 @@ class PlayerDisplay extends Component {
 
 PlayerDisplay.defaultProps = {
     user: "", /* The name of the user. */
-    gameState: {"liberal-policies":0,"fascist-policies":0,"discard-size":0,"draw-size":17,"players":[{"alive":true,"identity":"LIBERAL","investigated":false,"username":"kjh"},{"alive":true,"identity":"LIBERAL","investigated":false,"username":"fff"},{"alive":true,"identity":"FASCIST","investigated":false,"username":"t"},{"alive":true,"identity":"HITLER","investigated":false,"username":"qweq"},{"alive":true,"identity":"LIBERAL","investigated":false,"username":"sdfs"}],"in-game":true,"state":"CHANCELLOR_NOMINATION","president":"kjh","election-tracker":0,"user-votes":{}}
+    gameState: {},
+    /* A function that returns a label based on a player name and the game state.
+    *  A string that is non-empty represents a disabled player, and the string is used to label them. */
+    playerDisabledFilter: (name, state) => {
+        if (!state[PARAM_PLAYERS][name][PLAYER_IS_ALIVE]) {
+            return "EXECUTED";
+        }
+        return "";
+    },
+    onSelection: (name) => {}, // a callback function for when a player is selected.
+    selection: undefined, // the name of the player that should be selected.
+    useAsButtons: true,
+    excludeUser: true,
+    showVotes: false
 };
 
 export default PlayerDisplay;
