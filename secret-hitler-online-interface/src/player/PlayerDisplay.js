@@ -33,6 +33,7 @@ class PlayerDisplay extends Component {
     constructor(props) {
         super(props);
         this.determineRolesToShow = this.determineRolesToShow.bind(this);
+        this.onPlayerSelected = this.onPlayerSelected.bind(this);
     }
 
     /**
@@ -72,7 +73,6 @@ class PlayerDisplay extends Component {
     getBusyPlayerSet() {
         let game = this.props.gameState;
         let busyPlayers = new Set([]);
-        console.log("Setting busy players...");
         switch (game[PARAM_STATE]) {
             case STATE_CHANCELLOR_NOMINATION:
             case STATE_LEGISLATIVE_PRESIDENT:
@@ -91,7 +91,7 @@ class PlayerDisplay extends Component {
 
                 game[PARAM_PLAYERS].forEach((p, index) => {
                     let name = p[PLAYER_NAME];
-                    let isAlive = p[PLAYER_IS_ALIVE]
+                    let isAlive = p[PLAYER_IS_ALIVE];
                     if (!game[PARAM_VOTES].hasOwnProperty(name) && isAlive) { // player has not voted (is not in the map of votes) and is alive
                         busyPlayers.add(name);
                     }
@@ -146,6 +146,11 @@ class PlayerDisplay extends Component {
                 );
             }
 
+            let isSelected = this.props.selection === playerName;
+            let onClick = () => {
+                this.onPlayerSelected(playerName);
+            };
+
             out[i] = (
                 <div id={"player-display-text-container"}>
                     {label}
@@ -158,11 +163,28 @@ class PlayerDisplay extends Component {
                         disabledText = {disabledText}
                         name = {playerName}
                         useAsButton = {this.props.useAsButtons}
+                        isSelected = {isSelected}
+                        onClick = {onClick}
                     />
                 </div>
             )
         }
         return out;
+    }
+
+    /**
+     * Called when the player is selected. Calls this.props.onSelection if the player is a valid choice.
+     * @param name the name of the player.
+     * @effects If the player should be disabled (ie, {@code this.props.playerDisabledFilter(name, gamestate) !== ""}), ignores the selection.
+     *          If the player is already selected, ignores the selection.
+     *          Otherwise, calls {@code.this.props.onSelection(name)}.
+     */
+    onPlayerSelected(name) {
+        if (this.props.playerDisabledFilter(name, this.props.gameState) === ""
+                && this.props.useAsButtons
+                && name !== this.props.selection) {
+            this.props.onSelection(name);
+        }
     }
 
     /* Note that there are two player-display-containers, so that the player tiles can be split into two rows if there
@@ -200,10 +222,10 @@ PlayerDisplay.defaultProps = {
         }
         return "";
     },
-    onSelection: (name) => {}, // a callback function for when a player is selected.
+    onSelection: (name) => {console.log("Selected " + name + ".")}, // a callback function for when a player is selected.
     selection: undefined, // the name of the player that should be selected.
-    useAsButtons: true,
-    excludeUser: true,
+    useAsButtons: false,
+    excludeUser: false,
     showVotes: false,
     showLabels: true
 };

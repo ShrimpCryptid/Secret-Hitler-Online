@@ -11,7 +11,6 @@
     visibility: visible;
     z-index: 48;
     transition: visibility var(--eventBarIn);
-    box-sizing: border-box;
 }
 
 #bar-background {

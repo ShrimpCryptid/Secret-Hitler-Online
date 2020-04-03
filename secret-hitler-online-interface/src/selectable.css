@@ -7,7 +7,7 @@
 }
 
 .selectable.selected {
-    background-color: var(--selectionSelected);
+    background-color: var(--selectionPressed);
 }
 
 .selectable:hover {
@@ -17,3 +17,4 @@
 .selectable:active {
     background-color: var(--selectionPressed);
 }
+

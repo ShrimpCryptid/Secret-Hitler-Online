@@ -69,11 +69,15 @@ class Player extends Component {
         if (this.props.disabled) {
             out += " darken";
         }
-        if (this.props.highlight) {
-            out += " highlight";
-        }
 
         return out;
+    }
+
+    getHighlight() {
+        if (this.props.highlight) {
+            return " highlight";
+        }
+        return "";
     }
 
     /**
@@ -119,7 +123,7 @@ class Player extends Component {
     render() {
         return (
             <div id="player-container"
-                className={ this.getClassName() + this.getButtonClass()}
+                className={this.getHighlight() + this.getClassName() + this.getButtonClass()}
                  onClick = {this.props.onClick}
                  disabled = {this.props.disabled}
             >
@@ -143,18 +147,19 @@ class Player extends Component {
                      alt={this.getAltText()}
                 />
 
-                <p      id="player-identity-label"
-                        className={this.getRoleClass() + this.getClassName()}
-                        hidden={!this.props.showRole}>
+                <p id="player-identity-label"
+                         className={this.getRoleClass() + this.getClassName() + " force-update"}
+                         hidden={!this.props.showRole}
+                >
                     {this.capitalizeFirstOnly(this.props.role)}
                 </p>
 
                 <Textfit id={"player-name"}
-                         className={this.getClassName()}
+                         className={this.getClassName() + " force-update"}
                          mode="multi"
                          forceSingleModeWidth={false}
                 >
-                    {this.props.name}
+                    {decodeURIComponent(this.props.name)}
                 </Textfit>
 
                 <p  id="player-disabled-label"

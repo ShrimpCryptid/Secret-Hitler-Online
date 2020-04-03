@@ -19,7 +19,8 @@
 }
 
 #player-image {
-    width: 16vmin;
+    width: 20vmin;
+    max-width: 16vh;
     height: auto;
     display: block;
 }
@@ -34,8 +35,8 @@
     font-family: var(--textFont);
     top: 64%;
     left: 10%;
-    width: 13vmin;
-    height: 3vmin;
+    width: 80%;
+    height: 16%;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
@@ -48,9 +49,9 @@
 
 #player-identity-icon {
     position:absolute;
-    top: 73%;
+    top: 75%;
     left: 8%;
-    width: 4.5vmin;
+    width: 28%;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
@@ -61,19 +62,23 @@
     position: absolute;
     top: 43%;
     left: 50%;
-    width: 6vmin;
+    width: 37.5%;
 }
 
 #player-identity-label {
     position:absolute;
     top: 69%;
-    left: 38%;
-    font-size: calc(2vmin);
+    left: 36%;
+    width: 50%;
+    height: 12%;
+    /*noinspection CssInvalidFunction*/
+    font-size: min(2.3vh, 3vmin);
     color: var(--textColorHighlight);
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
-    user-select: none
+    user-select: none;
+    font-family: var(--textFont);
 }
 
 #player-identity-label.liberal-text {
@@ -89,7 +94,7 @@
     padding: 15% 0;
     height: 100%;
     width: 100%;
-    font-size: 3vmin;
+    font-size: calc(4vmin - 0.3vw);
     font-weight: normal;
     vertical-align: middle;
     -webkit-user-select: none;

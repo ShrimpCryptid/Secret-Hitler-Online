@@ -10,10 +10,24 @@ import {
 
 class NominationPrompt extends Component {
 
+    constructor(props) {
+        super(props);
+        this.state = {
+            selectedPlayer:undefined
+        }
+        this.onSelectionChanged = this.onSelectionChanged.bind(this);
+    }
+
     shouldFascistVictoryWarningBeShown() {
         return this.props.gameState[PARAM_FASCIST_POLICIES] >= 3;
     }
 
+    /**
+     * A static filter passed to the PlayerList.
+     * @param name
+     * @param game
+     * @return {string}
+     */
     playerDisabledFilter(name, game) {
         if (!game[PARAM_PLAYERS][name][PLAYER_IS_ALIVE]) {
             return "EXECUTED";
@@ -22,6 +36,16 @@ class NominationPrompt extends Component {
         } else {
             return "";
         }
+    }
+
+    /**
+     * Changes the selected player.
+     * @param name
+     */
+    onSelectionChanged(name) {
+        this.setState({
+            selectedPlayer: name
+        });
     }
 
     render() {
@@ -40,6 +64,8 @@ class NominationPrompt extends Component {
                     useAsButtons = {true}
                     playerDisabledFilter = {this.playerDisabledFilter}
                     showLabels = {false}
+                    selection = {this.state.selectedPlayer}
+                    onSelection = {this.onSelectionChanged}
                 />
                 <button>CONFIRM</button>
             </div>
