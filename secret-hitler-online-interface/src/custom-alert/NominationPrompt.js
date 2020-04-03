@@ -39,6 +39,7 @@ class NominationPrompt extends Component {
                     excludeUser = {true}
                     useAsButtons = {true}
                     playerDisabledFilter = {this.playerDisabledFilter}
+                    showLabels = {false}
                 />
                 <button>CONFIRM</button>
             </div>

@@ -36,7 +36,11 @@ import {
     PARAM_ELECTION_TRACKER,
     PARAM_LIBERAL_POLICIES,
     PARAM_FASCIST_POLICIES,
-    STATE_CHANCELLOR_VOTING, PARAM_PRESIDENT, STATE_LEGISLATIVE_PRESIDENT, STATE_LEGISLATIVE_CHANCELLOR
+    STATE_CHANCELLOR_VOTING,
+    PARAM_PRESIDENT,
+    STATE_LEGISLATIVE_PRESIDENT,
+    STATE_LEGISLATIVE_CHANCELLOR,
+    PARAM_PACKET_TYPE, PACKET_LOBBY, PACKET_GAME_STATE, PACKET_INVESTIGATION, PACKET_PEEK, PACKET_OK
 } from "./GlobalDefinitions";
 
 import PlayerDisplay from "./player/PlayerDisplay";
@@ -99,7 +103,6 @@ class App extends Component {
         this.playAnimationTest = this.playAnimationTest.bind(this);
         this.showAlert = this.showAlert.bind(this);
         this.showSnackBar = this.showSnackBar.bind(this);
-        this.changeStatusBarText = this.changeStatusBarText.bind(this);
         this.onAnimationFinish = this.onAnimationFinish.bind(this);
     }
 
@@ -195,22 +198,28 @@ class App extends Component {
         console.log(msg.data);
         this.failedConnections = 0;
         let message = JSON.parse(msg.data);
-        if (message.hasOwnProperty(PARAM_IN_GAME) && !message[PARAM_IN_GAME]) {
-            console.log("Not in game. Unpacking message contents...");
-            if (message.hasOwnProperty(PARAM_USER_COUNT) && message.hasOwnProperty(PARAM_USERNAMES)) {
+
+        switch (message[PARAM_PACKET_TYPE]) {
+            case PACKET_LOBBY:
                 this.setState({
                     userCount:message[PARAM_USER_COUNT],
                     usernames:message[PARAM_USERNAMES],
                     page: PAGE.LOBBY
                 });
-            } else {
-                console.log("Some data missing from lobby packet.");
-            }
-        } else { // currently in the game. Assume game input is standardized.
-            if (message !== this.state.gameState) {
-                this.onGameStateChanged(message);
-            }
-            this.setState({gameState: message, page: PAGE.GAME});
+                break;
+
+            case PACKET_GAME_STATE:
+                if (message !== this.state.gameState) {
+                    this.onGameStateChanged(message);
+                }
+                this.setState({gameState: message, page: PAGE.GAME});
+                break;
+
+            case PACKET_INVESTIGATION:
+            case PACKET_PEEK:
+            case PACKET_OK:
+            default:
+                // Unrecognized.
         }
     };
 
@@ -636,14 +645,6 @@ class App extends Component {
             showAlert: true
         });
     };
-
-    changeStatusBarText() {
-        if (this.state.statusBarText === "Waiting for all players to submit votes...") {
-            this.setState({statusBarText: "Waiting for president to nominate a chancellor..."});
-        } else {
-            this.setState({statusBarText: "Waiting for all players to submit votes..."});
-        }
-    }
 
     /**
      * Renders the game page.

@@ -139,9 +139,16 @@ class PlayerDisplay extends Component {
                 disabled = true;
             }
 
+            let label;
+            if (this.props.showLabels) {
+                label = (
+                    <p id="player-display-label">{roleText}</p>
+                );
+            }
+
             out[i] = (
                 <div id={"player-display-text-container"}>
-                    <p id="player-display-label">{roleText}</p>
+                    {label}
                     <Player
                         isBusy ={busyPlayers.has(playerName)}
                         role = {playerData[PLAYER_IDENTITY]}
@@ -197,7 +204,8 @@ PlayerDisplay.defaultProps = {
     selection: undefined, // the name of the player that should be selected.
     useAsButtons: true,
     excludeUser: true,
-    showVotes: false
+    showVotes: false,
+    showLabels: true
 };
 
 export default PlayerDisplay;

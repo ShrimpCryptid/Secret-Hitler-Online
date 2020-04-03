@@ -32,15 +32,19 @@ public class SecretHitlerServer {
     public static final String PARAM_CHOICE = "choice"; // the index of the chosen policy.
 
     // Passed to client
-    public static final String PARAM_IDENTITY = "identity";
-    public static final String PARAM_PEEK = "peek";
-    public static final String PARAM_TYPE = "type";
 
-    // These specify the kind of JSON Object being sent to the client.
-    public static final String TYPE_INVESTIGATION = "investigation";
-    public static final String TYPE_PEEK = "peek";
-    public static final String FASCIST = "fascist";
-    public static final String LIBERAL = "liberal";
+    // The type of the packet tells the client how to parse the contents.
+    public static final String PARAM_PACKET_TYPE = "type";
+    public static final String PACKET_INVESTIGATION = "investigation";
+    public static final String PACKET_PEEK = "peek";
+    public static final String PACKET_GAME_STATE = "game";
+    public static final String PACKET_LOBBY = "lobby";
+    public static final String PACKET_OK = "ok"; // general response packet sent after any successful command.
+
+    public static final String PARAM_INVESTIGATION = "investigation";
+    public static final String PARAM_PEEK = "peek";
+    public static final String FASCIST = "FASCIST";
+    public static final String LIBERAL = "LIBERAL";
 
     // These are the commands that can be passed via a websocket connection.
     public static final String COMMAND_PING = "ping";
@@ -350,11 +354,11 @@ public class SecretHitlerServer {
                     Identity id = lobby.game().investigatePlayer(message.getString(PARAM_TARGET));
                     // Construct and send a JSONObject.
                     JSONObject obj = new JSONObject();
-                    obj.put(PARAM_TYPE, TYPE_INVESTIGATION);
+                    obj.put(PARAM_PACKET_TYPE, PACKET_INVESTIGATION);
                     if (id == Identity.FASCIST) {
-                        obj.put(PARAM_IDENTITY, FASCIST);
+                        obj.put(PARAM_INVESTIGATION, FASCIST);
                     } else {
-                        obj.put(PARAM_IDENTITY, LIBERAL);
+                        obj.put(PARAM_INVESTIGATION, LIBERAL);
                     }
                     ctx.send(obj);
                     break;
@@ -373,7 +377,7 @@ public class SecretHitlerServer {
                     }
                     // Construct and send JSONObject
                     JSONObject msg = new JSONObject();
-                    msg.put(PARAM_TYPE, TYPE_PEEK);
+                    msg.put(PARAM_PACKET_TYPE, PACKET_PEEK);
                     msg.put(PARAM_PEEK, stringPolicies);
                     ctx.send(msg);
                     break;
@@ -386,7 +390,12 @@ public class SecretHitlerServer {
                 default: //This is an invalid command.
                     throw new RuntimeException("FAILED (unrecognized command " + message.get(PARAM_COMMAND) + ")");
             }
+
             System.out.println("SUCCESS");
+            JSONObject msg = new JSONObject();
+            msg.put(PARAM_PACKET_TYPE, PACKET_OK);
+            ctx.send(msg);
+
         } catch (NullPointerException e) {
             System.out.println("FAILED (" + e.toString() + ")");
             ctx.session.close(400, "NullPointerException:" + e.toString());

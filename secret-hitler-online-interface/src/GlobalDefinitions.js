@@ -22,6 +22,14 @@ export const MAX_PLAYERS = 10;
 
 //////// JSON Packet Data
 
+// Packet Headers
+export const PARAM_PACKET_TYPE = "type";
+export const PACKET_INVESTIGATION = "investigation";
+export const PACKET_PEEK = "peek";
+export const PACKET_GAME_STATE = "game";
+export const PACKET_LOBBY = "lobby";
+export const PACKET_OK = "ok";
+
 // Commands
 //<editor-fold desc="Commands">
 export const PARAM_COMMAND = "command";
@@ -63,11 +71,18 @@ export const STATE_FASCIST_VICTORY_ELECTION = "FASCIST_VICTORY_ELECTION";       
 
 // Params
 // <editor-fold desc="Params">
-export const PARAM_IN_GAME = "in-game";
 
+// Lobby
 export const PARAM_USER_COUNT = "user-count";
 export const PARAM_USERNAMES = "usernames";
 
+// Peek
+export const PARAM_PEEK = "peek";
+
+// Investigation
+export const PARAM_INVESTIGATION = "investigation";
+
+// Game
 export const PARAM_STATE = "state";
 export const PARAM_PLAYER_ORDER = "player-order";
 export const PARAM_PLAYERS = "players";

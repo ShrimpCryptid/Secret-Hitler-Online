@@ -19,6 +19,7 @@
     left: 0;
     margin: 0;
     z-index: 50;
+    box-sizing: border-box;
     background-color: var(--alertFill);
     opacity:var(--alertOverlayOpacity);
 }
@@ -28,7 +29,7 @@
     z-index: 60;
     opacity: 1;
     min-width: 80vmin;
-    max-width: 40vw;
+    max-width: 60vw;
     min-height: 60vmin;
     margin: auto auto;
     padding: 20px;
@@ -38,7 +39,6 @@
 
 h2 {
     text-align: left;
-    margin: 10px;
 }
 
 .left-align {

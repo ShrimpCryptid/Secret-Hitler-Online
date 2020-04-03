@@ -3,6 +3,7 @@ package server.util;
 import game.SecretHitlerGame;
 import io.javalin.websocket.WsContext;
 import org.json.JSONObject;
+import server.SecretHitlerServer;
 
 import java.util.*;
 
@@ -160,10 +161,10 @@ public class Lobby {
 
         if (isInGame()) {
             message = GameToJSONConverter.convert(game); // sends the game state
-            message.put("in-game", true);
+            message.put(SecretHitlerServer.PARAM_PACKET_TYPE, SecretHitlerServer.PACKET_GAME_STATE);
         } else {
             message = new JSONObject();
-            message.put("in-game", false);
+            message.put(SecretHitlerServer.PARAM_PACKET_TYPE, SecretHitlerServer.PACKET_LOBBY);
             message.put("user-count", getUserCount());
             message.put("usernames", activeUsernames);
         }

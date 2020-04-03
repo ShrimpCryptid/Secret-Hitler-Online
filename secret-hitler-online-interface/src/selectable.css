@@ -3,6 +3,7 @@
 .selectable {
     background-color: var(--selectionNone);
     cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .selectable.selected {
