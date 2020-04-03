@@ -3,8 +3,17 @@ import "./EventBar.css";
 
 class EventBar extends Component {
 
+    constructor(props) {
+        super(props);
+        this.state = {
+            inStartingState: true
+        };
+    }
+
     getClass() {
-        if (this.props.show) {
+        if (this.state.inStartingState) {
+            return "start-eventbar";
+        } else if (this.props.show) {
             return "appear-eventbar";
         } else {
             return "disappear-eventbar";
@@ -12,6 +21,10 @@ class EventBar extends Component {
     }
 
     render() {
+        if(this.props.show && this.state.inStartingState){
+            this.setState({inStartingState: false});
+        }
+
         return (
             <div id="event-bar" className={this.getClass()}>
                 <div id="bar-background" className={this.getClass()} />

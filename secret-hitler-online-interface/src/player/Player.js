@@ -158,6 +158,8 @@ class Player extends Component {
                          className={this.getClassName() + " force-update"}
                          mode="multi"
                          forceSingleModeWidth={false}
+                         alignVertWithFlexbox={true}
+                         throttle={1000}
                 >
                     {decodeURIComponent(this.props.name)}
                 </Textfit>

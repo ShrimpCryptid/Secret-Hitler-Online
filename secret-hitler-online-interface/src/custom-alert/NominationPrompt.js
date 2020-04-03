@@ -13,8 +13,8 @@ class NominationPrompt extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            selectedPlayer:undefined
-        }
+            selectedItem:undefined
+        };
         this.onSelectionChanged = this.onSelectionChanged.bind(this);
     }
 
@@ -44,8 +44,16 @@ class NominationPrompt extends Component {
      */
     onSelectionChanged(name) {
         this.setState({
-            selectedPlayer: name
+            selectedItem: name
         });
+    }
+
+    shouldButtonBeDisabled() {
+        return this.state.selectedItem === undefined;
+    }
+
+    onConfirmButtonClick() {
+        // First, send a message to the
     }
 
     render() {
@@ -53,21 +61,16 @@ class NominationPrompt extends Component {
             <div>
                 <h2>NOMINATION</h2>
                 <p className="left-align">Nominate a player to become the next Chancellor.</p>
-                <p className="left-align highlight" hidden={this.shouldFascistVictoryWarningBeShown()}>
-                    Fascists will win if Hitler is successfully voted in as Chancellor!
+                <p className="left-align highlight"
+                    hidden={!this.shouldFascistVictoryWarningBeShown()}>
+                    Fascists will win if Hitler is nominated and voted in as Chancellor!
                 </p>
 
-                <PlayerDisplay
-                    gameState = {this.props.gameState}
-                    user={this.props.user}
-                    excludeUser = {true}
-                    useAsButtons = {true}
-                    playerDisabledFilter = {this.playerDisabledFilter}
-                    showLabels = {false}
-                    selection = {this.state.selectedPlayer}
-                    onSelection = {this.onSelectionChanged}
-                />
-                <button>CONFIRM</button>
+
+                <button
+                    disabled={this.shouldButtonBeDisabled()}
+                    onClick={this.onConfirmButtonClick}
+                >CONFIRM</button>
             </div>
         )
     }
@@ -76,7 +79,8 @@ class NominationPrompt extends Component {
 
 NominationPrompt.defaultProps = {
     user: undefined,
-    gameState: {}
+    gameState: {},
+    selectedItem: undefined
 };
 
 export default NominationPrompt;

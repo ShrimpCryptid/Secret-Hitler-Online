@@ -58,6 +58,7 @@ class App extends Component {
     snackbarMessages = 0;
     animationQueue = [];
     allAnimationsFinished = true;
+    okMessageListeners = [];
 
     constructor(props) {
         super(props);
@@ -89,7 +90,7 @@ class App extends Component {
             showEventBar: false,
             eventBarMessage: "",
 
-            statusBarText:""
+            statusBarText:"Game Starting"
 
         };
 

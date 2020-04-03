@@ -8,7 +8,7 @@
     display: flex;
     justify-content: center;
     text-align: center;
-    visibility: visible;
+    visibility: hidden;
     z-index: 48;
     transition: visibility var(--eventBarIn);
 }
@@ -29,6 +29,10 @@
     margin: 0 auto;
     animation: ease-out;
     opacity: 0;
+}
+
+#event-bar.start-eventbar {
+    visibility: hidden;
 }
 
 #event-bar.appear-eventbar {
