@@ -32,13 +32,9 @@
     max-width: 60vw;
     min-height: 60vmin;
     margin: auto auto;
-    padding: 20px;
+    padding: 20px 30px;
     background-color: var(--alertFill);
     text-align: center;
-}
-
-h2 {
-    text-align: left;
 }
 
 .left-align {

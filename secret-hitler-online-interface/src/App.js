@@ -47,6 +47,7 @@ import PlayerDisplay from "./player/PlayerDisplay";
 import StatusBar from "./status-bar/StatusBar";
 import Board from "./board/Board";
 import NominationPrompt from "./custom-alert/NominationPrompt";
+import OptionPrompt from "./custom-alert/OptionPrompt";
 
 const EVENT_BAR_FADE_OUT_DURATION = 500;
 
@@ -70,13 +71,13 @@ class App extends Component {
             joinError:"",
             createLobbyName:"",
             createLobbyError:"",
-            name:"P1",
+            name:"P4",
             lobby:"AAAAAA",
 
             usernames:[],
             userCount:1,
 
-            gameState: {"liberal-policies":0,"fascist-policies":0,"discard-size":0,"draw-size":17,"players":{"P1":{"alive":true,"id":"FASCIST","investigated":false},"P2":{"alive":true,"id":"HITLER","investigated":false},"P3":{"alive":true,"id":"LIBERAL","investigated":false},"P4":{"alive":true,"id":"LIBERAL","investigated":false},"P5":{"alive":true,"id":"LIBERAL","investigated":false},"P6":{"alive":true,"id":"FASCIST","investigated":false},"P7":{"alive":true,"id":"LIBERAL","investigated":false}},"in-game":true,"player-order":["P4","P2","P6","P1","P7","P3","P5"],"state":"CHANCELLOR_NOMINATION","president":"P4","election-tracker":0,"user-votes":{}},
+            gameState: {"liberal-policies":0,"fascist-policies":0,"discard-size":0,"draw-size":17,"players":{"P1":{"alive":true,"id":"FASCIST","investigated":false},"P2":{"alive":true,"id":"HITLER","investigated":false},"P3":{"alive":true,"id":"LIBERAL","investigated":false},"P4":{"alive":true,"id":"LIBERAL","investigated":false},"P5":{"alive":true,"id":"LIBERAL","investigated":false},"P6":{"alive":false,"id":"FASCIST","investigated":false},"P7":{"alive":true,"id":"LIBERAL","investigated":false}},"in-game":true,"player-order":["P4","P2","P6","P1","P7","P3","P5"],"state":"CHANCELLOR_NOMINATION","last-president": "P7", "last-chancellor": "P3", "president":"P4","election-tracker":0,"user-votes":{}},
             lastState: {}, /* Stores the last gameState[PARAM_STATE] value to check for changes. */
             liberalPolicies: 0,
             fascistPolicies: 0,
@@ -248,7 +249,12 @@ class App extends Component {
             }
         }
 
-        this.websocket.send(JSON.stringify(data));
+        console.log(JSON.stringify(data));
+        if (this.websocket !== undefined) {
+            this.websocket.send(JSON.stringify(data));
+        } else {
+            this.showSnackBar("Could not connect to the server. Try refreshing the page if this happens again.");
+        }
     }
 
 
@@ -356,7 +362,7 @@ class App extends Component {
                     SECRET HITLER ONLINE
                 </header>
                 <br/>
-                <div>
+                <div style={{textAlign: "center"}}>
                     <h2>JOIN A GAME</h2>
                     <MaxLengthTextField
                         label={"Lobby"}
@@ -604,9 +610,11 @@ class App extends Component {
         this.setState({
             alertContent:(
                 <NominationPrompt
-                    gameState= {this.state.gameState}
-                    user= "P1"
-                />),
+                    gameState={this.state.gameState}
+                    user={this.state.name}
+                    sendWSCommand={this.sendWSCommand}
+                />
+            ),
             showAlert: true
         });
     }

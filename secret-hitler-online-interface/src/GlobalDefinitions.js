@@ -99,4 +99,6 @@ export const PARAM_VOTES = "user-votes";
 export const PARAM_LIBERAL_POLICIES = "liberal-policies";
 export const PARAM_FASCIST_POLICIES = "fascist-policies";
 
+export const PARAM_TARGET = "target";
+
 // </editor-fold>

@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import PropTypes from 'prop-types';
 import Player from "./Player";
 import {
     FASCIST,
@@ -229,5 +230,6 @@ PlayerDisplay.defaultProps = {
     showVotes: false,
     showLabels: true
 };
+
 
 export default PlayerDisplay;

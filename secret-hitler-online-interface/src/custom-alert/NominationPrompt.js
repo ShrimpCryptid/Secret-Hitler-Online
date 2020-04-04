@@ -1,21 +1,26 @@
 import React, {Component} from 'react';
-import PlayerDisplay from "../player/PlayerDisplay";
+import PropTypes from "prop-types";
 import {
+    COMMAND_NOMINATE_CHANCELLOR,
     PARAM_FASCIST_POLICIES,
     PARAM_LAST_CHANCELLOR,
     PARAM_LAST_PRESIDENT,
     PARAM_PLAYERS,
     PLAYER_IS_ALIVE
 } from "../GlobalDefinitions";
+import PlayerPrompt from "./PlayerPrompt";
+
+const SERVER_TIMEOUT = 4000;
 
 class NominationPrompt extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            selectedItem:undefined
+            waitingForServer: false
         };
-        this.onSelectionChanged = this.onSelectionChanged.bind(this);
+
+        this.onButtonClick = this.onButtonClick.bind(this);
     }
 
     shouldFascistVictoryWarningBeShown() {
@@ -23,7 +28,7 @@ class NominationPrompt extends Component {
     }
 
     /**
-     * A static filter passed to the PlayerList.
+     * A static filter that determines which players to disable.
      * @param name
      * @param game
      * @return {string}
@@ -39,48 +44,52 @@ class NominationPrompt extends Component {
     }
 
     /**
-     * Changes the selected player.
-     * @param name
+     * Called when the button is clicked.
      */
-    onSelectionChanged(name) {
-        this.setState({
-            selectedItem: name
-        });
+    onButtonClick(selectedItem) {
+        // Lock the button so that it can't be pressed multiple times.
+        this.setState({waitingForServer: true});
+        setTimeout(() => {this.setState({waitingForServer: false})}, SERVER_TIMEOUT);
+
+        // Contact the server using provided method.
+        this.props.sendWSCommand(COMMAND_NOMINATE_CHANCELLOR, {PARAM_TARGET: selectedItem});
     }
 
-    shouldButtonBeDisabled() {
-        return this.state.selectedItem === undefined;
-    }
-
-    onConfirmButtonClick() {
-        // First, send a message to the
-    }
 
     render() {
         return (
             <div>
-                <h2>NOMINATION</h2>
-                <p className="left-align">Nominate a player to become the next Chancellor.</p>
-                <p className="left-align highlight"
-                    hidden={!this.shouldFascistVictoryWarningBeShown()}>
-                    Fascists will win if Hitler is nominated and voted in as Chancellor!
-                </p>
+                <PlayerPrompt
+                    label = {"NOMINATION"}
+                    renderHeader={() => {
+                            return (
+                                <div>
+                                    <p className="left-align">Nominate a player to become the next Chancellor.</p>
+                                    <p className="left-align highlight" hidden={!this.shouldFascistVictoryWarningBeShown()}>
+                                        Fascists will win if Hitler is nominated and voted in as Chancellor!
+                                    </p>
+                                </div>
+                            )
+                        }
+                    }
+                    disabledFilter={this.playerDisabledFilter}
+                    user={this.props.user}
+                    gameState={this.props.gameState}
+                    onOptionSelected={this.onSelection}
 
-
-                <button
-                    disabled={this.shouldButtonBeDisabled()}
-                    onClick={this.onConfirmButtonClick}
-                >CONFIRM</button>
+                    buttonDisabled={this.state.waitingForServer} // Disable if waiting for server contact
+                    buttonOnClick={this.onButtonClick}
+                />
             </div>
         )
     }
 
 }
 
-NominationPrompt.defaultProps = {
-    user: undefined,
-    gameState: {},
-    selectedItem: undefined
+NominationPrompt.propTypes = {
+    user: PropTypes.string,
+    gameState: PropTypes.object.isRequired,
+    sendWSCommand: PropTypes.func
 };
 
 export default NominationPrompt;

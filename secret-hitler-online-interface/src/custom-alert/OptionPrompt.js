@@ -1,12 +1,5 @@
 import React, {Component} from 'react';
-import PlayerDisplay from "../player/PlayerDisplay";
-import {
-    PARAM_FASCIST_POLICIES,
-    PARAM_LAST_CHANCELLOR,
-    PARAM_LAST_PRESIDENT,
-    PARAM_PLAYERS,
-    PLAYER_IS_ALIVE
-} from "../GlobalDefinitions";
+import PropTypes from 'prop-types';
 
 /**
  * A template set of contents for the CustomAlert class that holds a series of selectable options.
@@ -20,109 +13,74 @@ class OptionPrompt extends Component {
         }
     }
 
-    /**
-     * Returns the label for the prompt.
-     * @return {String} the string label for the prompt.
-     */
-    getLabel() {
-        return "LABEL HERE";
+    handleSelection(selectedItem) {
+        this.setState({selection: selectedItem});
+        this.props.onOptionSelected(selectedItem)
     }
-
-    /**
-     * Gets an array of HTML tags for the header text that appear before the options.
-     * @return {[]} an array of HTML tags to render for the header.
-     */
-    renderHeader() {
-        let out = [];
-        out[0] = (
-            <p>Header goes here.</p>
-        );
-        return out;
-    }
-
-    /**
-     * Called when the options change.
-     * @param option the value representing the option.
-     * @effects sets the state so that this option is selected.
-     */
-    onOptionSelected(option) {
-        this.setState({
-            selection:option
-        });
-    }
-
-    /**
-     * Gets the HTML options (interactible objects).
-     * @return {[]} an array of HTML tags to render the options.
-     */
-    renderOptions() {
-        let out = [];
-        out[0] = (
-            <p>Options go here.</p>
-        );
-        return out;
-    }
-
-    /**
-     * Gets an array of HTML tags for the footer text that appears after the options.
-     * @return {[]} an array of HTML tags used to render the footers (below the options).
-     */
-    renderFooter() {
-        let out = [];
-        out[0] = (
-            <p>Footer goes here.</p>
-        );
-        return out;
-    }
-
-    /**
-     * Gets the label for the button.
-     * @return {String} the label to display on the button.
-     */
-    getButtonLabel() {
-        return "CONFIRM"
-    }
-
-    /**
-     * Determines if the button should be enabled.
-     * @return {boolean} returns true if the button should be enabled.
-     */
-    shouldButtonBeEnabled() {
-        return this.state.selection !== undefined;
-    }
-
-    /**
-     * Called when the button is clicked.
-     */
-    onButtonClick();
-
-    /**
-     *
-     * @return {*}
-     */
-    renderButton() {
-        return (
-            <button
-                disabled={!this.shouldButtonBeEnabled()}
-                onClick={this.onButtonClick}
-            >
-                {this.getButtonLabel()}
-            </button>
-        )
-    }
-
 
     render() {
         return (
             <div>
-                <h2 className={"left-align"}>{this.getLabel()}</h2>
-                {this.renderHeader()}
-                {this.renderOptions()}
-                {this.renderFooter()}
-                {this.renderButton()}
+                {this.props.renderLabel(this)}
+                {this.props.renderHeader(this)}
+                {this.props.children}
+                {this.props.renderFooter(this)}
+                {this.props.renderButton(this)}
             </div>
         );
     }
 }
+
+OptionPrompt.defaultProps = {
+    label: "LABEL GOES HERE",
+    renderLabel: (obj) => {
+        return (<h2 id={"prompt-label"} className={"left-align"}>{obj.props.label}</h2>);
+    },
+
+    headerText: "",
+    renderHeader: (obj) => {
+        return (
+            <p id={"prompt-header"} className={"left-align"}>{obj.props.headerText}</p>
+        );
+    },
+
+    footerText: "",
+    renderFooter: (obj) => {
+        return (
+            <p id={"prompt-header"}>{obj.props.headerText}</p>
+        );
+    },
+
+    buttonText: "CONFIRM",
+    buttonOnClick: () => {console.log("Button clicked.")},
+    buttonDisabled: false,
+    renderButton: (obj) => {
+        return (
+            <button id={"prompt-button"} disabled={obj.props.buttonDisabled} onClick={obj.props.buttonOnClick}>
+                {obj.props.buttonText}
+            </button>
+        );
+    },
+
+};
+
+OptionPrompt.propTypes = {
+    label: PropTypes.string,
+    renderLabel: PropTypes.func,
+    headerText: PropTypes.string,
+    renderHeader: PropTypes.func,
+
+    onOptionSelected: PropTypes.func,
+    renderOptions: PropTypes.func,
+
+    footerText: PropTypes.string,
+    renderFooter: PropTypes.func,
+
+    buttonText: PropTypes.string,
+    buttonOnClick: PropTypes.func,
+    buttonDisabled: PropTypes.bool,
+    renderButton: PropTypes.func
+};
+
 
 export default OptionPrompt;
