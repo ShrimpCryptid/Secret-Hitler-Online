@@ -30,11 +30,18 @@ class PlayerDisplay extends Component {
 
     // A map from the role to a boolean value determining if it should be shown.
     showRoleByRole = {FASCIST:false, HITLER:false, LIBERAL: false};
+    playingVoteAnimation = false;
+    // An array object that maps from each player's position in the order to
+    // whether their vote should be shown. This allows the sequence to be animated.
+    showPlayerVote = new Array(10).fill(false);
 
     constructor(props) {
         super(props);
+
         this.determineRolesToShow = this.determineRolesToShow.bind(this);
         this.onPlayerSelected = this.onPlayerSelected.bind(this);
+        this.setupVoteAnimation = this.setupVoteAnimation.bind(this);
+        this.resetVoteAnimation = this.resetVoteAnimation.bind(this);
     }
 
     /**
@@ -158,7 +165,7 @@ class PlayerDisplay extends Component {
                 <div id={"player-display-text-container"}>
                     {label}
                     <Player
-                        isBusy ={busyPlayers.has(playerName)}
+                        isBusy ={busyPlayers.has(playerName) && !this.props.showVotes} // Do not show while voting.
                         role = {playerData[PLAYER_IDENTITY]}
                         showRole = {this.showRoleByRole[playerData[PLAYER_IDENTITY]] || playerName === this.props.user}
                         highlight = {playerName === this.props.user}
@@ -168,6 +175,8 @@ class PlayerDisplay extends Component {
                         useAsButton = {this.props.useAsButtons}
                         isSelected = {isSelected}
                         onClick = {onClick}
+                        showVote={this.showPlayerVote[i + start]}
+                        vote={this.props.gameState[PARAM_VOTES][playerName]}
                     />
                 </div>
             )
@@ -190,6 +199,41 @@ class PlayerDisplay extends Component {
         }
     }
 
+    /**
+     * Creates the voting animation sequence.
+     */
+    setupVoteAnimation() {
+        let duration = 1000;
+        let numVotes = this.props.gameState[PARAM_PLAYER_ORDER].length;
+        let timePerPlayer = duration / numVotes;
+        let playerOrder = this.props.gameState[PARAM_PLAYER_ORDER];
+        let players = this.props.gameState[PARAM_PLAYERS];
+        let i = 0;
+        let delay = 0;
+        for (i; i < playerOrder.length; i++) {
+            this.showPlayerVote[i] = false;
+            let playerName = playerOrder[i];
+            if (players[playerName][PLAYER_IS_ALIVE]) { // player is eligible to vote
+                setTimeout(() => {
+                    this.showPlayerVote[i] = true;
+                    this.forceUpdate();
+                    i++;
+                }, delay);
+                delay += timePerPlayer;
+            } else {
+                setTimeout(() => {
+                    this.showPlayerVote[i] = false;
+                    i++;
+                }, delay);
+            }
+        }
+        i = 0;
+    }
+
+    resetVoteAnimation () {
+        this.showPlayerVote = new Array(10).fill(false);
+    }
+
     /* Note that there are two player-display-containers, so that the player tiles can be split into two rows if there
     * is insufficient space for them.*/
     render() {
@@ -201,6 +245,18 @@ class PlayerDisplay extends Component {
             middleIndex = Math.floor(playerOrder.length / 2);
         }
         this.determineRolesToShow();
+
+        if (this.props.showVotes && !this.playingVoteAnimation) {
+            console.log("Changing state to play animation.");
+            this.playingVoteAnimation = true;
+            this.setupVoteAnimation();
+
+        } else if (!this.props.showVotes && this.playingVoteAnimation) {
+            console.log("Stopping animation.");
+            this.playingVoteAnimation = false;
+            this.resetVoteAnimation();
+        }
+
         return (
             <div id="player-display">
                 <div id="player-display-container">

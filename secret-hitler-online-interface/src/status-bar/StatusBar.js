@@ -23,7 +23,7 @@ class StatusBar extends Component {
                 text.className = text.className.replace("hide", "");
                 this.setState({text:this.props.children});
             },
-            500);
+            250);
     }
 
     getClass() {

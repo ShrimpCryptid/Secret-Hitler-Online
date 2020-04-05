@@ -8,14 +8,14 @@
     margin: 0;
     padding: 2vmin 5px;
     color: var(--textColorWhite);
-    -webkit-animation: show 0.5s;
-    animation: show 0.5s;
+    -webkit-animation: show 0.25s;
+    animation: show 0.25s;
 }
 
 #status-bar-text.hide-statusbar {
     animation-timing-function: ease-in-out;
-    -webkit-animation: hide 0.5s;
-    animation: hide 0.5s;
+    -webkit-animation: hide 0.25s;
+    animation: hide 0.25s;
 }
 
 @-webkit-keyframes show {

@@ -43,42 +43,42 @@
 
 /* DEFAULT APPEAR */
 
-.appear-customalert{
+.appear-custom-alert{
     transition-timing-function: ease-in-out;
-    -webkit-animation: appear 0.5s;
-    animation: appear 0.5s;
+    -webkit-animation: appear-custom-alert 0.5s;
+    animation: appear-custom-alert 0.5s;
     visibility: visible;
     transition: visibility 0.5s;
     opacity: 1;
 }
 
-.disappear-customalert {
+.disappear-custom-alert {
     transition-timing-function: ease-in-out;
-    -webkit-animation: disappear 1s;
-    animation: disappear 1s;
+    -webkit-animation: disappear-custom-alert 1s;
+    animation: disappear-custom-alert 1s;
     visibility: hidden;
     transition: visibility 0.5s;
 }
 
-@-webkit-keyframes appear {
+@-webkit-keyframes appear-custom-alert {
     0% {opacity: 0;}
     40% {opacity: 0;}
     100% {opacity: 1;}
 }
 
-@keyframes appear {
+@keyframes appear-custom-alert {
     0% {opacity: 0;}
     40% {opacity: 0;}
     100% {opacity: 1;}
 }
 
-@-webkit-keyframes disappear {
+@-webkit-keyframes disappear-custom-alert {
     0% {opacity: 1;}
     50% {opacity: 0;}
     100%{opacity: 0;}
 }
 
-@keyframes disappear {
+@keyframes disappear-custom-alert {
     0% {opacity: 1;}
     50% {opacity: 0;}
     100%{opacity: 0;}
@@ -86,12 +86,12 @@
 
 /* BACKGROUND APPEAR/DISAPPEAR */
 
-#alert-background.appear-customalert {
+#alert-background.appear-custom-alert {
     -webkit-animation: appear-background 0.5s;
     animation: appear-background 0.5s;
 }
 
-#alert-background.disappear-customalert {
+#alert-background.disappear-custom-alert {
     -webkit-animation: disappear-background 1s;
     animation: disappear-background 1s;
 }

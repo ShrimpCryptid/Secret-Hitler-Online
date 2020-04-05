@@ -40,7 +40,14 @@ import {
     PARAM_PRESIDENT,
     STATE_LEGISLATIVE_PRESIDENT,
     STATE_LEGISLATIVE_CHANCELLOR,
-    PARAM_PACKET_TYPE, PACKET_LOBBY, PACKET_GAME_STATE, PACKET_INVESTIGATION, PACKET_PEEK, PACKET_OK, STATE_SETUP
+    PARAM_PACKET_TYPE,
+    PACKET_LOBBY,
+    PACKET_GAME_STATE,
+    PACKET_INVESTIGATION,
+    PACKET_PEEK,
+    PACKET_OK,
+    STATE_SETUP,
+    PLAYER_IS_ALIVE, PARAM_VOTES
 } from "./GlobalDefinitions";
 
 import PlayerDisplay from "./player/PlayerDisplay";
@@ -79,11 +86,17 @@ class App extends Component {
             usernames:[],
             userCount:1,
 
-            gameState: {"liberal-policies":0,"fascist-policies":0,"discard-size":0,"draw-size":17,"players":{"P1":{"alive":true,"id":"FASCIST","investigated":false},"P2":{"alive":true,"id":"HITLER","investigated":false},"P3":{"alive":true,"id":"LIBERAL","investigated":false},"P4":{"alive":true,"id":"LIBERAL","investigated":false},"P5":{"alive":true,"id":"LIBERAL","investigated":false},"P6":{"alive":false,"id":"FASCIST","investigated":false},"P7":{"alive":true,"id":"LIBERAL","investigated":false}},"in-game":true,"player-order":["P4","P2","P6","P1","P7","P3","P5"],"state":STATE_SETUP,"last-president": "P7", "last-chancellor": "P3", "president":"P4", "chancellor":"P5", "election-tracker":0,"user-votes":{}},
+            gameState: {"liberal-policies":0,"fascist-policies":0,"discard-size":0,"draw-size":17,
+                "players":{"P1":{"alive":true,"id":"FASCIST","investigated":false},"P2":{"alive":true,"id":"HITLER","investigated":false},"P3":{"alive":true,"id":"LIBERAL","investigated":false},"P4":{"alive":true,"id":"LIBERAL","investigated":false},"P5":{"alive":true,"id":"LIBERAL","investigated":false},"P6":{"alive":false,"id":"FASCIST","investigated":false},"P7":{"alive":true,"id":"LIBERAL","investigated":false}},"in-game":true,"player-order":["P4","P2","P6","P1","P7","P3","P5"],
+                "state":STATE_SETUP,"last-president": "P7", "last-chancellor": "P3", "president":"P4", "chancellor":"P5", "election-tracker":0,
+                "user-votes":{"P4": true, "P2": false, "P1": false, "P7": true, "P3": false, "P5": true}},
             lastState: {}, /* Stores the last gameState[PARAM_STATE] value to check for changes. */
             liberalPolicies: 0,
             fascistPolicies: 0,
             electionTracker: 0, /*The position of the election tracker, ranging from 0 to 3.*/
+            showVotes: false,
+            drawDeckSize: 17,
+            discardDeckSize: 0,
 
             snackbarMessage:"",
 
@@ -555,6 +568,8 @@ class App extends Component {
                         this.addAnimationToQueue(() => this.showRoleAlert(newState));
                     }
 
+                    // Check if the vote failed. If so, break.
+
                     this.addAnimationToQueue(() => this.showEventBar("CHANCELLOR NOMINATION"));
                     this.setState({statusBarText:"Waiting for president to nominate a chancellor."});
 
@@ -579,10 +594,8 @@ class App extends Component {
                     break;
 
                 case STATE_CHANCELLOR_VOTING:
-                    //TODO: Show the voting window to all players.
-                    this.setState({statusBarText:"Waiting for all players to vote."});
+                    this.setState({statusBarText: ""});
                     this.addAnimationToQueue(() => this.showEventBar("VOTING"));
-                    //TODO: Show the voting window here!
                     this.addAnimationToQueue(() => {
                         this.setState({
                             alertContent: (
@@ -591,15 +604,29 @@ class App extends Component {
                                     sendWSCommand={this.sendWSCommand}
                                     user={this.state.name}
                                 />
-                            )
+                            ),
+                            showAlert: true,
+                            statusBarText:"Waiting for all players to vote."
                         });
                     });
+                    this.addServerOKListener(() => this.hideAlertAndFinish());
 
                     break;
+
                 case STATE_LEGISLATIVE_PRESIDENT:
+                    // The vote completed, so show the votes.
+                    this.addAnimationToQueue(() => this.showVotes(newState));
                     this.addAnimationToQueue(() => this.showEventBar("LEGISLATIVE SESSION"));
-                    // Animate the voting decision being made.
+
                     // Animate cards being pulled from the draw deck.
+
+                    this.addAnimationToQueue(() => {
+                        this.setState({statusBarText: "Waiting for the president to choose a policy to discard."});
+                        this.onAnimationFinish();
+                    });
+
+                    // Animate the voting decision being made.
+                    break;
                 case STATE_LEGISLATIVE_CHANCELLOR:
 
 
@@ -613,7 +640,6 @@ class App extends Component {
         // Check for change in policy counts.
         // Show an alert for policies being enacted.
     }
-
 
     //// Animation Handling
     // <editor-fold desc="Animation Handling">
@@ -647,6 +673,29 @@ class App extends Component {
         }
     }
 
+    showVotes(newState) {
+        this.setState({statusBarText: "Tallying votes..."});
+        setTimeout(() => { this.setState({showVotes: true}) }, 1000);
+        // Calculate final result:
+
+        let noVotes = 0;
+        let yesVotes = 0;
+        let entries = Object.values(newState[PARAM_VOTES]).forEach((value) => {
+            if (value) { yesVotes++; }
+            else { noVotes++; }
+        });
+        setTimeout(() => {
+
+            if (yesVotes > noVotes) {
+                this.setState({statusBarText: (yesVotes) + " - " + (noVotes) + ": Vote passed"})
+            } else {
+                this.setState({statusBarText: (yesVotes) + " - " + (noVotes) + ": Vote failed"})
+            }
+        }, 2000);
+        setTimeout(() => this.setState({showVotes: false, statusBarText: ""}), 6000);
+        setTimeout(() => {this.onAnimationFinish(); }, 6500);
+    }
+
     /**
      * Adds a listener to be called when the server returns an 'OK' status.
      * @param func The function to be called.
@@ -671,8 +720,22 @@ class App extends Component {
     // </editor-fold>
 
     playAnimationTest() {
-        this.setState({showEventBar:true});
-        setTimeout(() => {this.setState({showEventBar:false})}, 3000);
+        //this.setState({liberalPolicies: 1});
+        //setTimeout(() => { this.setState({liberalPolicies: 2}); }, 250);
+        //setTimeout(() => { this.setState({liberalPolicies: 3}); }, 500);
+        //setTimeout(() => { this.setState({liberalPolicies: 4}); }, 750);
+        //setTimeout(() => { this.setState({liberalPolicies: 5}); }, 1000);
+//
+        //this.setState({fascistPolicies: 1});
+        //setTimeout(() => { this.setState({fascistPolicies: 2}); }, 250);
+        //setTimeout(() => { this.setState({fascistPolicies: 3}); }, 500);
+        //setTimeout(() => { this.setState({fascistPolicies: 4}); }, 750);
+        //setTimeout(() => { this.setState({fascistPolicies: 5}); }, 1000);
+        //setTimeout(() => { this.setState({fascistPolicies: 6}); }, 1250);
+
+        this.setState({
+            showVotes: !this.state.showVotes
+        });
 
     }
 
@@ -743,6 +806,7 @@ class App extends Component {
                 <PlayerDisplay
                     gameState={this.state.gameState}
                     user={this.state.name}
+                    showVotes={this.state.showVotes}
                 />
 
                 <StatusBar>{this.state.statusBarText}</StatusBar>
@@ -787,16 +851,18 @@ class App extends Component {
                     <button
                         onClick={this.testAlert}
                     >Show Alert</button>
-                    <button
-                        onClick={this.playAnimationTest}>
-                        Show Event Bar
-                    </button>
+
 
                 </div>
 
                 <div style={{textAlign:"center"}}>
                     <div id="snackbar">{this.state.snackbarMessage}</div>
                 </div>
+
+                <button
+                    onClick={this.playAnimationTest}>
+                    Test Animation
+                </button>
 
             </div>
         );

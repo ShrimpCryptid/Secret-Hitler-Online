@@ -13,6 +13,9 @@ import IconLiberal from "../assets/player-icon-liberal.png";
 
 import IconBusy from "../assets/player-icon-busy.png";
 
+import YesVote from "../assets/player-icon-ja.png";
+import NoVote from "../assets/player-icon-nein.png";
+
 const LIBERAL = "LIBERAL";
 const FASCIST = "FASCIST";
 const HITLER = "HITLER";
@@ -137,8 +140,15 @@ class Player extends Component {
 
                 <img id="player-busy-icon"
                      src={IconBusy}
-                     hidden={!this.props.isBusy}
+                     className={this.props.isBusy ? "player-icon-show" : "player-icon-hide"}
                      alt=""
+                />
+
+                <img
+                    id={"player-icon-vote"}
+                    className={this.props.showVote ? "player-icon-show" : "player-icon-hide"}
+                    src={this.props.vote ? YesVote : NoVote}
+                    alt={""}
                 />
 
                 <img id="player-identity-icon"
@@ -187,7 +197,9 @@ Player.defaultProps = {
     useAsButton: false,
     isSelected: false,
     onClick: () => {},
-    highlight: false
+    highlight: false,
+    showVote: false,
+    vote: false
 };
 
 Player.propTypes = {
@@ -200,7 +212,9 @@ Player.propTypes = {
     useAsButton: PropTypes.bool,
     isSelected: PropTypes.bool,
     onClick: PropTypes.func,
-    highlight: PropTypes.bool
+    highlight: PropTypes.bool,
+    showVote: PropTypes.bool,
+    vote: PropTypes.bool
 };
 
 export default Player;

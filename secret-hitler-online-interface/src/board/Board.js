@@ -55,7 +55,7 @@ class Board extends Component {
             images[index] = (
                 <img src={src}
                      id={id}
-                     style={{position: "absolute", left:"calc(${} + " + index.toString() + "*" + spacing +")"}}
+                     style={{position: "absolute", left:"calc(" + offset + " + " + index.toString() + "*" + spacing +")"}}
                      alt={""}
                      className={className}
                 />
@@ -68,8 +68,15 @@ class Board extends Component {
         return (
             <div id="board-container" style={{display:"flex", flexDirection:"column"}}>
                 <div id="board-group" style ={{margin:"4px 10px", position:"relative"}}>
-                    <img id="board" src={LiberalBoard} alt={this.props.numLiberalPolicies + " liberal policies have been passed."}/>
-                    <img id="election-tracker" src={ElectionTracker} style={{position:"absolute", top:"74%", left:"calc(34.2% + 3*9.16%)", width:"3.2%"}} />
+                    <img id="board"
+                         src={LiberalBoard}
+                         alt={this.props.numLiberalPolicies + " liberal policies have been passed."}
+                    />
+                    <img id="election-tracker"
+                         src={ElectionTracker}
+                         style={{position:"absolute", top:"74%", left:"calc(34.2% + 3*9.16%)", width:"3.2%"}}
+                         alt={""}
+                    />
                     {this.placeRepeating(this.props.numLiberalPolicies, 5, PolicyLiberal, "policy", "18.2%", "13.54%")}
                 </div>
 

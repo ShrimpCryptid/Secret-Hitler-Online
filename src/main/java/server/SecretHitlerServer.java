@@ -360,7 +360,7 @@ public class SecretHitlerServer {
                     } else {
                         obj.put(PARAM_INVESTIGATION, LIBERAL);
                     }
-                    ctx.send(obj);
+                    ctx.send(obj.toString());
                     break;
 
                 case COMMAND_GET_PEEK:
@@ -379,7 +379,7 @@ public class SecretHitlerServer {
                     JSONObject msg = new JSONObject();
                     msg.put(PARAM_PACKET_TYPE, PACKET_PEEK);
                     msg.put(PARAM_PEEK, stringPolicies);
-                    ctx.send(msg);
+                    ctx.send(msg.toString());
                     break;
 
                 case COMMAND_END_TERM:
@@ -394,7 +394,7 @@ public class SecretHitlerServer {
             System.out.println("SUCCESS");
             JSONObject msg = new JSONObject();
             msg.put(PARAM_PACKET_TYPE, PACKET_OK);
-            ctx.send(msg);
+            ctx.send(msg.toString());
 
         } catch (NullPointerException e) {
             System.out.println("FAILED (" + e.toString() + ")");

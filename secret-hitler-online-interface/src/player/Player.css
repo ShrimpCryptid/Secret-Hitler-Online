@@ -65,6 +65,15 @@
     width: 37.5%;
 }
 
+#player-icon-vote {
+    position: absolute;
+    width: 73%;
+    image-rendering: crisp-edges;
+    top: 43%;
+    left: 14%;
+    transition: 0.5s visibility;
+}
+
 #player-identity-label {
     position:absolute;
     top: 69%;
@@ -105,4 +114,36 @@
 
 .darken {
     filter: brightness(var(--playerBrightnessFilter));
+}
+
+
+/* Icon Animations */
+.player-icon-show {
+    visibility: visible;
+    animation: player-icon-show 0.5s;
+}
+
+.player-icon-hide {
+    visibility: hidden;
+    animation: player-icon-hide 0.5s;
+}
+
+@-webkit-keyframes player-icon-show {
+    0% {top: 35%; opacity: 0; visibility: visible}
+    100% {top: 43%; opacity: 1}
+}
+
+@keyframes player-icon-show {
+    0% {top: 35%; opacity: 0; visibility: visible}
+    100% {top: 43%; opacity: 1}
+}
+
+@-webkit-keyframes player-icon-hide {
+    0% {top: 43%; opacity: 1; visibility: visible}
+    100% {top:43%; opacity: 0; visibility: hidden}
+}
+
+@keyframes player-icon-hide {
+    0% {top: 43%; opacity: 1; visibility: visible}
+    100% {top:43%; opacity: 0; visibility: hidden}
 }

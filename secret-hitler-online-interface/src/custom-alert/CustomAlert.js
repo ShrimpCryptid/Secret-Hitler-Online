@@ -14,9 +14,9 @@ class CustomAlert extends Component {
 
     getClass() {
         if(this.props.show) {
-            return "appear-customalert";
+            return "appear-custom-alert";
         } else {
-            return "disappear-customalert";
+            return "disappear-custom-alert";
         }
     }
 
