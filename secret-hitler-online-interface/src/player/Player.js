@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import PropTypes from "prop-types";
 
 import './Player.css'
 import '../selectable.css'
@@ -187,6 +188,19 @@ Player.defaultProps = {
     isSelected: false,
     onClick: () => {},
     highlight: false
+};
+
+Player.propTypes = {
+    isBusy: PropTypes.bool,
+    name: PropTypes.string,
+    role: PropTypes.string,
+    showRole: PropTypes.bool,
+    disabled: PropTypes.bool,
+    disabledText: PropTypes.string,
+    useAsButton: PropTypes.bool,
+    isSelected: PropTypes.bool,
+    onClick: PropTypes.func,
+    highlight: PropTypes.bool
 };
 
 export default Player;

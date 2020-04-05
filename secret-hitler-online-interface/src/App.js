@@ -40,7 +40,7 @@ import {
     PARAM_PRESIDENT,
     STATE_LEGISLATIVE_PRESIDENT,
     STATE_LEGISLATIVE_CHANCELLOR,
-    PARAM_PACKET_TYPE, PACKET_LOBBY, PACKET_GAME_STATE, PACKET_INVESTIGATION, PACKET_PEEK, PACKET_OK
+    PARAM_PACKET_TYPE, PACKET_LOBBY, PACKET_GAME_STATE, PACKET_INVESTIGATION, PACKET_PEEK, PACKET_OK, STATE_SETUP
 } from "./GlobalDefinitions";
 
 import PlayerDisplay from "./player/PlayerDisplay";
@@ -48,8 +48,10 @@ import StatusBar from "./status-bar/StatusBar";
 import Board from "./board/Board";
 import NominationPrompt from "./custom-alert/NominationPrompt";
 import OptionPrompt from "./custom-alert/OptionPrompt";
+import VotingPrompt from "./custom-alert/VotingPrompt";
 
 const EVENT_BAR_FADE_OUT_DURATION = 500;
+const CUSTOM_ALERT_FADE_DURATION = 1000;
 
 class App extends Component {
 
@@ -77,7 +79,7 @@ class App extends Component {
             usernames:[],
             userCount:1,
 
-            gameState: {"liberal-policies":0,"fascist-policies":0,"discard-size":0,"draw-size":17,"players":{"P1":{"alive":true,"id":"FASCIST","investigated":false},"P2":{"alive":true,"id":"HITLER","investigated":false},"P3":{"alive":true,"id":"LIBERAL","investigated":false},"P4":{"alive":true,"id":"LIBERAL","investigated":false},"P5":{"alive":true,"id":"LIBERAL","investigated":false},"P6":{"alive":false,"id":"FASCIST","investigated":false},"P7":{"alive":true,"id":"LIBERAL","investigated":false}},"in-game":true,"player-order":["P4","P2","P6","P1","P7","P3","P5"],"state":"CHANCELLOR_NOMINATION","last-president": "P7", "last-chancellor": "P3", "president":"P4","election-tracker":0,"user-votes":{}},
+            gameState: {"liberal-policies":0,"fascist-policies":0,"discard-size":0,"draw-size":17,"players":{"P1":{"alive":true,"id":"FASCIST","investigated":false},"P2":{"alive":true,"id":"HITLER","investigated":false},"P3":{"alive":true,"id":"LIBERAL","investigated":false},"P4":{"alive":true,"id":"LIBERAL","investigated":false},"P5":{"alive":true,"id":"LIBERAL","investigated":false},"P6":{"alive":false,"id":"FASCIST","investigated":false},"P7":{"alive":true,"id":"LIBERAL","investigated":false}},"in-game":true,"player-order":["P4","P2","P6","P1","P7","P3","P5"],"state":STATE_SETUP,"last-president": "P7", "last-chancellor": "P3", "president":"P4", "chancellor":"P5", "election-tracker":0,"user-votes":{}},
             lastState: {}, /* Stores the last gameState[PARAM_STATE] value to check for changes. */
             liberalPolicies: 0,
             fascistPolicies: 0,
@@ -103,7 +105,7 @@ class App extends Component {
         this.onClickStartGame = this.onClickStartGame.bind(this);
         this.sendWSCommand = this.sendWSCommand.bind(this);
         this.playAnimationTest = this.playAnimationTest.bind(this);
-        this.showAlert = this.showAlert.bind(this);
+        this.testAlert = this.testAlert.bind(this);
         this.showSnackBar = this.showSnackBar.bind(this);
         this.onAnimationFinish = this.onAnimationFinish.bind(this);
     }
@@ -112,8 +114,8 @@ class App extends Component {
 
     }
 
-    /////////// Contacting Server
-    // <editor-fold desc="Contacting Server">
+    /////////// Server Communication
+    // <editor-fold desc="Server Communication">
 
     /**
      * Attempts to request the server to create a new lobby and returns the response.
@@ -217,9 +219,16 @@ class App extends Component {
                 this.setState({gameState: message, page: PAGE.GAME});
                 break;
 
+            case PACKET_OK: // Traverse all listeners and call the functions.
+                let i = 0;
+                for (i; i < this.okMessageListeners.length; i++) {
+                    this.okMessageListeners[i]();
+                }
+                this.okMessageListeners = []; // clear all listeners.
+                break;
+
             case PACKET_INVESTIGATION:
             case PACKET_PEEK:
-            case PACKET_OK:
             default:
                 // Unrecognized.
         }
@@ -256,8 +265,6 @@ class App extends Component {
             this.showSnackBar("Could not connect to the server. Try refreshing the page if this happens again.");
         }
     }
-
-
 
     //</editor-fold>
 
@@ -533,9 +540,12 @@ class App extends Component {
      * @param newState {Object} the new game state sent from the server.
      */
     onGameStateChanged(newState) {
+        let name = this.state.name;
+
         // Check for state change
         if (newState[PARAM_STATE] !== this.state.gameState[PARAM_STATE]) { // state has changed
             switch (newState[PARAM_STATE]) {
+
                 case STATE_CHANCELLOR_NOMINATION:
                     if(newState[PARAM_ELECTION_TRACKER] === 0
                         && newState[PARAM_LIBERAL_POLICIES] === 0
@@ -544,17 +554,50 @@ class App extends Component {
                         console.log("First round has started.");
                         this.addAnimationToQueue(() => this.showRoleAlert(newState));
                     }
+
                     this.addAnimationToQueue(() => this.showEventBar("CHANCELLOR NOMINATION"));
                     this.setState({statusBarText:"Waiting for president to nominate a chancellor."});
-                    if(this.state.name === newState[PARAM_PRESIDENT]) {
-                        //TODO: Show the chancellor selection window.
 
+                    if(name === newState[PARAM_PRESIDENT]) {
+                        //Show the chancellor nomination window.
+                        this.addAnimationToQueue(() => {
+                            this.setState({
+                                alertContent:(
+                                    <NominationPrompt
+                                        gameState={newState}
+                                        user={name}
+                                        sendWSCommand={this.sendWSCommand}
+                                    />
+                                ),
+                                showAlert: true
+                            });
+                            // Close the alert window when the server communicates back an OK status.
+                            this.addServerOKListener(() => this.hideAlertAndFinish());
+                        });
                     }
+
                     break;
+
                 case STATE_CHANCELLOR_VOTING:
                     //TODO: Show the voting window to all players.
                     this.setState({statusBarText:"Waiting for all players to vote."});
+                    this.addAnimationToQueue(() => this.showEventBar("VOTING"));
+                    //TODO: Show the voting window here!
+                    this.addAnimationToQueue(() => {
+                        this.setState({
+                            alertContent: (
+                                <VotingPrompt
+                                    gameState={newState}
+                                    sendWSCommand={this.sendWSCommand}
+                                    user={this.state.name}
+                                />
+                            )
+                        });
+                    });
+
+                    break;
                 case STATE_LEGISLATIVE_PRESIDENT:
+                    this.addAnimationToQueue(() => this.showEventBar("LEGISLATIVE SESSION"));
                     // Animate the voting decision being made.
                     // Animate cards being pulled from the draw deck.
                 case STATE_LEGISLATIVE_CHANCELLOR:
@@ -570,6 +613,10 @@ class App extends Component {
         // Check for change in policy counts.
         // Show an alert for policies being enacted.
     }
+
+
+    //// Animation Handling
+    // <editor-fold desc="Animation Handling">
 
     /**
      * Plays the next animation in the queue if it exists.
@@ -600,19 +647,45 @@ class App extends Component {
         }
     }
 
+    /**
+     * Adds a listener to be called when the server returns an 'OK' status.
+     * @param func The function to be called.
+     * @effects adds the listener to the queue of functions. When the server returns an 'OK' status, all of the
+     *          listeners will be called and then cleared from the queue.
+     */
+    addServerOKListener(func) {
+        this.okMessageListeners.push(func);
+    }
+
+
+    /**
+     * Hides the CustomAlert and marks this animation as finished.
+     * @effects: Sets {@code this.state.showAlert} to false and hides the CustomAlert. Once the CustomAlert is done
+     *           hiding, advances the animation queue.
+     */
+    hideAlertAndFinish() {
+        this.setState({showAlert: false});
+        setTimeout(() => {this.onAnimationFinish()}, CUSTOM_ALERT_FADE_DURATION);
+    }
+
+    // </editor-fold>
+
     playAnimationTest() {
         this.setState({showEventBar:true});
         setTimeout(() => {this.setState({showEventBar:false})}, 3000);
 
     }
 
-    showAlert() {
+    /**
+     * Shows a sample test alert.
+     */
+    testAlert() {
         this.setState({
             alertContent:(
-                <NominationPrompt
+                <VotingPrompt
                     gameState={this.state.gameState}
-                    user={this.state.name}
                     sendWSCommand={this.sendWSCommand}
+                    user={this.state.name}
                 />
             ),
             showAlert: true
@@ -625,10 +698,10 @@ class App extends Component {
      * @param duration {Number} the duration (in ms) for the Event Bar to be visible. (default is 3000 ms).
      * @effects Calls {@code this.onAnimationFinished()} when closed.
      */
-    showEventBar(message, duration = 3000) {
+    showEventBar(message, duration = 2000) {
         this.setState({
             showEventBar: true,
-            eventBarText: message
+            eventBarMessage: message
         });
         setTimeout(() => {this.setState({showEventBar:false})}, duration);
         setTimeout(() => {this.onAnimationFinish()}, duration + EVENT_BAR_FADE_OUT_DURATION);
@@ -645,11 +718,7 @@ class App extends Component {
                 <RoleAlert
                     role={gameState[PARAM_PLAYERS][this.state.name][PLAYER_IDENTITY]} //TODO: Fill in with user role and ID when implemented
                     roleID={3}
-                    onClick={() => {
-                        /* Button contents close this and should let the animation queue know that it is finished. */
-                        this.setState({showAlert:false});
-                        setTimeout(() => this.onAnimationFinish(), 500);
-                    }}
+                    onClick={() => { this.hideAlertAndFinish(); }}
                 />),
             showAlert: true
         });
@@ -669,7 +738,7 @@ class App extends Component {
                     {this.state.alertContent}
                 </CustomAlert>
 
-                <EventBar show={this.state.showEventBar}/>
+                <EventBar show={this.state.showEventBar} message={this.state.eventBarMessage}/>
 
                 <PlayerDisplay
                     gameState={this.state.gameState}
@@ -716,7 +785,7 @@ class App extends Component {
                     </div>
 
                     <button
-                        onClick={this.showAlert}
+                        onClick={this.testAlert}
                     >Show Alert</button>
                     <button
                         onClick={this.playAnimationTest}>

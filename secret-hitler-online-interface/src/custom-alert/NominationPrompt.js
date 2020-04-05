@@ -6,11 +6,10 @@ import {
     PARAM_LAST_CHANCELLOR,
     PARAM_LAST_PRESIDENT,
     PARAM_PLAYERS,
-    PLAYER_IS_ALIVE
+    PLAYER_IS_ALIVE,
+    PARAM_TARGET, SERVER_TIMEOUT
 } from "../GlobalDefinitions";
 import PlayerPrompt from "./PlayerPrompt";
-
-const SERVER_TIMEOUT = 4000;
 
 class NominationPrompt extends Component {
 
@@ -44,7 +43,9 @@ class NominationPrompt extends Component {
     }
 
     /**
-     * Called when the button is clicked.
+     * Called when the confirm button is clicked.
+     * @effects Attempts to send the server a command with the new chancellor nominee, and locks access to the button
+     *          for {@code SERVER_TIMEOUT} ms.
      */
     onButtonClick(selectedItem) {
         // Lock the button so that it can't be pressed multiple times.
@@ -52,7 +53,9 @@ class NominationPrompt extends Component {
         setTimeout(() => {this.setState({waitingForServer: false})}, SERVER_TIMEOUT);
 
         // Contact the server using provided method.
-        this.props.sendWSCommand(COMMAND_NOMINATE_CHANCELLOR, {PARAM_TARGET: selectedItem});
+        let data = {};
+        data[PARAM_TARGET] = selectedItem;
+        this.props.sendWSCommand(COMMAND_NOMINATE_CHANCELLOR, data);
     }
 
 
@@ -89,7 +92,7 @@ class NominationPrompt extends Component {
 NominationPrompt.propTypes = {
     user: PropTypes.string,
     gameState: PropTypes.object.isRequired,
-    sendWSCommand: PropTypes.func
+    sendWSCommand: PropTypes.func,
 };
 
 export default NominationPrompt;

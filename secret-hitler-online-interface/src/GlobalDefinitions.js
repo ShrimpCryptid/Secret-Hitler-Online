@@ -15,6 +15,7 @@ export const NEW_LOBBY = '/new-lobby';
 export const WEBSOCKET = '/game';
 export const MAX_FAILED_CONNECTIONS = 3;
 export const LOBBY_CODE_LENGTH = 6;
+export const SERVER_TIMEOUT = 4000;
 
 //////// Game Constants
 export const MIN_PLAYERS = 5;
@@ -35,6 +36,9 @@ export const PACKET_OK = "ok";
 export const PARAM_COMMAND = "command";
 export const PARAM_NAME = "name";
 export const PARAM_LOBBY = "lobby";
+export const PARAM_VOTE = "vote";
+export const PARAM_VETO = "veto"; // the veto decision (yes/no)
+export const PARAM_CHOICE = "choice"; // the index of the chosen policy.
 
 export const COMMAND_PING = "ping";
 export const COMMAND_START_GAME = "start-game";
@@ -82,7 +86,7 @@ export const PARAM_PEEK = "peek";
 // Investigation
 export const PARAM_INVESTIGATION = "investigation";
 
-// Game
+// Incoming Data
 export const PARAM_STATE = "state";
 export const PARAM_PLAYER_ORDER = "player-order";
 export const PARAM_PLAYERS = "players";
@@ -99,6 +103,6 @@ export const PARAM_VOTES = "user-votes";
 export const PARAM_LIBERAL_POLICIES = "liberal-policies";
 export const PARAM_FASCIST_POLICIES = "fascist-policies";
 
-export const PARAM_TARGET = "target";
+export const PARAM_TARGET = "target-user";
 
 // </editor-fold>

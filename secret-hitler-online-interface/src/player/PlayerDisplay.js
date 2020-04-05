@@ -90,13 +90,15 @@ class PlayerDisplay extends Component {
                 break;
             case STATE_CHANCELLOR_VOTING:
 
-                game[PARAM_PLAYERS].forEach((p, index) => {
-                    let name = p[PLAYER_NAME];
-                    let isAlive = p[PLAYER_IS_ALIVE];
+                let playerOrder = game[PARAM_PLAYER_ORDER];
+                let i = 0;
+                for (i; i < game[PARAM_PLAYER_ORDER].length; i++) {
+                    let name = playerOrder[i];
+                    let isAlive = game[PARAM_PLAYERS][name][PLAYER_IS_ALIVE];
                     if (!game[PARAM_VOTES].hasOwnProperty(name) && isAlive) { // player has not voted (is not in the map of votes) and is alive
                         busyPlayers.add(name);
                     }
-                });
+                }
 
                 break;
             default: // This includes the victory states and setup.
