@@ -11,7 +11,7 @@ import java.util.List;
 public class Deck {
 
     // The front of the list is the "top" of the deck.
-    private List<Policy> deck;
+    final private List<Policy> deck;
 
     /**
      * Constructs a new empty deck.

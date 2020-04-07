@@ -74,9 +74,9 @@ public class SecretHitlerServer {
     ///// Private Fields
     // <editor-fold desc="Private Fields">
 
-    private static Map<WsContext, Lobby> userToLobby = new ConcurrentHashMap<>();
-    private static Map<String, Lobby> codeToLobby = new ConcurrentHashMap<>();
-    private static Map<Lobby, String> lobbyToCode = new ConcurrentHashMap<>();
+    final private static Map<WsContext, Lobby> userToLobby = new ConcurrentHashMap<>();
+    final private static Map<String, Lobby> codeToLobby = new ConcurrentHashMap<>();
+    final private static Map<Lobby, String> lobbyToCode = new ConcurrentHashMap<>();
 
     // </editor-fold>
 

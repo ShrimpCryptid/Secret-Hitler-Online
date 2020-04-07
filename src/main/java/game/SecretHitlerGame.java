@@ -159,7 +159,6 @@ public class SecretHitlerGame {
      */
     public List<Player> getPlayerList() {
         return new ArrayList<>(playerList);
-        // TODO: Unfortunately, Player is not immutable, so it's possible for the contents to be changed. ://
     }
 
     /**

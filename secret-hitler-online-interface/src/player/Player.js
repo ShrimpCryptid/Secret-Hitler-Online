@@ -125,6 +125,7 @@ class Player extends Component {
     }
 
     render() {
+        // noinspection HtmlUnknownAttribute
         return (
             <div id="player-container"
                 className={this.getHighlight() + this.getClassName() + this.getButtonClass()}

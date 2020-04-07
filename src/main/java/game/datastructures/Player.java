@@ -8,7 +8,7 @@ import org.json.JSONObject;
  */
 public class Player {
 
-    private String username;
+    final private String username;
     private Identity id;
     private boolean isAlive;
     private boolean investigated;
@@ -52,24 +52,14 @@ public class Player {
 
     public boolean isAlive() { return this.isAlive; }
 
-    public void investigate() {
-        investigated = true;
-    }
+    public void investigate() { investigated = true; }
 
-    public boolean hasBeenInvestigated() { return this.investigated; };
+    public boolean hasBeenInvestigated() { return this.investigated; }
 
     /**
      * @return true if the player is fascist or hitler.
      */
     public boolean isFascist() {
         return this.id.equals(Identity.HITLER) || this.id.equals(Identity.FASCIST);
-    }
-
-    public JSONObject toJSONObject() {
-        JSONObject out = new JSONObject();
-        out.put("username", this.username);
-        out.put("is-alive", isAlive());
-        out.put("investigated", hasBeenInvestigated());
-        return out;
     }
 }

@@ -13,11 +13,6 @@ class OptionPrompt extends Component {
         }
     }
 
-    handleSelection(selectedItem) {
-        this.setState({selection: selectedItem});
-        this.props.onOptionSelected(selectedItem)
-    }
-
     render() {
         return (
             <div>
@@ -31,6 +26,7 @@ class OptionPrompt extends Component {
     }
 }
 
+// noinspection JSUnusedGlobalSymbols
 OptionPrompt.defaultProps = {
     label: "LABEL GOES HERE",
     renderLabel: (obj) => {
@@ -47,7 +43,7 @@ OptionPrompt.defaultProps = {
     footerText: "",
     renderFooter: (obj) => {
         return (
-            <p id={"prompt-header"}>{obj.props.headerText}</p>
+            <p id={"prompt-header"}>{obj.props.footerText}</p>
         );
     },
 

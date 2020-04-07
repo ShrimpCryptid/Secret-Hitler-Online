@@ -4,12 +4,12 @@ import game.datastructures.Policy;
 
 public abstract class Board {
 
-    int FASCIST_POLICIES_TO_WIN = 6;
-    int LIBERAL_POLICIES_TO_WIN = 5;
+    final int FASCIST_POLICIES_TO_WIN = 6;
+    final int LIBERAL_POLICIES_TO_WIN = 5;
 
     // The minimum number of fascist policies required before
     // fascists can win by electing Hitler chancellor
-    int MIN_POLICIES_FOR_CHANCELLOR_VICTORY = 3;
+    final int MIN_POLICIES_FOR_CHANCELLOR_VICTORY = 3;
 
     private int numFascistPolicies;
     private int numLiberalPolicies;

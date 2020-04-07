@@ -1,0 +1,12 @@
+@import '../variables.css';
+
+#legislative-policy {
+    width: 20vmin;
+    margin: 10px;
+    border-radius: 8%/6%;
+}
+
+#legislative-button-container {
+    display: flex;
+    flex-direction: row;
+}

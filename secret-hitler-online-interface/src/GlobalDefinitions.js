@@ -102,6 +102,8 @@ export const PARAM_ELECTION_TRACKER = "election-tracker";
 export const PARAM_VOTES = "user-votes";
 export const PARAM_LIBERAL_POLICIES = "liberal-policies";
 export const PARAM_FASCIST_POLICIES = "fascist-policies";
+export const PARAM_PRESIDENT_CHOICES = "president-choices";
+export const PARAM_CHANCELLOR_CHOICES = "chancellor-choices";
 
 export const PARAM_TARGET = "target-user";
 

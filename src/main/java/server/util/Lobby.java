@@ -16,9 +16,9 @@ import java.util.*;
 public class Lobby {
 
     private SecretHitlerGame game;
-    private Map<WsContext, String> userToUsername;
-    private Set<String> activeUsernames;
-    private Set<String> usersInGame;
+    final private Map<WsContext, String> userToUsername;
+    final private Set<String> activeUsernames;
+    final private Set<String> usersInGame;
 
     /**
      * Constructs a new Lobby.
