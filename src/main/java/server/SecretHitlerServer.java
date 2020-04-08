@@ -88,6 +88,7 @@ public class SecretHitlerServer {
 
         Javalin serverApp = Javalin.create(config -> {
             config.enableCorsForOrigin("http://localhost:3000/");
+            //config.enableCorsForOrigin("http://192.168.29.242");
 
         }).start(PORT_NUMBER);
 

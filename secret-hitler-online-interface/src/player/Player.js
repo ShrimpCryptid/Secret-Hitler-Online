@@ -25,6 +25,13 @@ const HITLER = "HITLER";
  */
 class Player extends Component {
 
+    constructor(props) {
+        super(props);
+        this.state = {
+            initialState: true,
+        }
+    }
+
     /**
      * Gets the relevant icon for the Player based on {@code this.props.role}
      * @return {image} the image source for either the liberal, fascist, or hitler icons.
@@ -126,6 +133,10 @@ class Player extends Component {
 
     render() {
         // noinspection HtmlUnknownAttribute
+        if (this.state.initialState && (this.props.showVote || this.props.isBusy)) {
+            this.setState({initialState: false});
+        }
+
         return (
             <div id="player-container"
                 className={this.getHighlight() + this.getClassName() + this.getButtonClass()}
@@ -141,13 +152,13 @@ class Player extends Component {
 
                 <img id="player-busy-icon"
                      src={IconBusy}
-                     className={this.props.isBusy ? "player-icon-show" : "player-icon-hide"}
+                     className={this.state.initialState ? "player-icon-default" :(this.props.isBusy ? "player-icon-show" : "player-icon-hide")}
                      alt=""
                 />
 
                 <img
                     id={"player-icon-vote"}
-                    className={this.props.showVote ? "player-icon-show" : "player-icon-hide"}
+                    className={this.state.initialState ? "player-icon-default" : (this.props.showVote ? "player-icon-show" : "player-icon-hide")}
                     src={this.props.vote ? YesVote : NoVote}
                     alt={""}
                 />

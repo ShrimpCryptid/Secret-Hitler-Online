@@ -3,6 +3,7 @@ package server.util;
 import game.GameState;
 import game.SecretHitlerGame;
 import game.datastructures.Player;
+import game.datastructures.Policy;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -90,12 +91,26 @@ public class GameToJSONConverter {
         out.put("user-votes", game.getVotes());
 
         if (game.getState() == GameState.LEGISLATIVE_PRESIDENT) {
-            out.put("president-choices", game.getPresidentLegislativeChoices());
+            out.put("president-choices", convertPolicyListToStringArray(game.getPresidentLegislativeChoices()));
         }
         if (game.getState() == GameState.LEGISLATIVE_CHANCELLOR) {
-            out.put("chancellor-choices", game.getChancellorLegislativeChoices());
+            out.put("chancellor-choices", convertPolicyListToStringArray(game.getChancellorLegislativeChoices()));
         }
 
+        return out;
+    }
+
+    /**
+     * Converts a list of policies into a string array.
+     * @param list the list of policies.
+     * @return a string array with the same length as the list, where each index is either "FASCIST" or "LIBERAL"
+     *         according to the type of the Policy at that index in the list.
+     */
+    public static String[] convertPolicyListToStringArray(List<Policy> list) {
+        String[] out = new String[list.size()];
+        for(int i = 0; i < list.size(); i++) {
+            out[i] = list.get(i).getType().toString();
+        }
         return out;
     }
 }

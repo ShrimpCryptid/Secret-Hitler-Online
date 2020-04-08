@@ -118,6 +118,10 @@
 
 
 /* Icon Animations */
+.player-icon-default {
+    visibility: hidden;
+}
+
 .player-icon-show {
     visibility: visible;
     animation: player-icon-show 0.5s;

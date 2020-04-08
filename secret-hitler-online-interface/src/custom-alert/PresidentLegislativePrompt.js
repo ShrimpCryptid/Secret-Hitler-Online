@@ -34,6 +34,7 @@ class PresidentLegislativePrompt extends Component {
         this.props.sendWSCommand(COMMAND_REGISTER_PRESIDENT_CHOICE, data);
     }
 
+    // noinspection DuplicatedCode
     render() {
         return (
             <OptionPrompt

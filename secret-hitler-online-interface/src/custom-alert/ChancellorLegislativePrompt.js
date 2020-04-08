@@ -21,6 +21,7 @@ class ChancellorLegislativePrompt extends Component {
             waitingForServer: false,
         };
         this.onEnactButtonClick = this.onEnactButtonClick.bind(this);
+        this.onVetoButtonClick = this.onVetoButtonClick.bind(this);
     }
 
     onEnactButtonClick() {
@@ -55,28 +56,32 @@ class ChancellorLegislativePrompt extends Component {
             <OptionPrompt
                 label={"LEGISLATIVE SESSION"}
                 headerText={"Choose a policy to enact. The remaining policy will be discarded."}
-                renderHeader={
-                    <>
+                renderHeader={ () => {
+                    return (<>
                         <p className={"left-align"}>
                             Choose a policy to enact. The remaining policy will be discarded.
                         </p>
                         {props.fascistPolicies === 5 &&
-                            <p className={"left-align highlight"}>
-                                Veto power unlocked: If you choose to veto and the president agrees to the veto, the agenda will be discarded.
-                            </p>
+                        <p className={"left-align highlight"}>
+                            Veto power unlocked: If you choose to veto and the president agrees to the veto, the agenda will be discarded.
+                        </p>
                         }
-                    </>
+                    </>);}
                 }
 
-                renderButton={
-                    <div id={"legislative-button-container"}>
-                        <button onClick={this.onVetoButtonClick} disabled={!this.props.enableVeto || this.state.waitingForServer}>
-                            VETO
-                        </button>
-                        <button onClick={this.onEnactButtonClick} disabled={this.state.selection === undefined || this.state.waitingForServer}>
-                            ENACT
-                        </button>
-                    </div>
+                renderButton={() => {
+                    return (
+                        <div id={"legislative-button-container"}>
+                            <button onClick={this.onVetoButtonClick}
+                                    disabled={!this.props.enableVeto || this.state.waitingForServer}>
+                                VETO
+                            </button>
+                            <button onClick={this.onEnactButtonClick}
+                                    disabled={this.state.selection === undefined || this.state.waitingForServer}>
+                                ENACT
+                            </button>
+                        </div>)
+                    ;}
                 }
             >
                 <div id={"legislative-policy-container"}>

@@ -46,16 +46,24 @@ import {
     PACKET_PEEK,
     PACKET_OK,
     STATE_SETUP,
-    PLAYER_IS_ALIVE, PARAM_VOTES, FASCIST, LIBERAL, PARAM_CHANCELLOR, PARAM_PRESIDENT_CHOICES
+    PLAYER_IS_ALIVE,
+    PARAM_VOTES,
+    FASCIST,
+    LIBERAL,
+    PARAM_CHANCELLOR,
+    PARAM_PRESIDENT_CHOICES,
+    STATE_POST_LEGISLATIVE,
+    PARAM_CHANCELLOR_CHOICES, STATE_LEGISLATIVE_PRESIDENT_VETO
 } from "./GlobalDefinitions";
 
 import PlayerDisplay from "./player/PlayerDisplay";
 import StatusBar from "./status-bar/StatusBar";
 import Board from "./board/Board";
 import NominationPrompt from "./custom-alert/NominationPrompt";
-import OptionPrompt from "./custom-alert/OptionPrompt";
 import VotingPrompt from "./custom-alert/VotingPrompt";
 import PresidentLegislativePrompt from "./custom-alert/PresidentLegislativePrompt";
+import ChancellorLegislativePrompt from "./custom-alert/ChancellorLegislativePrompt";
+import VetoPrompt from "./custom-alert/VetoPrompt";
 
 const EVENT_BAR_FADE_OUT_DURATION = 500;
 const CUSTOM_ALERT_FADE_DURATION = 1000;
@@ -74,7 +82,7 @@ class App extends Component {
     constructor(props) {
         super(props);
         this.state={
-            page:PAGE.GAME,
+            page:PAGE.LOGIN,
 
             joinName:"",
             joinLobby:"",
@@ -122,6 +130,7 @@ class App extends Component {
         this.testAlert = this.testAlert.bind(this);
         this.showSnackBar = this.showSnackBar.bind(this);
         this.onAnimationFinish = this.onAnimationFinish.bind(this);
+        this.onGameStateChanged = this.onGameStateChanged.bind(this);
     }
 
     /////////// Server Communication
@@ -622,8 +631,35 @@ class App extends Component {
                     }
 
                     break;
-                case STATE_LEGISLATIVE_CHANCELLOR:
 
+                case STATE_LEGISLATIVE_CHANCELLOR:
+                    //TODO: Animate cards being added to discard deck.
+                    this.queueStatusMessage("Waiting for the chancellor to choose a policy to enact.");
+                    if (isChancellor) {
+                        this.queueAlert(
+                            <ChancellorLegislativePrompt
+                                fascistPolicies={newState[PARAM_FASCIST_POLICIES]}
+                                showError={(message) => this.setState({snackbarMessage: message})}
+                                policyOptions={newState[PARAM_CHANCELLOR_CHOICES]}
+                                sendWSCommand={this.sendWSCommand}
+                            />
+                        );
+                    }
+                    break;
+
+                case STATE_LEGISLATIVE_PRESIDENT_VETO:
+                    this.queueStatusMessage("Chancellor has motioned to veto the agenda. Waiting for the president to decide.");
+                    if (isPresident) {
+                        this.queueAlert(
+                            <VetoPrompt
+                                sendWSCommand={this.sendWSCommand}
+                                electionTracker={newState[PARAM_ELECTION_TRACKER]}
+                            />
+                        )
+                    }
+                    break;
+
+                case STATE_POST_LEGISLATIVE:
 
             }
 
@@ -728,10 +764,7 @@ class App extends Component {
     testAlert() {
         this.setState({
             alertContent:(
-                <PresidentLegislativePrompt
-                    policyOptions={[FASCIST, LIBERAL, FASCIST]}
-                    sendWSCommand={this.sendWSCommand}
-                />
+                <VetoPrompt electionTracker={2} sendWSCommand={this.sendWSCommand} />
             ),
             showAlert: true
         });
