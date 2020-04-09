@@ -3,8 +3,9 @@
 #alert {
     position: absolute;
     width: 100%;
-    height: 93vh;
+    height: 100%;
     align-items: center;
+    justify-content: center;
     display: flex;
     visibility: hidden;
     z-index: 75;
@@ -13,7 +14,7 @@
 #alert-background {
     position: fixed;
     width: 100%;
-    height: 100ch;
+    height: 110%;
     min-height: 100%;
     top: 0;
     left: 0;
@@ -25,16 +26,16 @@
 }
 
 #alert-box {
-    position: relative;
+    position: fixed;
     z-index: 60;
     opacity: 1;
     min-width: 80vmin;
     max-width: 40vw;
     min-height: 60vmin;
-    margin: auto auto;
     padding: 20px 30px;
     background-color: var(--alertFill);
     text-align: center;
+    top: 10vh;
 }
 
 .left-align {

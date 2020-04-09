@@ -33,4 +33,8 @@
     --eventBarOpacity: 0.9;
 
     --statusBarColor: 141414;
+
+    --etOffset: 17.6%;
+    --etSpacing: 19.14%;
+    --etDuration: 1.5s;
 }

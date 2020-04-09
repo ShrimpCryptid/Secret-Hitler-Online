@@ -64,6 +64,7 @@ import VotingPrompt from "./custom-alert/VotingPrompt";
 import PresidentLegislativePrompt from "./custom-alert/PresidentLegislativePrompt";
 import ChancellorLegislativePrompt from "./custom-alert/ChancellorLegislativePrompt";
 import VetoPrompt from "./custom-alert/VetoPrompt";
+import ElectionTrackerAlert from "./custom-alert/ElectionTrackerAlert";
 
 const EVENT_BAR_FADE_OUT_DURATION = 500;
 const CUSTOM_ALERT_FADE_DURATION = 1000;
@@ -82,7 +83,7 @@ class App extends Component {
     constructor(props) {
         super(props);
         this.state={
-            page:PAGE.LOGIN,
+            page:PAGE.GAME,
 
             joinName:"",
             joinLobby:"",
@@ -764,7 +765,10 @@ class App extends Component {
     testAlert() {
         this.setState({
             alertContent:(
-                <VetoPrompt electionTracker={2} sendWSCommand={this.sendWSCommand} />
+                <ElectionTrackerAlert
+                    closeAlert={this.hideAlertAndFinish}
+                    trackerPosition={1}
+                />
             ),
             showAlert: true
         });

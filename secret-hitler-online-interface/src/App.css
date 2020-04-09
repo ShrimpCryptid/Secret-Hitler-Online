@@ -51,7 +51,7 @@ h5 { /*Slightly larger than normal text.*/
 h6 { /*Notification and/or error text.*/
     font-family: var(--textFont);
     font-weight: 700;
-    font-size: calc(3px + 1.8vmin);
+    font-size: calc(4px + 2vmin);
     color: var(--textColorHighlight);
     margin: 3px;
 }

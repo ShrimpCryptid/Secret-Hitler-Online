@@ -1,0 +1,61 @@
+@import '../variables.css';
+
+#election-tracker-container {
+    position: relative;
+    width: 100%;
+}
+
+#election-tracker-board {
+    width: 100%;
+}
+
+#election-tracker-token {
+    position: absolute;
+    width: 7.5%;
+    top: 47%;
+    left: calc(17.6% + 2*19.1%);
+    animation-timing-function: linear;
+}
+
+#election-tracker-token.et-position-0 {
+    left: var(--etOffset);
+}
+
+#election-tracker-token.et-moveto-1 {
+    left: calc(var(--etOffset) + 1*var(--etSpacing));
+    animation: et-moveto-1 var(--etDuration);
+}
+
+#election-tracker-token.et-position-1 {
+    left: calc(var(--etOffset) + 1*var(--etSpacing));
+}
+
+#election-tracker-token.et-moveto-2 {
+    left: calc(var(--etOffset) + 2*var(--etSpacing));
+    animation: et-moveto-2 var(--etDuration);
+}
+
+#election-tracker-token.et-position-2 {
+    left: calc(var(--etOffset) + 2*var(--etSpacing));
+}
+
+#election-tracker-token.et-moveto-3 {
+    left: calc(var(--etOffset) + 3*var(--etSpacing));
+    animation: et-moveto-3 var(--etDuration);
+}
+
+/* Animation Keyframes*/
+@keyframes et-moveto-1 {
+    0% {left: var(--etOffset)}
+    100% {left: calc(var(--etOffset) + var(--etSpacing))}
+}
+
+@keyframes et-moveto-2 {
+    0% {left: calc(var(--etOffset) + var(--etSpacing))}
+    100% {left: calc(var(--etOffset) + 2*var(--etSpacing))}
+}
+
+@keyframes et-moveto-3 {
+    0% {left: calc(var(--etOffset) + 2*var(--etSpacing))}
+    100% {left: calc(var(--etOffset) + 3*var(--etSpacing))}
+}
