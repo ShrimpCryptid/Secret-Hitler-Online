@@ -2,24 +2,69 @@
 
 #policy-enacted-container {
     display: flex;
-    justify-content: center;
-    align-content: center;
-    margin: auto auto;
-    position: relative;
     width: 20vmin;
     height: 26vmin;
+    margin: auto auto;
+    position: relative;
+}
+
+#policy-enacted-cover-front {
+    position: absolute;
+    width: 95%;
+    height: 26vmin;
+    z-index: 54;
+    left: 0;
+    transition-timing-function: linear;
+    transition: 0.5s width;
+}
+
+#policy-enacted-cover-front.show-policy-1 {
+    width: 0;
+}
+
+#policy-enacted-cover-front.show-policy-2 {
+    width: 0;
+}
+
+#policy-enacted-cover-back {
+    position: absolute;
+    width: 0;
+    height: 26vmin;
+    z-index: 53;
+    left: 0;
+    transition-timing-function: linear;
+    transition: 0.5s width, 0.5s left;
+}
+
+#policy-enacted-cover-back.show-policy-2 {
+    width: 100%;
+    left: -50%;
+}
+
+#policy-enacted-back {
+    position: absolute;
+    width: auto;
+    height: 26vmin;
+    z-index: 51;
+    left: 0;
+    transition: 0.5s left;
+    transition-timing-function: linear;
+}
+
+#policy-enacted-back.show-policy-2 {
+    left: 50%;
 }
 
 #policy-enacted-policy {
     position: absolute;
-    width: 0;
-    height: 0;
-    margin: auto auto;
-    transition: 0.5s width, 0.5s height, 0.5s opacity;
-    transition-timing-function: ease;
+    width: auto;
+    height: 100%;
+    left: 0;
+    z-index: 52;
+    transition: 0.5s left;
+    transition-timing-function: linear;
 }
 
-#policy-enacted-policy.policy-alert-show {
-    width: 100%;
-    height: 100%;
+#policy-enacted-policy.show-policy-2 {
+    left: 50%;
 }
