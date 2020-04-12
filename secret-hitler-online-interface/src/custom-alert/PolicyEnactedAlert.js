@@ -25,40 +25,40 @@ class PolicyEnactedAlert extends Component {
 
     setAnimation() {
         this.setState({className: ""});
-        setTimeout(()=> {this.setState({className: "show-policy-1"})}, 1000);
-        setTimeout(()=> {this.setState({className: "show-policy-2"})}, 1400);
+        setTimeout(()=> {this.setState({className: "show-policy-1"})}, 2000);
+        setTimeout(()=> {this.setState({className: "show-policy-2"})}, 2400);
     }
 
     render() {
         return (
             <OptionPrompt
                 renderLabel={() => {
-                    return <h2>POLICY ENACTED</h2> // allows us to align it with center
+                    return <h2 className={"left-align"}>POLICY ENACTED</h2> // allows us to align it with center
                 }}
                 buttonText={"OKAY"}
                 buttonOnClick={this.setAnimation}
             >
                 <div id={"policy-enacted-container"}>
-                    <img id={"policy-enacted-cover-front"}
-                         src={FolderCoverFront}
+                    <img id={"policy-enacted-back"}
                          className={this.state.className}
-                         alt={"A manila folder labeled 'New Policy.'"}
+                         src={FolderBack}
+                         alt={""}
+                    />
+                    <img id={"policy-enacted-policy"}
+                         className={this.state.className}
+                         src={LiberalPolicy} alt={"A " + this.props.policyType.toLowerCase() + " policy that was enacted! " +
+                    this.props.policyType === LIBERAL ? "It's printed in blue with a dove insignia on it."
+                        : "It's printed in red with a skull insignia on it."}
                     />
                     <img id={"policy-enacted-cover-back"}
                          src={FolderCoverBack}
                          className={this.state.className}
                          alt={"A manila folder labeled 'New Policy.'"}
                     />
-                    <img id={"policy-enacted-policy"}
+                    <img id={"policy-enacted-cover-front"}
+                         src={FolderCoverFront}
                          className={this.state.className}
-                         src={LiberalPolicy} alt={"A " + this.props.policyType.toLowerCase() + " policy that was enacted! " +
-                                                  this.props.policyType === LIBERAL ? "It's printed in blue with a dove insignia on it."
-                                                  : "It's printed in red with a skull insignia on it."}
-                    />
-                    <img id={"policy-enacted-back"}
-                         className={this.state.className}
-                         src={FolderBack}
-                         alt={""}
+                         alt={"A manila folder labeled 'New Policy.'"}
                     />
                 </div>
             </OptionPrompt>
