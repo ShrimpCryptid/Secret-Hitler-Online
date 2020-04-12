@@ -1,0 +1,25 @@
+@import '../variables.css';
+
+#policy-enacted-container {
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    margin: auto auto;
+    position: relative;
+    width: 20vmin;
+    height: 26vmin;
+}
+
+#policy-enacted-policy {
+    position: absolute;
+    width: 0;
+    height: 0;
+    margin: auto auto;
+    transition: 0.5s width, 0.5s height, 0.5s opacity;
+    transition-timing-function: ease;
+}
+
+#policy-enacted-policy.policy-alert-show {
+    width: 100%;
+    height: 100%;
+}

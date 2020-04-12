@@ -34,7 +34,8 @@ class ElectionTrackerAlert extends Component {
                             </p>
                         </>);
                 }}
-
+                buttonText={"OKAY"}
+                buttonOnClick={this.props.closeAlert}
             >
                 <div id={"election-tracker-container"}>
                     <img id="election-tracker-board"
@@ -53,7 +54,7 @@ class ElectionTrackerAlert extends Component {
 }
 
 ElectionTrackerAlert.propTypes = {
-    trackerPosition: PropTypes.number,
+    trackerPosition: PropTypes.number.isRequired,
     closeAlert: PropTypes.func.isRequired,
 };
 

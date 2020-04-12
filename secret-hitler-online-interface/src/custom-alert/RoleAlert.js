@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import PropTypes from "prop-types";
 import RoleHitler from "../assets/role-hitler.png";
 import RoleLiberal1 from "../assets/role-liberal-1.png"
 import RoleLiberal2 from "../assets/role-liberal-2.png"
@@ -8,10 +9,10 @@ import RoleLiberal5 from "../assets/role-liberal-5.png"
 import RoleLiberal6 from "../assets/role-liberal-6.png"
 import RoleFascist1 from "../assets/role-fascist-1.png"
 import RoleFascist2 from "../assets/role-fascist-2.png"
-import RoleFascist3 from "../assets/role-fascist-2.png"
+import RoleFascist3 from "../assets/role-fascist-3.png"
 
 import './RoleAlert.css';
-import {FASCIST, HITLER, LIBERAL} from "../GlobalDefinitions";
+import {FASCIST, HITLER, LIBERAL, PARAM_PLAYER_ORDER, PARAM_PLAYERS, PLAYER_IDENTITY} from "../GlobalDefinitions";
 
 const LiberalImages = [RoleLiberal1, RoleLiberal2, RoleLiberal3, RoleLiberal4, RoleLiberal5, RoleLiberal6];
 const LiberalImagesAltText = [  "Your secret role is LIBERAL. The card shows a bespectacled man with a pipe giving a side-eye.",
@@ -61,10 +62,11 @@ class RoleAlert extends Component {
             default:
                 imageArray = HitlerImages;
         }
-        if (this.props.roleID >= imageArray.length || this.props.roleID < 0) {
+        let roleID = this.getRoleID();
+        if (roleID >= imageArray.length ||roleID < 0) {
             return imageArray[0];
         }
-        return imageArray[this.props.roleID];
+        return imageArray[roleID];
     }
 
     /**
@@ -82,16 +84,44 @@ class RoleAlert extends Component {
         }
     }
 
+    /**
+     * Determine the role ID of the player.
+     * @return the number of players with the same role that appear before the player. Otherwise, defaults to 0.
+     */
+    getRoleID() {
+        // Determine the role ID of the player by traversing the array of players.
+        // The roleID is the number of players with the same role that appear
+        // before the user.
+        let roleCounts = {"FASCIST": 0, "HITLER": 0, "LIBERAL": 0};
+        let roleID = roleCounts[FASCIST];
+        if (this.props.gameState !== undefined && this.props.name !== undefined) {
+            let game = this.props.gameState;
+            let name = this.props.name;
+            for (let i = 0; i < game[PARAM_PLAYER_ORDER].length; i++) {
+                let currName = game[PARAM_PLAYER_ORDER][i];
+                if (currName === name) {
+                    roleID = roleCounts[game[PARAM_PLAYERS][name][PLAYER_IDENTITY]];
+                    break;
+                } else {
+                    roleCounts[game[PARAM_PLAYERS][currName][PLAYER_IDENTITY]] += 1;
+                }
+            }
+        }
+        return roleID;
+    }
+
     getRoleImageAltText() {
+        let roleID = this.getRoleID();
+
         switch (this.props.role) {
             case LIBERAL:
-                return this.getIndexWithDefault(LiberalImagesAltText, this.props.roleID);
+                return this.getIndexWithDefault(LiberalImagesAltText, roleID);
             case FASCIST:
-                return this.getIndexWithDefault(FascistImagesAltText, this.props.roleID);
+                return this.getIndexWithDefault(FascistImagesAltText, roleID);
             case HITLER:
-                return this.getIndexWithDefault(HitlerImagesAltText, this.props.roleID);
+                return this.getIndexWithDefault(HitlerImagesAltText, roleID);
             default:
-                return this.getIndexWithDefault(HitlerImagesAltText, this.props.roleID);
+                return this.getIndexWithDefault(HitlerImagesAltText, roleID);
 
         }
     }
@@ -110,7 +140,7 @@ class RoleAlert extends Component {
         return (
             <div>
                 <div>
-                    <h2 id="alert-header">YOU ARE: {this.props.role}</h2>
+                    <h2 id="alert-header" className={"left-align"}>YOU ARE: {this.props.role}</h2>
                     <img id="role" src={this.getRoleImage()} alt={this.getRoleImageAltText()}/>
 
                     <p className={"left-align"}>{roleText[0]}</p>
@@ -126,7 +156,15 @@ class RoleAlert extends Component {
 
 RoleAlert.defaultProps = {
     role: "HITLER",
-    roleID: 0
+    name: undefined,
+    gameState: undefined
+};
+
+RoleAlert.propTypes = {
+    role: PropTypes.string.isRequired,
+    name: PropTypes.string,
+    gameState: PropTypes.object,
+    onClick: PropTypes.func.isRequired,
 };
 
 export default RoleAlert;

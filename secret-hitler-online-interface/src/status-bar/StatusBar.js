@@ -12,6 +12,7 @@ class StatusBar extends Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
+        console.log("New text: " + this.props.children);
         if (this.props.children !== this.state.text) {
             this.fadeAndReplaceText();
         }

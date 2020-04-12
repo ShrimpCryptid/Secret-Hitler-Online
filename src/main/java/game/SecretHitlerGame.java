@@ -75,6 +75,8 @@ public class SecretHitlerGame {
     // The options available to either the President or the Chancellor during the legislative session
     private List<Policy> legislativePolicies;
 
+    private boolean didElectionTrackerAdvance = false;
+
     private Map<String, Boolean> voteMap;
 
     //</editor-fold>
@@ -99,6 +101,8 @@ public class SecretHitlerGame {
     public int getNumFascistPolicies() { return board.getNumFascistPolicies(); }
 
     public int getNumLiberalPolicies() { return board.getNumLiberalPolicies(); }
+
+    public boolean didElectionTrackerAdvance() { return didElectionTrackerAdvance; }
 
     //</editor-fold>
 
@@ -340,6 +344,7 @@ public class SecretHitlerGame {
             throw new IllegalArgumentException("Player " + username + " is dead and cannot be elected for chancellor.");
         }
 
+        didElectionTrackerAdvance = false; // reset the election tracker
         currentChancellor = username;
         state = GameState.CHANCELLOR_VOTING; // exits the previous state.
         voteMap = new HashMap<>(); // initializes a new map for voting.
@@ -418,6 +423,7 @@ public class SecretHitlerGame {
      *          If the tracker == 2, rests the tracker to 0 and enacts the first policy on the top of the draw pile.
      */
     private void advanceElectionTracker() {
+        didElectionTrackerAdvance = true;
         electionTracker += 1;
         if (electionTracker == MAX_FAILED_ELECTIONS) {
             Policy newPolicy = draw.remove();

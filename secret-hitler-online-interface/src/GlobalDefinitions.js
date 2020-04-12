@@ -99,6 +99,7 @@ export const PARAM_CHANCELLOR = "chancellor";
 export const PARAM_LAST_PRESIDENT = "last-president";
 export const PARAM_LAST_CHANCELLOR = "last-chancellor";
 export const PARAM_ELECTION_TRACKER = "election-tracker";
+export const PARAM_ELEC_TRACKER_ADVANCED = "election-tracker-advanced";
 export const PARAM_VOTES = "user-votes";
 export const PARAM_LIBERAL_POLICIES = "liberal-policies";
 export const PARAM_FASCIST_POLICIES = "fascist-policies";

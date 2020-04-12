@@ -53,7 +53,11 @@ import {
     PARAM_CHANCELLOR,
     PARAM_PRESIDENT_CHOICES,
     STATE_POST_LEGISLATIVE,
-    PARAM_CHANCELLOR_CHOICES, STATE_LEGISLATIVE_PRESIDENT_VETO
+    PARAM_CHANCELLOR_CHOICES,
+    STATE_LEGISLATIVE_PRESIDENT_VETO,
+    STATE_PP_INVESTIGATE,
+    STATE_PP_EXECUTION,
+    STATE_PP_ELECTION, PARAM_ELEC_TRACKER_ADVANCED
 } from "./GlobalDefinitions";
 
 import PlayerDisplay from "./player/PlayerDisplay";
@@ -65,6 +69,7 @@ import PresidentLegislativePrompt from "./custom-alert/PresidentLegislativePromp
 import ChancellorLegislativePrompt from "./custom-alert/ChancellorLegislativePrompt";
 import VetoPrompt from "./custom-alert/VetoPrompt";
 import ElectionTrackerAlert from "./custom-alert/ElectionTrackerAlert";
+import PolicyEnactedAlert from "./custom-alert/PolicyEnactedAlert";
 
 const EVENT_BAR_FADE_OUT_DURATION = 500;
 const CUSTOM_ALERT_FADE_DURATION = 1000;
@@ -132,6 +137,7 @@ class App extends Component {
         this.showSnackBar = this.showSnackBar.bind(this);
         this.onAnimationFinish = this.onAnimationFinish.bind(this);
         this.onGameStateChanged = this.onGameStateChanged.bind(this);
+        this.hideAlertAndFinish = this.hideAlertAndFinish.bind(this);
     }
 
     /////////// Server Communication
@@ -560,9 +566,58 @@ class App extends Component {
      * @param newState {Object} the new game state sent from the server.
      */
     onGameStateChanged(newState) {
+        let oldState = this.state.gameState;
         let name = this.state.name;
         let isPresident = this.state.name === newState[PARAM_PRESIDENT];
         let isChancellor = this.state.name === newState[PARAM_CHANCELLOR];
+        let state = newState[PARAM_STATE];
+
+        // Check for changes in enacted policies and election tracker.
+        if (state === STATE_POST_LEGISLATIVE || state === STATE_PP_INVESTIGATE || state === STATE_PP_EXECUTION
+            || state === STATE_PP_ELECTION || state === STATE_PP_ELECTION) {
+
+            // Check if the election tracker changed positions.
+            if (newState[PARAM_ELECTION_TRACKER] !== this.state.gameState[PARAM_ELECTION_TRACKER]) {
+                let newPos = newState[PARAM_ELECTION_TRACKER];
+                let advancedToThree = newPos === 0 && newState[PARAM_ELEC_TRACKER_ADVANCED];
+                // We ignore all resets to 0, unless that reset was caused by the election tracker reaching 3.
+                if (newPos !== 0 || advancedToThree) {
+
+                    // If the last phase was voting, we failed due to voting. Therefore, show votes.
+                    if (oldState[PARAM_STATE] === STATE_CHANCELLOR_VOTING) {
+                        this.addAnimationToQueue(() => this.showVotes(newState));
+                    }
+
+                    let trackerPosition = newPos;
+                    if (advancedToThree) {
+                        // If the tracker was reset because it advanced to 3, show it moving to 3 in the dialog box.
+                        trackerPosition = 3;
+                    }
+                    this.queueAlert(
+                        <ElectionTrackerAlert
+                            trackerPosition={trackerPosition}
+                            closeAlert={this.hideAlertAndFinish} />
+                    );
+                }
+            }
+
+            let liberalChanged = newState[PARAM_LIBERAL_POLICIES] !== oldState[PARAM_LIBERAL_POLICIES];
+            let fascistChanged = newState[PARAM_FASCIST_POLICIES] !== oldState[PARAM_FASCIST_POLICIES];
+
+            if (liberalChanged || fascistChanged) {
+                // Show an alert with the contents here
+            }
+
+            // Update the board with the new policies / election tracker.
+            this.addAnimationToQueue(() => {
+                this.setState({
+                    liberalPolicies: newState[PARAM_LIBERAL_POLICIES],
+                    fascistPolicies: newState[PARAM_FASCIST_POLICIES],
+                    electionTracker: newState[PARAM_ELECTION_TRACKER],
+                });
+                setTimeout(()=>this.onAnimationFinish(), 500);
+            })
+        }
 
         // Check for state change
         if (newState[PARAM_STATE] !== this.state.gameState[PARAM_STATE]) { // state has changed
@@ -577,7 +632,8 @@ class App extends Component {
                         this.queueAlert(
                             <RoleAlert
                                 role={newState[PARAM_PLAYERS][this.state.name][PLAYER_IDENTITY]}
-                                roleID={3} //TODO: Fill in with user ID when implemented.
+                                gameState={newState}
+                                name={name}
                                 onClick={() => { this.hideAlertAndFinish(); }}
                             />
                             , false);
@@ -661,6 +717,7 @@ class App extends Component {
                     break;
 
                 case STATE_POST_LEGISLATIVE:
+                    this.queueStatusMessage("Waiting for the president to conclude their term.");
 
             }
 
@@ -765,9 +822,8 @@ class App extends Component {
     testAlert() {
         this.setState({
             alertContent:(
-                <ElectionTrackerAlert
-                    closeAlert={this.hideAlertAndFinish}
-                    trackerPosition={1}
+                <PolicyEnactedAlert
+                    policyType={"LIBERAL"}
                 />
             ),
             showAlert: true
@@ -858,7 +914,9 @@ class App extends Component {
                             </div>
 
                             <div>
-                            <button>END TERM</button>
+                                <button
+                                    disabled={this.state.gameState[PARAM_STATE] !== STATE_POST_LEGISLATIVE || this.state.name !== this.state.gameState[PARAM_PRESIDENT]}
+                                >END TERM</button>
                             </div>
 
                             <div id={"discard-deck"} style={{position:"relative"}}>

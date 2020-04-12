@@ -50,7 +50,7 @@ class NominationPrompt extends Component {
     onButtonClick(selectedItem) {
         // Lock the button so that it can't be pressed multiple times.
         this.setState({waitingForServer: true});
-        setTimeout(() => {this.setState({waitingForServer: false})}, SERVER_TIMEOUT);
+        this.timeoutID = setTimeout(() => {this.setState({waitingForServer: false})}, SERVER_TIMEOUT);
 
         // Contact the server using provided method.
         let data = {};
@@ -58,6 +58,9 @@ class NominationPrompt extends Component {
         this.props.sendWSCommand(COMMAND_NOMINATE_CHANCELLOR, data);
     }
 
+    componentWillUnmount() {
+        clearTimeout(this.timeoutID);
+    }
 
     render() {
         return (

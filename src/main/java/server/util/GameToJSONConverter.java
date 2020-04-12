@@ -83,6 +83,7 @@ public class GameToJSONConverter {
         out.put("last-president", game.getLastPresident());
         out.put("last-chancellor", game.getLastChancellor());
         out.put("election-tracker", game.getElectionTracker());
+        out.put("election-tracker-advanced", game.didElectionTrackerAdvance());
 
         out.put("draw-size", game.getDrawSize());
         out.put("discard-size", game.getDiscardSize());
