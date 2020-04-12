@@ -57,7 +57,7 @@ import {
     STATE_LEGISLATIVE_PRESIDENT_VETO,
     STATE_PP_INVESTIGATE,
     STATE_PP_EXECUTION,
-    STATE_PP_ELECTION, PARAM_ELEC_TRACKER_ADVANCED
+    STATE_PP_ELECTION, PARAM_ELEC_TRACKER_ADVANCED, COMMAND_END_TERM
 } from "./GlobalDefinitions";
 
 import PlayerDisplay from "./player/PlayerDisplay";
@@ -88,7 +88,7 @@ class App extends Component {
     constructor(props) {
         super(props);
         this.state={
-            page:PAGE.GAME,
+            page:PAGE.LOGIN,
 
             joinName:"",
             joinLobby:"",
@@ -213,14 +213,15 @@ class App extends Component {
                 joinName: decodeURIComponent(this.state.name),
                 joinLobby: decodeURIComponent(this.state.lobby),
                 joinError: "Disconnected from the lobby."
-
             });
+            this.animationQueue = []; // clear queue
         } else { // User purposefully closed the connection.
             this.setState({
                 page: PAGE.LOGIN,
                 joinName: decodeURIComponent(this.state.name),
                 joinError: ""
             });
+            this.animationQueue = []; // clear queue
         }
     }
 
@@ -605,8 +606,14 @@ class App extends Component {
             let fascistChanged = newState[PARAM_FASCIST_POLICIES] !== oldState[PARAM_FASCIST_POLICIES];
 
             if (liberalChanged || fascistChanged) {
-                // Show an alert with the contents here
+                // Show an alert with the new policy
+                this.queueAlert((
+                    <PolicyEnactedAlert
+                        hideAlert={this.hideAlertAndFinish}
+                        policyType={liberalChanged ? LIBERAL : FASCIST} />
+                ));
             }
+
 
             // Update the board with the new policies / election tracker.
             this.addAnimationToQueue(() => {
@@ -806,30 +813,6 @@ class App extends Component {
         setTimeout(() => {this.onAnimationFinish()}, CUSTOM_ALERT_FADE_DURATION);
     }
 
-    // </editor-fold>
-
-    playAnimationTest() {
-
-        this.setState({
-            showVotes: !this.state.showVotes
-        });
-
-    }
-
-    /**
-     * Shows a sample test alert.
-     */
-    testAlert() {
-        this.setState({
-            alertContent:(
-                <PolicyEnactedAlert
-                    policyType={"LIBERAL"}
-                />
-            ),
-            showAlert: true
-        });
-    }
-
     /**
      * Shows the eventBar for a set period of time.
      * @param message {String} the message for the Event Bar to be fully visible.
@@ -881,6 +864,30 @@ class App extends Component {
         })
     }
 
+    // </editor-fold>
+
+    playAnimationTest() {
+        this.setState({
+            showVotes: !this.state.showVotes
+        });
+
+    }
+
+    /**
+     * Shows a sample test alert.
+     */
+    testAlert() {
+        this.setState({
+            alertContent:(
+                <PolicyEnactedAlert
+                    policyType={"FASCIST"}
+                    hideAlert={this.hideAlertAndFinish}
+                />
+            ),
+            showAlert: true
+        });
+    }
+
     /**
      * Renders the game page.
      */
@@ -901,6 +908,7 @@ class App extends Component {
                     gameState={this.state.gameState}
                     user={this.state.name}
                     showVotes={this.state.showVotes}
+                    showBusy={this.animationQueue.length === 0} // Only show busy when there isn't an active animation.
                 />
 
                 <StatusBar>{this.state.statusBarText}</StatusBar>
@@ -916,6 +924,7 @@ class App extends Component {
                             <div>
                                 <button
                                     disabled={this.state.gameState[PARAM_STATE] !== STATE_POST_LEGISLATIVE || this.state.name !== this.state.gameState[PARAM_PRESIDENT]}
+                                    onClick={() => {this.sendWSCommand(COMMAND_END_TERM);}}
                                 >END TERM</button>
                             </div>
 

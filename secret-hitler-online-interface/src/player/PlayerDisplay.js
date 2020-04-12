@@ -165,7 +165,7 @@ class PlayerDisplay extends Component {
                 <div id={"player-display-text-container"}>
                     {label}
                     <Player
-                        isBusy ={busyPlayers.has(playerName) && !this.props.showVotes} // Do not show while voting.
+                        isBusy ={busyPlayers.has(playerName) && !this.props.showVotes && this.props.showBusy} // Do not show while voting.
                         role = {playerData[PLAYER_IDENTITY]}
                         showRole = {this.showRoleByRole[playerData[PLAYER_IDENTITY]] || playerName === this.props.user}
                         highlight = {playerName === this.props.user}
@@ -287,6 +287,18 @@ PlayerDisplay.defaultProps = {
     excludeUser: false,
     showVotes: false,
     showLabels: true
+};
+
+PlayerDisplay.propTypes = {
+    user: PropTypes.string,
+    gameState: PropTypes.object.isRequired,
+    playerDisabledFilter: PropTypes.func,
+    onSelection: PropTypes.func,
+    selection: PropTypes.string,
+    useAsButtons: PropTypes.bool,
+    showVotes: PropTypes.bool,
+    showLabels: PropTypes.bool,
+    showBusy: PropTypes.bool,
 };
 
 

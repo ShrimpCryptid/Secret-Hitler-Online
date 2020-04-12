@@ -460,7 +460,7 @@ public class SecretHitlerGame {
      *          Otherwise, chooses the next eligible (alive) player in the ordering to become president.
      */
     public void endPresidentialTerm() {
-        if (this.state == GameState.POST_LEGISLATIVE) {
+        if (this.state != GameState.POST_LEGISLATIVE) {
             throw new IllegalStateException();
         }
 

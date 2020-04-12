@@ -25,8 +25,8 @@ class PolicyEnactedAlert extends Component {
 
     setAnimation() {
         this.setState({className: ""});
-        setTimeout(()=> {this.setState({className: "show-policy-1"})}, 2000);
-        setTimeout(()=> {this.setState({className: "show-policy-2"})}, 2400);
+        setTimeout(()=> {this.setState({className: "show-policy-shift"})}, 2000);
+        setTimeout(()=> {this.setState({className: "show-policy-flip show-policy-shift"})}, 2500);
     }
 
     render() {
@@ -36,7 +36,7 @@ class PolicyEnactedAlert extends Component {
                     return <h2 className={"left-align"}>POLICY ENACTED</h2> // allows us to align it with center
                 }}
                 buttonText={"OKAY"}
-                buttonOnClick={this.setAnimation}
+                buttonOnClick={this.props.hideAlert}
             >
                 <div id={"policy-enacted-container"}>
                     <img id={"policy-enacted-back"}
@@ -46,9 +46,10 @@ class PolicyEnactedAlert extends Component {
                     />
                     <img id={"policy-enacted-policy"}
                          className={this.state.className}
-                         src={LiberalPolicy} alt={"A " + this.props.policyType.toLowerCase() + " policy that was enacted! " +
-                    this.props.policyType === LIBERAL ? "It's printed in blue with a dove insignia on it."
-                        : "It's printed in red with a skull insignia on it."}
+                         src={this.props.policyType === LIBERAL ? LiberalPolicy : FascistPolicy}
+                         alt={"A " + this.props.policyType.toLowerCase() + " policy that was enacted! " +
+                              this.props.policyType === LIBERAL ? "It's printed in blue with a dove insignia on it."
+                              : "It's printed in red with a skull insignia on it."}
                     />
                     <img id={"policy-enacted-cover-back"}
                          src={FolderCoverBack}
