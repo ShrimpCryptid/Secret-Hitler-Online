@@ -7,7 +7,7 @@ In the game, players are divided into Liberals, Fascists, and one secret Hitler.
 Can you find and stop the Secret Hitler?
 
 ## Technical Specs
-The Java server is divided into the [game simulation](src/main/java/game) and the [REST API](src/main/java/server). Communication between the server and client is done via websocket and HTTP requests, using the [Javalin library](https://javalin.io/)
+The Java server is divided into the [game simulation](src/main/java/game) and the [REST API](src/main/java/server). Communication between the server and client is done via websocket and HTTP requests, using the [Javalin library](https://javalin.io/).
 
 The [webpage](/secret-hitler-online-interface) is written in [React](https://reactjs.org/), and features animations created with CSS.
 
