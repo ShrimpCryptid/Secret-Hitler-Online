@@ -81,8 +81,8 @@ class App extends Component {
     reconnectOnConnectionClosed = true;
     snackbarMessages = 0;
     animationQueue = [];
-    allAnimationsFinished = true;
     okMessageListeners = [];
+    allAnimationsFinished = true;
 
     // noinspection DuplicatedCode
     constructor(props) {
@@ -121,8 +121,8 @@ class App extends Component {
             showEventBar: false,
             eventBarMessage: "",
 
-            statusBarText:"Game Starting"
-
+            statusBarText:"Game Starting",
+            allAnimationsFinished: true
         };
 
         // These are necessary for handling class fields (ex: websocket)
@@ -138,6 +138,8 @@ class App extends Component {
         this.onAnimationFinish = this.onAnimationFinish.bind(this);
         this.onGameStateChanged = this.onGameStateChanged.bind(this);
         this.hideAlertAndFinish = this.hideAlertAndFinish.bind(this);
+        this.addAnimationToQueue = this.addAnimationToQueue.bind(this);
+        this.clearAnimationQueue = this.clearAnimationQueue.bind(this);
     }
 
     /////////// Server Communication
@@ -214,14 +216,14 @@ class App extends Component {
                 joinLobby: decodeURIComponent(this.state.lobby),
                 joinError: "Disconnected from the lobby."
             });
-            this.animationQueue = []; // clear queue
+            this.clearAnimationQueue();
         } else { // User purposefully closed the connection.
             this.setState({
                 page: PAGE.LOGIN,
                 joinName: decodeURIComponent(this.state.name),
                 joinError: ""
             });
-            this.animationQueue = []; // clear queue
+            this.clearAnimationQueue();
         }
     }
 
@@ -586,6 +588,7 @@ class App extends Component {
 
                     // If the last phase was voting, we failed due to voting. Therefore, show votes.
                     if (oldState[PARAM_STATE] === STATE_CHANCELLOR_VOTING) {
+                        //this.queueAlert(<RoleAlert onClick={this.hideAlertAndFinish} />);
                         this.addAnimationToQueue(() => this.showVotes(newState));
                     }
 
@@ -631,7 +634,6 @@ class App extends Component {
             switch (newState[PARAM_STATE]) {
 
                 case STATE_CHANCELLOR_NOMINATION:
-                    this.queueStatusMessage("Waiting for president to nominate a chancellor.");
                     if(newState[PARAM_ELECTION_TRACKER] === 0
                         && newState[PARAM_LIBERAL_POLICIES] === 0
                         && newState[PARAM_FASCIST_POLICIES] === 0) {
@@ -647,6 +649,7 @@ class App extends Component {
                     }
 
                     this.queueEventUpdate("CHANCELLOR NOMINATION");
+                    this.queueStatusMessage("Waiting for president to nominate a chancellor.");
 
                     if(isPresident) {
                         //Show the chancellor nomination window.
@@ -751,7 +754,17 @@ class App extends Component {
             func(); //call the function.
         } else { // the animation queue is empty, so we set a flag.
             this.allAnimationsFinished = true;
+            this.setState({allAnimationsFinished: true});
         }
+    }
+
+    /**
+     * Clears the animation queue and ends any currently playing animations.
+     */
+    clearAnimationQueue() {
+        this.allAnimationsFinished = true;
+        this.setState({allAnimationsFinished: true});
+        this.animationQueue = [];
     }
 
     /**
@@ -764,6 +777,7 @@ class App extends Component {
         this.animationQueue.push(func);
         if (this.allAnimationsFinished) {
             this.allAnimationsFinished = false;
+            this.setState({allAnimationsFinished: false});
             let func = this.animationQueue.shift();
             func(); //call the function.
         }
@@ -908,7 +922,7 @@ class App extends Component {
                     gameState={this.state.gameState}
                     user={this.state.name}
                     showVotes={this.state.showVotes}
-                    showBusy={this.animationQueue.length === 0} // Only show busy when there isn't an active animation.
+                    showBusy={this.state.allAnimationsFinished} // Only show busy when there isn't an active animation.
                 />
 
                 <StatusBar>{this.state.statusBarText}</StatusBar>

@@ -17,6 +17,8 @@ import PropTypes from "prop-types";
 
 class VotingPrompt extends Component {
 
+    timeoutID;
+
     constructor(props) {
         super(props);
         this.state = {
@@ -62,13 +64,17 @@ class VotingPrompt extends Component {
      */
     onButtonClick() {
         // Lock the button so that it can't be pressed multiple times.
+        this.timeoutID = setTimeout(() => {this.setState({waitingForServer: false})}, SERVER_TIMEOUT);
         this.setState({waitingForServer: true});
-        setTimeout(() => {this.setState({waitingForServer: false})}, SERVER_TIMEOUT);
 
         // Contact the server using provided method.
         let data = {};
         data[PARAM_VOTE] = this.state.selection === "yes"; // transform into a boolean value.
         this.props.sendWSCommand(COMMAND_REGISTER_VOTE, data);
+    }
+
+    componentWillUnmount() {
+        clearTimeout(this.timeoutID)
     }
 
     render() {

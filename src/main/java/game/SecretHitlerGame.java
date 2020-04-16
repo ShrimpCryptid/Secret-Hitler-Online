@@ -397,6 +397,8 @@ public class SecretHitlerGame {
 
         if (allPlayersHaveVoted) {
             if (((float) totalYesVotes / (float) totalVotes) > VOTING_CUTOFF) { // vote passed successfully
+                lastChancellor = currentChancellor;
+                lastPresident = currentPresident;
                 if (getPlayer(currentChancellor).isHitler() && board.fascistsCanWinByElection()) {
                     state = GameState.FASCIST_VICTORY_ELECTION; // Fascists won by electing Hitler: game ends.
                 } else {

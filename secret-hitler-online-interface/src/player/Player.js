@@ -29,6 +29,7 @@ class Player extends Component {
         super(props);
         this.state = {
             initialState: true,
+            initialVoteState: true,
         }
     }
 
@@ -133,8 +134,12 @@ class Player extends Component {
 
     render() {
         // noinspection HtmlUnknownAttribute
-        if (this.state.initialState && (this.props.showVote || this.props.isBusy)) {
+        if (this.state.initialState && this.props.isBusy) {
             this.setState({initialState: false});
+        }
+
+        if (this.props.showVote && this.state.initialVoteState) {
+            this.setState({initialVoteState: false});
         }
 
         return (
@@ -158,7 +163,7 @@ class Player extends Component {
 
                 <img
                     id={"player-icon-vote"}
-                    className={this.state.initialState ? "player-icon-default" : (this.props.showVote ? "player-icon-show" : "player-icon-hide")}
+                    className={this.state.initialVoteState ? "player-icon-default" : (this.props.showVote ? "player-icon-show" : "player-icon-hide")}
                     src={this.props.vote ? YesVote : NoVote}
                     alt={""}
                 />
