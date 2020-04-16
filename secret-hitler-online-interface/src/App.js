@@ -632,7 +632,6 @@ class App extends Component {
         // Check for state change
         if (newState[PARAM_STATE] !== this.state.gameState[PARAM_STATE]) { // state has changed
             switch (newState[PARAM_STATE]) {
-
                 case STATE_CHANCELLOR_NOMINATION:
                     if(newState[PARAM_ELECTION_TRACKER] === 0
                         && newState[PARAM_LIBERAL_POLICIES] === 0

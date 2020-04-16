@@ -36,7 +36,7 @@ class VotingPrompt extends Component {
      */
     shouldChancellorRoleBeShown() {
         let game = this.props.gameState;
-        let userRole = game[PARAM_PLAYERS][this.props.user];
+        let userRole = game[PARAM_PLAYERS][this.props.user][PLAYER_IDENTITY];
         let chancellor = game[PARAM_CHANCELLOR];
         let chancellorRole = game[PARAM_PLAYERS][chancellor][PLAYER_IDENTITY];
         switch (userRole) {
