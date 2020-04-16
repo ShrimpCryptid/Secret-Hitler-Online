@@ -27,7 +27,6 @@ import {
     MIN_PLAYERS,
     COMMAND_START_GAME,
     PARAM_PLAYERS,
-    PLAYER_NAME,
     PLAYER_IDENTITY,
     PARAM_PLAYER_ORDER,
     PARAM_STATE,
@@ -46,7 +45,6 @@ import {
     PACKET_PEEK,
     PACKET_OK,
     STATE_SETUP,
-    PLAYER_IS_ALIVE,
     PARAM_VOTES,
     FASCIST,
     LIBERAL,
@@ -250,7 +248,7 @@ class App extends Component {
 
             case PACKET_OK: // Traverse all listeners and call the functions.
                 let i = 0;
-                for (i; i < this.okMessageListeners.length; i++) {
+                for (i; i < this.okMessageListeners.length && i < 1; i++) {
                     this.okMessageListeners[i]();
                 }
                 this.okMessageListeners = []; // clear all listeners.
@@ -727,7 +725,10 @@ class App extends Component {
 
                 case STATE_POST_LEGISLATIVE:
                     this.queueStatusMessage("Waiting for the president to conclude their term.");
+                    break;
 
+                default:
+                    // Do nothing
             }
 
 
@@ -823,7 +824,7 @@ class App extends Component {
      */
     hideAlertAndFinish() {
         this.setState({showAlert: false});
-        setTimeout(() => {this.onAnimationFinish()}, CUSTOM_ALERT_FADE_DURATION);
+        setTimeout(() => {this.onAnimationFinish();}, CUSTOM_ALERT_FADE_DURATION);
     }
 
     /**
@@ -859,7 +860,7 @@ class App extends Component {
                 showAlert: true,
             });
             if (closeOnOK) {
-                this.addServerOKListener(() => this.hideAlertAndFinish());
+                this.addServerOKListener(this.hideAlertAndFinish);
             }
         });
     }

@@ -52,7 +52,7 @@ class MaxLengthTextField extends Component {
                     <p style={{margin:"2px"}}>{this.props.label}</p>
                     <p style={{margin:"2px", marginLeft:"auto"}}>{this.charactersLeft()}</p>
                 </div>
-                <input  id="MaxLengthTextField"
+                <input  className="MaxLengthTextField"
                         value={this.props.value}
                         onChange={this.handleChange}
                         placeholder={this.props.placeholder}

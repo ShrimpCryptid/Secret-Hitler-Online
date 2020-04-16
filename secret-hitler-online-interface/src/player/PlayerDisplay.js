@@ -4,7 +4,6 @@ import Player from "./Player";
 import {
     FASCIST,
     PARAM_PLAYERS,
-    PLAYER_NAME,
     PLAYER_IDENTITY,
     PLAYER_IS_ALIVE,
     HITLER,
@@ -52,7 +51,6 @@ class PlayerDisplay extends Component {
      *           Otherwise, if {@code HITLER}, only {@code HITLER} roles will be shown.
      */
     determineRolesToShow() {
-        let i = 0;
         let playerOrder = this.props.gameState[PARAM_PLAYER_ORDER];
         let role = this.props.gameState[PARAM_PLAYERS][this.props.user][PLAYER_IDENTITY];
 
@@ -162,7 +160,7 @@ class PlayerDisplay extends Component {
             };
 
             out[i] = (
-                <div id={"player-display-text-container"}>
+                <div id={"player-display-text-container"} key={playerName}>
                     {label}
                     <Player
                         isBusy ={busyPlayers.has(playerName) && !this.props.showVotes && this.props.showBusy} // Do not show while voting.
@@ -208,9 +206,8 @@ class PlayerDisplay extends Component {
         let timePerPlayer = duration / numVotes;
         let playerOrder = this.props.gameState[PARAM_PLAYER_ORDER];
         let players = this.props.gameState[PARAM_PLAYERS];
-        let i = 0;
         let delay = 0;
-        for (i; i < playerOrder.length; i++) {
+        for (let i = 0; i < playerOrder.length; i++) {
             this.showPlayerVote[i] = false;
             let playerName = playerOrder[i];
             if (players[playerName][PLAYER_IS_ALIVE]) { // player is eligible to vote
@@ -227,7 +224,6 @@ class PlayerDisplay extends Component {
                 }, delay);
             }
         }
-        i = 0;
     }
 
     resetVoteAnimation () {
