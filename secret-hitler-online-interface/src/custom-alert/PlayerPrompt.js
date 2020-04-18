@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import PlayerDisplay from "../player/PlayerDisplay";
+import PlayerDisplay, {DISABLE_EXECUTED_PLAYERS} from "../player/PlayerDisplay";
 import {
     PARAM_PLAYERS,
     PLAYER_IS_ALIVE
@@ -35,7 +35,7 @@ class PlayerPrompt extends Component{
                 <PlayerDisplay
                     gameState = {this.props.gameState}
                     user = {this.props.user}
-                    excludeUser = {!this.props.includeUser}
+                    includeUser={this.props.includeUser}
                     useAsButtons = {true}
                     playerDisabledFilter = {props.disabledFilter}
                     showLabels = {false}
@@ -51,15 +51,9 @@ class PlayerPrompt extends Component{
 }
 
 PlayerPrompt.defaultProps = {
-    gameState: {},
     user: "",
     includeUser: false,
-    disabledFilter: (name, gameState) => {
-        if (gameState[PARAM_PLAYERS][name][!PLAYER_IS_ALIVE]) {
-            return "EXECUTED";
-        }
-        return "";
-    },
+    disabledFilter: DISABLE_EXECUTED_PLAYERS,
     buttonText: "CONFIRM",
     buttonOnClick: (selectedItem) => {
         console.log("Button clicked with " + selectedItem + " selected.");
@@ -67,14 +61,13 @@ PlayerPrompt.defaultProps = {
 };
 
 PlayerPrompt.propTypes = {
+    user: PropTypes.string.isRequired,
+    gameState: PropTypes.object.isRequired,
+    includeUser:PropTypes.bool,
+    disabledFilter: PropTypes.func.isRequired,
+
     label: PropTypes.string,
     headerText: PropTypes.string,
-
-    gameState: PropTypes.object,
-    user: PropTypes.string,
-    disabledFilter: PropTypes.func,
-    includeUser:PropTypes.bool,
-
     footerText: PropTypes.string,
 
     buttonText: PropTypes.string,

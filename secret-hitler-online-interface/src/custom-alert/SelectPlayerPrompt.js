@@ -6,11 +6,15 @@ import {
     PARAM_TARGET,
     SERVER_TIMEOUT
 } from "../GlobalDefinitions";
-import {DISABLE_EXECUTED_PLAYERS, DISABLE_TERM_LIMITED_PLAYERS} from "../player/PlayerDisplay";
+import {
+    DISABLE_EXECUTED_PLAYERS,
+    DISABLE_INVESTIGATED_PLAYERS,
+    DISABLE_TERM_LIMITED_PLAYERS
+} from "../player/PlayerDisplay";
 
 /**
- * Encapsulates a PlayerPrompt, and automatically locks the button after being pressed.
- * When button pressed, sends a specified command to the server.
+ * A PlayerPrompt that sends a specified server command on the button push and automatically locks the button for a set
+ * duration.
  */
 class SelectPlayerPrompt extends Component {
 
@@ -63,19 +67,18 @@ SelectPlayerPrompt.defaultProps = {
 };
 
 SelectPlayerPrompt.propTypes = {
-    label: PropTypes.string.isRequired,
-    headerText: PropTypes.string,
-    renderHeader:PropTypes.func,
-
-    gameState: PropTypes.object.isRequired,
     user: PropTypes.string.isRequired,
+    gameState: PropTypes.object.isRequired,
+    sendWSCommand: PropTypes.func.isRequired,
+    commandType: PropTypes.string.isRequired,
+
     disabledFilter: PropTypes.func, // By default, excludes deceased players
     includeUser: PropTypes.bool,
 
+    label: PropTypes.string.isRequired,
+    headerText: PropTypes.string,
+    renderHeader:PropTypes.func,
     buttonText: PropTypes.string,
-
-    commandType: PropTypes.string.isRequired,
-    sendWSCommand: PropTypes.func.isRequired
 };
 
 export default SelectPlayerPrompt;
@@ -83,12 +86,13 @@ export default SelectPlayerPrompt;
 // Definitions for some basic templates.
 /**
  * Returns the HTML for the NominationPrompt.
- * @param sendWSCommand {function} the callback function for sending websocket commands.
- * @param gameState {Object} the state of the game.
  * @param user {String} the name of the user.
- * @return
+ * @param gameState {Object} the state of the game.
+ * @param sendWSCommand {function} the callback function for sending websocket commands.
+ * @return The HTML Tag for a SelectPlayerPrompt that requests the player to select a chancellor.
+ *         Notably, the prompt disables players that are term-limited, and when the button is pressed
  */
-export const SELECT_NOMINATION = (sendWSCommand, gameState, user) => {
+export const SelectNominationPrompt = (user, gameState, sendWSCommand) => {
     let shouldFascistVictoryWarningBeShown = gameState[PARAM_FASCIST_POLICIES] >= 3;
 
     return (
@@ -113,3 +117,33 @@ export const SELECT_NOMINATION = (sendWSCommand, gameState, user) => {
         />
     )
 };
+
+export const SelectInvestigationPrompt = (user, gameState, sendWSCommand,) => {
+    return (
+        <SelectPlayerPrompt
+            user={user}
+            gameState={gameState}
+            sendWSCommand={sendWSCommand}
+            commandType={sendWSCommand}
+            disabledFilter={DISABLE_INVESTIGATED_PLAYERS}
+            includeUser={false}
+            label={"INVESTIGATE"}
+            renderHeader={() => {
+                return (
+                    <>
+                        <p className={"left-align"}>
+                            Choose a player and investigate their party alignment.
+                            You'll learn if the player is a member of the Fascist or Liberal party, but not their specific role (e.g., Hitler).
+                        </p>
+                        <p className={"left-align"}>
+                            Players that have been investigated once cannot be investigated again.
+                        </p>
+                        <p className={"left-align highlight"}>
+                            (Remember that you can lie about what you see
+                        </p>
+                    </>
+                );
+            }}
+        />
+    )
+}

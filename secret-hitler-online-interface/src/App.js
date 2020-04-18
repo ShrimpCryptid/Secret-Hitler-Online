@@ -67,7 +67,7 @@ import ChancellorLegislativePrompt from "./custom-alert/ChancellorLegislativePro
 import VetoPrompt from "./custom-alert/VetoPrompt";
 import ElectionTrackerAlert from "./custom-alert/ElectionTrackerAlert";
 import PolicyEnactedAlert from "./custom-alert/PolicyEnactedAlert";
-import {SELECT_NOMINATION} from "./custom-alert/SelectPlayerPrompt";
+import {SelectNominationPrompt} from "./custom-alert/SelectPlayerPrompt";
 
 const EVENT_BAR_FADE_OUT_DURATION = 500;
 const CUSTOM_ALERT_FADE_DURATION = 1000;
@@ -653,7 +653,7 @@ class App extends Component {
                     if(isPresident) {
                         //Show the chancellor nomination window.
                         this.queueAlert(
-                            SELECT_NOMINATION(this.sendWSCommand, newState, name)
+                            SelectNominationPrompt(this.sendWSCommand, newState, name)
                         );
                     }
 
@@ -891,7 +891,7 @@ class App extends Component {
     testAlert() {
         this.setState({
             alertContent:(
-                SELECT_NOMINATION(this.sendWSCommand, this.state.gameState, this.state.name)
+                SelectNominationPrompt(this.sendWSCommand, this.state.gameState, this.state.name)
             ),
             showAlert: true
         });

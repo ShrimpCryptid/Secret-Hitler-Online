@@ -309,13 +309,24 @@ export const DISABLE_INVESTIGATED_PLAYERS = (name, gameState) => {
  * @param name the name of the player
  * @param gameState the current game state.
  * @return {string} "EXECUTED" if the player is not alive,
- *                  "TERM LIMITED" if the player was previously voted into office,
+ *                  "TERM LIMITED" if the player is-term limited
+ *                  (the last elected chancellor and, if >5 players, the last elected president.)
  *                  "" otherwise.
  */
 export const DISABLE_TERM_LIMITED_PLAYERS = (name, gameState) => {
+    // Count number of living players
+    let livingPlayers = 0;
+    for (let player in gameState[PARAM_PLAYER_ORDER]) {
+        if (gameState[PARAM_PLAYERS][player][PLAYER_IS_ALIVE]) {
+            livingPlayers++;
+        }
+    }
+
     if (!gameState[PARAM_PLAYERS][name][PLAYER_IS_ALIVE]) {
         return "EXECUTED";
-    } else if (gameState[PARAM_LAST_CHANCELLOR] === name || gameState[PARAM_LAST_PRESIDENT] === name) {
+    } else if (gameState[PARAM_LAST_CHANCELLOR] === name) {
+        return "TERM LIMITED";
+    } else if (gameState[PARAM_LAST_PRESIDENT] === name && livingPlayers > 5) {
         return "TERM LIMITED";
     } else {
         return "";
@@ -341,6 +352,7 @@ PlayerDisplay.defaultProps = {
 PlayerDisplay.propTypes = {
     user: PropTypes.string,
     gameState: PropTypes.object.isRequired,
+
     playerDisabledFilter: PropTypes.func,
     onSelection: PropTypes.func,
     selection: PropTypes.string,

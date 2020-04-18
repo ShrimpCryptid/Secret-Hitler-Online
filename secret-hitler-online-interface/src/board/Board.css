@@ -61,6 +61,6 @@
 
 /* Election Tracker Animations */
 #election-tracker {
-    transition: 0.5s left;
-    transition-timing-function: linear;
+    transition: 1.0s left;
+    transition-timing-function: ease-in-out;
 }

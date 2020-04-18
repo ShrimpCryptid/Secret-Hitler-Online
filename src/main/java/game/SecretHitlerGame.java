@@ -327,16 +327,23 @@ public class SecretHitlerGame {
      * Selects the chancellor for the current legislation.
      * @param username username of the chancellor to elect.
      * @throws IllegalStateException if the state is not {@code CHANCELLOR_SELECTION}.
-     * @throws IllegalArgumentException if the player named {@code username} was one of the last elected officials,
-     *         if the player is dead, or if the player does not exist.
+     * @throws IllegalArgumentException if the player named {@code username} was the last elected chancellor, if
+     *         there are >5 players and they are the last elected president, if the player is dead,
+     *         or if the player does not exist.
      * @modifies this
      * @effects the current chancellor is set to the player named {@code username}. The game state is set to be in
      *          CHANCELLOR_VOTING.
      */
     public void nominateChancellor(String username) {
+        int numLivingPlayers = 0;
+        for (Player player : playerList) {
+            if (player.isAlive())
+                numLivingPlayers++;
+        }
+
         if (getState() != GameState.CHANCELLOR_NOMINATION) {
             throw new IllegalStateException("Cannot elect a chancellor now (invalid state).");
-        } else if (username.equals(lastChancellor) || username.equals(lastPresident)) {
+        } else if (username.equals(lastChancellor) || (username.equals(lastPresident) && numLivingPlayers > 5)) {
             throw new IllegalArgumentException("Cannot elect chancellor that was previously in office.");
         } else if (!hasPlayer(username)) {
             throw new IllegalArgumentException("Player " + username + " does not exist.");
