@@ -56,6 +56,7 @@ public class SecretHitlerGame {
     private int electionTracker;
 
     private GameState state;
+    private GameState lastState;
 
     private Random random;
 
@@ -83,6 +84,8 @@ public class SecretHitlerGame {
 
     /////////////////// Public Observers
     //<editor-fold desc="Public Observers">
+
+    public GameState getLastState() { return lastState; }
 
     public String getCurrentPresident() { return currentPresident; }
 
@@ -300,8 +303,10 @@ public class SecretHitlerGame {
      */
     private void checkIfGameOver() {
         if(board.isFascistVictory()) {
+            this.lastState = this.state;
             state = GameState.FASCIST_VICTORY_POLICY;
         } else if (board.isLiberalVictory()) {
+            this.lastState = this.state;
             state = GameState.LIBERAL_VICTORY_POLICY;
         }
     }
@@ -353,6 +358,7 @@ public class SecretHitlerGame {
 
         didElectionTrackerAdvance = false; // reset the election tracker
         currentChancellor = username;
+        this.lastState = this.state;
         state = GameState.CHANCELLOR_VOTING; // exits the previous state.
         voteMap = new HashMap<>(); // initializes a new map for voting.
     }
@@ -407,6 +413,7 @@ public class SecretHitlerGame {
                 lastChancellor = currentChancellor;
                 lastPresident = currentPresident;
                 if (getPlayer(currentChancellor).isHitler() && board.fascistsCanWinByElection()) {
+                    this.lastState = this.state;
                     state = GameState.FASCIST_VICTORY_ELECTION; // Fascists won by electing Hitler: game ends.
                 } else {
                     startLegislativeSession();
@@ -456,6 +463,7 @@ public class SecretHitlerGame {
      * @effects advances the state to {@code POST_LEGISLATIVE}.
      */
     private void concludePresidentialActions() {
+        this.lastState = this.state;
         this.state = GameState.POST_LEGISLATIVE;
     }
 
@@ -484,6 +492,7 @@ public class SecretHitlerGame {
             currentPresident = getNextActivePlayer(currentPresident);
         }
         currentChancellor = null;
+        this.lastState = this.state;
         this.state = GameState.CHANCELLOR_NOMINATION;
     }
 
@@ -512,6 +521,7 @@ public class SecretHitlerGame {
      * Sets the available policies and the game state.
      */
     private void startLegislativeSession() {
+        this.lastState = this.state;
         state = GameState.LEGISLATIVE_PRESIDENT; // Legislative session begins.
 
         legislativePolicies = new ArrayList<>();
@@ -552,6 +562,7 @@ public class SecretHitlerGame {
             throw new IndexOutOfBoundsException("Cannot discard policy at the index " + index + "");
         }
         discard.add(legislativePolicies.remove(index));
+        this.lastState = this.state;
         state = GameState.LEGISLATIVE_CHANCELLOR;
     }
 
@@ -622,6 +633,7 @@ public class SecretHitlerGame {
         if (response) { // veto was approved, advance election tracker
             advanceElectionTracker();
         } else {        // veto was denied, return to chancellor selection
+            this.lastState = this.state;
             state = GameState.LEGISLATIVE_CHANCELLOR;
         }
     }
@@ -638,6 +650,7 @@ public class SecretHitlerGame {
             shuffleDiscardIntoDraw();
         }
 
+        this.lastState = this.state;
         switch (board.getActivatedPower()) {
             case PEEK:
                 state = GameState.PRESIDENTIAL_POWER_PEEK;
@@ -732,6 +745,7 @@ public class SecretHitlerGame {
 
         playerToKill.kill();
         if(playerToKill.isHitler()) { // game ends and liberals win.
+            this.lastState = this.state;
             state = GameState.LIBERAL_VICTORY_EXECUTION;
         } else {
             concludePresidentialActions();

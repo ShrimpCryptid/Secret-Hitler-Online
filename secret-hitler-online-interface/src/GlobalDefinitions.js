@@ -88,9 +88,9 @@ export const PARAM_INVESTIGATION = "investigation";
 
 // Incoming Data
 export const PARAM_STATE = "state";
+export const PARAM_LAST_STATE = "last-state";
 export const PARAM_PLAYER_ORDER = "player-order";
 export const PARAM_PLAYERS = "players";
-export const PLAYER_NAME = "username";
 export const PLAYER_IDENTITY = "id";
 export const PLAYER_IS_ALIVE = "alive";
 export const PLAYER_INVESTIGATED = "investigated";

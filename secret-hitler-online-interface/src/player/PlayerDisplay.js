@@ -298,8 +298,8 @@ export const DISABLE_EXECUTED_PLAYERS = (name, gameState) => {
 export const DISABLE_INVESTIGATED_PLAYERS = (name, gameState) => {
     if (gameState[PARAM_PLAYERS][name][!PLAYER_IS_ALIVE]) {
         return "EXECUTED";
-    } else if (gameState[PARAM_PLAYERS[name][PLAYER_INVESTIGATED]]) {
-        return "INVESTIGATED";
+    } else if (gameState[PARAM_PLAYERS][name][PLAYER_INVESTIGATED]) {
+        return "SEARCHED";
     }
     return "";
 };

@@ -9,7 +9,7 @@ import DrawDeck from "./assets/board-draw.png";
 import DiscardDeck from "./assets/board-discard.png";
 import CustomAlert from "./custom-alert/CustomAlert";
 import RoleAlert from "./custom-alert/RoleAlert";
-import EventBar from "./EventBar";
+import EventBar from "./event-bar/EventBar";
 
 import {
     PAGE,
@@ -67,7 +67,11 @@ import ChancellorLegislativePrompt from "./custom-alert/ChancellorLegislativePro
 import VetoPrompt from "./custom-alert/VetoPrompt";
 import ElectionTrackerAlert from "./custom-alert/ElectionTrackerAlert";
 import PolicyEnactedAlert from "./custom-alert/PolicyEnactedAlert";
-import {SelectNominationPrompt} from "./custom-alert/SelectPlayerPrompt";
+import {
+    SelectExecutionPrompt,
+    SelectInvestigationPrompt,
+    SelectNominationPrompt
+} from "./custom-alert/SelectPlayerPrompt";
 
 const EVENT_BAR_FADE_OUT_DURATION = 500;
 const CUSTOM_ALERT_FADE_DURATION = 1000;
@@ -86,21 +90,21 @@ class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            page:PAGE.LOGIN,
+            page:PAGE.GAME,
 
             joinName:"",
             joinLobby:"",
             joinError:"",
             createLobbyName:"",
             createLobbyError:"",
-            name:"P4",
+            name:"P1",
             lobby:"AAAAAA",
 
             usernames:[],
             userCount:1,
 
             gameState: {"liberal-policies":0,"fascist-policies":0,"discard-size":0,"draw-size":17,
-                "players":{"P1":{"alive":true,"id":"FASCIST","investigated":false},"P2":{"alive":true,"id":"HITLER","investigated":false},"P3":{"alive":true,"id":"LIBERAL","investigated":false},"P4":{"alive":true,"id":"LIBERAL","investigated":false},"P5":{"alive":true,"id":"LIBERAL","investigated":false},"P6":{"alive":false,"id":"FASCIST","investigated":false},"P7":{"alive":true,"id":"LIBERAL","investigated":false}},
+                "players":{"P1":{"alive":true,"id":"FASCIST","investigated":false},"P2":{"alive":true,"id":"HITLER","investigated":false},"P3":{"alive":true,"id":"LIBERAL","investigated":true},"P4":{"alive":true,"id":"LIBERAL","investigated":false},"P5":{"alive":true,"id":"LIBERAL","investigated":false},"P6":{"alive":false,"id":"FASCIST","investigated":false},"P7":{"alive":true,"id":"LIBERAL","investigated":false}},
                 "in-game":true,
                 "player-order":["P4","P2","P6","P1","P7","P3","P5"],
                 "state":STATE_SETUP,"last-president": "P7", "last-chancellor": "P3", "president":"P4", "chancellor":"P5", "election-tracker":0,
@@ -891,7 +895,7 @@ class App extends Component {
     testAlert() {
         this.setState({
             alertContent:(
-                SelectNominationPrompt(this.sendWSCommand, this.state.gameState, this.state.name)
+                SelectInvestigationPrompt(this.state.name, this.state.gameState, this.sendWSCommand)
             ),
             showAlert: true
         });

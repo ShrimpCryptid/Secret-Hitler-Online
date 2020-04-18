@@ -2,7 +2,8 @@ import React, {Component} from 'react';
 import PropTypes from "prop-types";
 import PlayerPrompt from "./PlayerPrompt";
 import {
-    COMMAND_NOMINATE_CHANCELLOR, PARAM_FASCIST_POLICIES,
+    COMMAND_GET_INVESTIGATION,
+    COMMAND_NOMINATE_CHANCELLOR, COMMAND_REGISTER_EXECUTION, COMMAND_REGISTER_SPECIAL_ELECTION, PARAM_FASCIST_POLICIES,
     PARAM_TARGET,
     SERVER_TIMEOUT
 } from "../GlobalDefinitions";
@@ -90,7 +91,8 @@ export default SelectPlayerPrompt;
  * @param gameState {Object} the state of the game.
  * @param sendWSCommand {function} the callback function for sending websocket commands.
  * @return The HTML Tag for a SelectPlayerPrompt that requests the player to select a chancellor.
- *         Notably, the prompt disables players that are term-limited, and when the button is pressed
+ *         Notably, the prompt disables players that are term-limited, and when the button is pressed sends the
+ *         COMMAND_NOMINATE_CHANCELLOR command to the server.
  */
 export const SelectNominationPrompt = (user, gameState, sendWSCommand) => {
     let shouldFascistVictoryWarningBeShown = gameState[PARAM_FASCIST_POLICIES] >= 3;
@@ -118,16 +120,25 @@ export const SelectNominationPrompt = (user, gameState, sendWSCommand) => {
     )
 };
 
-export const SelectInvestigationPrompt = (user, gameState, sendWSCommand,) => {
+/**
+ * Returns the HTML for the InvestigationPrompt.
+ * @param user {String} the name of the user.
+ * @param gameState {Object} the state of the game.
+ * @param sendWSCommand {function} the callback function for sending websocket commands.
+ * @return The HTML Tag for a SelectPlayerPrompt that requests the player to select a player to investigate.
+ *         The prompt disables players that have been investigated, and when the button is pressed sends the
+ *         COMMAND_GET_INVESTIGATION command to the server.
+ */
+export const SelectInvestigationPrompt = (user, gameState, sendWSCommand) => {
     return (
         <SelectPlayerPrompt
             user={user}
             gameState={gameState}
             sendWSCommand={sendWSCommand}
-            commandType={sendWSCommand}
+            commandType={COMMAND_GET_INVESTIGATION}
             disabledFilter={DISABLE_INVESTIGATED_PLAYERS}
             includeUser={false}
-            label={"INVESTIGATE"}
+            label={"INVESTIGATE LOYALTY"}
             renderHeader={() => {
                 return (
                     <>
@@ -139,11 +150,52 @@ export const SelectInvestigationPrompt = (user, gameState, sendWSCommand,) => {
                             Players that have been investigated once cannot be investigated again.
                         </p>
                         <p className={"left-align highlight"}>
-                            (Remember that you can lie about what you see
+                            (Remember that you can lie about the player's party alignment!)
                         </p>
                     </>
                 );
             }}
         />
     )
-}
+};
+
+export const SelectSpecialElectionPrompt = (user, gameState, sendWSCommand) => {
+    return (
+        <SelectPlayerPrompt
+            user={user}
+            gameState={gameState}
+            sendWSCommand={sendWSCommand}
+            commandType={COMMAND_REGISTER_SPECIAL_ELECTION}
+            disabledFilter={DISABLE_EXECUTED_PLAYERS}
+            includeUser={true}
+            label={"SPECIAL ELECTION"}
+            headerText={"Choose any player to become the next president. Once their term is finished, the order continues as normal."}
+        />
+    );
+};
+
+export const SelectExecutionPrompt = (user, gameState, sendWSCommand) => {
+    return (
+        <SelectPlayerPrompt
+            user={user}
+            gameState={gameState}
+            sendWSCommand={sendWSCommand}
+            commandType={COMMAND_REGISTER_EXECUTION}
+            disabledFilter={DISABLE_EXECUTED_PLAYERS}
+            includeUser={false}
+            label={"EXECUTION"}
+            renderHeader={() => {
+                return (
+                    <>
+                        <p className={"left-align"}>
+                            Choose a player to execute. That player can no longer speak, vote, or run for office.
+                        </p>
+                        <p className={"left-align highlight"}>
+                            The game ends and Liberals win if Hitler is executed.
+                        </p>
+                    </>
+                );
+            }}
+        />
+    );
+};
