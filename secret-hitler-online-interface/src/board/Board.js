@@ -74,7 +74,9 @@ class Board extends Component {
                     />
                     <img id="election-tracker"
                          src={ElectionTracker}
-                         style={{position:"absolute", top:"74%", left:"calc(34.2% + 3*9.16%)", width:"3.2%"}}
+                         style={{position:"absolute",
+                                 top:"74%", left:"calc(34.2% + " + this.props.electionTracker+"*9.16%)",
+                                 width:"3.2%"}}
                          alt={""}
                     />
                     {this.placeRepeating(this.props.numLiberalPolicies, 5, PolicyLiberal, "policy", "18.2%", "13.54%")}

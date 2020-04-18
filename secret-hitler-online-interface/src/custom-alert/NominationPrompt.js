@@ -13,6 +13,8 @@ import PlayerPrompt from "./PlayerPrompt";
 
 class NominationPrompt extends Component {
 
+    timeOutID;
+
     constructor(props) {
         super(props);
         this.state = {
@@ -64,29 +66,27 @@ class NominationPrompt extends Component {
 
     render() {
         return (
-            <div>
-                <PlayerPrompt
-                    label = {"NOMINATION"}
-                    renderHeader={() => {
-                            return (
-                                <div>
-                                    <p className="left-align">Nominate a player to become the next Chancellor.</p>
-                                    <p className="left-align highlight" hidden={!this.shouldFascistVictoryWarningBeShown()}>
-                                        Fascists will win if Hitler is nominated and voted in as Chancellor!
-                                    </p>
-                                </div>
-                            )
-                        }
+            <PlayerPrompt
+                label = {"NOMINATION"}
+                renderHeader={() => {
+                        return (
+                            <div>
+                                <p className="left-align">Nominate a player to become the next Chancellor.</p>
+                                <p className="left-align highlight" hidden={!this.shouldFascistVictoryWarningBeShown()}>
+                                    Fascists will win if Hitler is nominated and voted in as Chancellor!
+                                </p>
+                            </div>
+                        )
                     }
-                    disabledFilter={this.playerDisabledFilter}
-                    user={this.props.user}
-                    gameState={this.props.gameState}
-                    onOptionSelected={this.onSelection}
+                }
+                disabledFilter={this.playerDisabledFilter}
+                user={this.props.user}
+                gameState={this.props.gameState}
+                onOptionSelected={this.onSelection}
 
-                    buttonDisabled={this.state.waitingForServer} // Disable if waiting for server contact
-                    buttonOnClick={this.onButtonClick}
-                />
-            </div>
+                buttonDisabled={this.state.waitingForServer} // Disable if waiting for server contact
+                buttonOnClick={this.onButtonClick}
+            />
         )
     }
 

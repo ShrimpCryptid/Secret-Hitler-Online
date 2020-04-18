@@ -35,7 +35,7 @@ class PlayerPrompt extends Component{
                 <PlayerDisplay
                     gameState = {this.props.gameState}
                     user = {this.props.user}
-                    excludeUser = {true}
+                    excludeUser = {!this.props.includeUser}
                     useAsButtons = {true}
                     playerDisabledFilter = {props.disabledFilter}
                     showLabels = {false}
@@ -53,6 +53,7 @@ class PlayerPrompt extends Component{
 PlayerPrompt.defaultProps = {
     gameState: {},
     user: "",
+    includeUser: false,
     disabledFilter: (name, gameState) => {
         if (gameState[PARAM_PLAYERS][name][!PLAYER_IS_ALIVE]) {
             return "EXECUTED";
@@ -72,6 +73,7 @@ PlayerPrompt.propTypes = {
     gameState: PropTypes.object,
     user: PropTypes.string,
     disabledFilter: PropTypes.func,
+    includeUser:PropTypes.bool,
 
     footerText: PropTypes.string,
 

@@ -119,7 +119,7 @@ class App extends Component {
             showEventBar: false,
             eventBarMessage: "",
 
-            statusBarText:"Game Starting",
+            statusBarText:"---",
             allAnimationsFinished: true
         };
 
