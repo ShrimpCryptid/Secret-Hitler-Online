@@ -18,7 +18,12 @@ import {
     STATE_PP_ELECTION,
     STATE_PP_EXECUTION,
     STATE_PP_INVESTIGATE,
-    STATE_POST_LEGISLATIVE, STATE_LEGISLATIVE_CHANCELLOR, STATE_CHANCELLOR_VOTING, PARAM_VOTES, PARAM_PLAYER_ORDER
+    STATE_POST_LEGISLATIVE,
+    STATE_LEGISLATIVE_CHANCELLOR,
+    STATE_CHANCELLOR_VOTING,
+    PARAM_VOTES,
+    PARAM_PLAYER_ORDER,
+    PLAYER_INVESTIGATED, PARAM_LAST_CHANCELLOR, PARAM_LAST_PRESIDENT
 } from "../GlobalDefinitions";
 import './PlayerDisplay.css';
 
@@ -130,7 +135,7 @@ class PlayerDisplay extends Component {
             let playerName = playerOrder[index];
             let playerData = players[playerName];
 
-            if(this.props.excludeUser && playerName === this.props.user) { // skip this user
+            if(!this.props.includeUser && playerName === this.props.user) { // skip this user
                 continue;
             }
 
@@ -235,10 +240,10 @@ class PlayerDisplay extends Component {
     render() {
         let playerOrder = this.props.gameState[PARAM_PLAYER_ORDER];
         let middleIndex;
-        if (this.props.excludeUser) { // if excluding the user, account for smaller set of players.
-            middleIndex = Math.floor((playerOrder.length - 1) / 2);
-        } else {
+        if (this.props.includeUser) {
             middleIndex = Math.floor(playerOrder.length / 2);
+        } else { // if excluding the user, account for smaller set of players.
+            middleIndex = Math.floor((playerOrder.length - 1) / 2);
         }
         this.determineRolesToShow();
 
@@ -266,21 +271,69 @@ class PlayerDisplay extends Component {
     }
 }
 
+// <editor-fold desc="Player Filters">
+
+/**
+ * Filter to disable only executed players.
+ * @param name the name of the player
+ * @param gameState the current game state.
+ * @return {string} "EXECUTED" if the player is not alive,
+ *                  "" otherwise.
+ */
+export const DISABLE_EXECUTED_PLAYERS = (name, gameState) => {
+    if (gameState[PARAM_PLAYERS][name][!PLAYER_IS_ALIVE]) {
+        return "EXECUTED";
+    }
+    return "";
+};
+
+/**
+ * Filter to disable executed and investigated players.
+ * @param name the name of the player
+ * @param gameState the current game state.
+ * @return {string} "EXECUTED" if the player is not alive,
+ *                  "INVESTIGATED" if the player has been investigated,
+ *                  "" otherwise.
+ */
+export const DISABLE_INVESTIGATED_PLAYERS = (name, gameState) => {
+    if (gameState[PARAM_PLAYERS][name][!PLAYER_IS_ALIVE]) {
+        return "EXECUTED";
+    } else if (gameState[PARAM_PLAYERS[name][PLAYER_INVESTIGATED]]) {
+        return "INVESTIGATED";
+    }
+    return "";
+};
+
+/**
+ * Filter to disable executed and investigated players.
+ * @param name the name of the player
+ * @param gameState the current game state.
+ * @return {string} "EXECUTED" if the player is not alive,
+ *                  "TERM LIMITED" if the player was previously voted into office,
+ *                  "" otherwise.
+ */
+export const DISABLE_TERM_LIMITED_PLAYERS = (name, gameState) => {
+    if (!gameState[PARAM_PLAYERS][name][PLAYER_IS_ALIVE]) {
+        return "EXECUTED";
+    } else if (gameState[PARAM_LAST_CHANCELLOR] === name || gameState[PARAM_LAST_PRESIDENT] === name) {
+        return "TERM LIMITED";
+    } else {
+        return "";
+    }
+};
+
+// </editor-fold>
+
 PlayerDisplay.defaultProps = {
     user: "", /* The name of the user. */
     gameState: {},
     /* A function that returns a label based on a player name and the game state.
     *  A string that is non-empty represents a disabled player, and the string is used to label them. */
-    playerDisabledFilter: (name, state) => {
-        if (!state[PARAM_PLAYERS][name][PLAYER_IS_ALIVE]) {
-            return "EXECUTED";
-        }
-        return "";
-    },
+    playerDisabledFilter: DISABLE_EXECUTED_PLAYERS,
     onSelection: (name) => {console.log("Selected " + name + ".")}, // a callback function for when a player is selected.
     selection: undefined, // the name of the player that should be selected.
     useAsButtons: false,
-    excludeUser: false,
+    includeUser: true,
     showVotes: false,
     showLabels: true
 };
@@ -295,6 +348,7 @@ PlayerDisplay.propTypes = {
     showVotes: PropTypes.bool,
     showLabels: PropTypes.bool,
     showBusy: PropTypes.bool,
+    includeUser: PropTypes.bool,
 };
 
 

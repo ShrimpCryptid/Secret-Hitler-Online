@@ -55,19 +55,19 @@ import {
     STATE_LEGISLATIVE_PRESIDENT_VETO,
     STATE_PP_INVESTIGATE,
     STATE_PP_EXECUTION,
-    STATE_PP_ELECTION, PARAM_ELEC_TRACKER_ADVANCED, COMMAND_END_TERM
+    STATE_PP_ELECTION, PARAM_ELEC_TRACKER_ADVANCED, COMMAND_END_TERM, COMMAND_GET_INVESTIGATION
 } from "./GlobalDefinitions";
 
-import PlayerDisplay from "./player/PlayerDisplay";
+import PlayerDisplay, {DISABLE_TERM_LIMITED_PLAYERS} from "./player/PlayerDisplay";
 import StatusBar from "./status-bar/StatusBar";
 import Board from "./board/Board";
-import NominationPrompt from "./custom-alert/NominationPrompt";
 import VotingPrompt from "./custom-alert/VotingPrompt";
 import PresidentLegislativePrompt from "./custom-alert/PresidentLegislativePrompt";
 import ChancellorLegislativePrompt from "./custom-alert/ChancellorLegislativePrompt";
 import VetoPrompt from "./custom-alert/VetoPrompt";
 import ElectionTrackerAlert from "./custom-alert/ElectionTrackerAlert";
 import PolicyEnactedAlert from "./custom-alert/PolicyEnactedAlert";
+import {SELECT_NOMINATION} from "./custom-alert/SelectPlayerPrompt";
 
 const EVENT_BAR_FADE_OUT_DURATION = 500;
 const CUSTOM_ALERT_FADE_DURATION = 1000;
@@ -85,7 +85,7 @@ class App extends Component {
     // noinspection DuplicatedCode
     constructor(props) {
         super(props);
-        this.state={
+        this.state = {
             page:PAGE.LOGIN,
 
             joinName:"",
@@ -100,7 +100,9 @@ class App extends Component {
             userCount:1,
 
             gameState: {"liberal-policies":0,"fascist-policies":0,"discard-size":0,"draw-size":17,
-                "players":{"P1":{"alive":true,"id":"FASCIST","investigated":false},"P2":{"alive":true,"id":"HITLER","investigated":false},"P3":{"alive":true,"id":"LIBERAL","investigated":false},"P4":{"alive":true,"id":"LIBERAL","investigated":false},"P5":{"alive":true,"id":"LIBERAL","investigated":false},"P6":{"alive":false,"id":"FASCIST","investigated":false},"P7":{"alive":true,"id":"LIBERAL","investigated":false}},"in-game":true,"player-order":["P4","P2","P6","P1","P7","P3","P5"],
+                "players":{"P1":{"alive":true,"id":"FASCIST","investigated":false},"P2":{"alive":true,"id":"HITLER","investigated":false},"P3":{"alive":true,"id":"LIBERAL","investigated":false},"P4":{"alive":true,"id":"LIBERAL","investigated":false},"P5":{"alive":true,"id":"LIBERAL","investigated":false},"P6":{"alive":false,"id":"FASCIST","investigated":false},"P7":{"alive":true,"id":"LIBERAL","investigated":false}},
+                "in-game":true,
+                "player-order":["P4","P2","P6","P1","P7","P3","P5"],
                 "state":STATE_SETUP,"last-president": "P7", "last-chancellor": "P3", "president":"P4", "chancellor":"P5", "election-tracker":0,
                 "user-votes":{"P4": true, "P2": false, "P1": false, "P7": true, "P3": false, "P5": true}},
             lastState: {}, /* Stores the last gameState[PARAM_STATE] value to check for changes. */
@@ -651,11 +653,7 @@ class App extends Component {
                     if(isPresident) {
                         //Show the chancellor nomination window.
                         this.queueAlert(
-                            <NominationPrompt
-                                gameState={newState}
-                                user={name}
-                                sendWSCommand={this.sendWSCommand}
-                            />
+                            SELECT_NOMINATION(this.sendWSCommand, newState, name)
                         );
                     }
 
@@ -893,10 +891,7 @@ class App extends Component {
     testAlert() {
         this.setState({
             alertContent:(
-                <PolicyEnactedAlert
-                    policyType={"FASCIST"}
-                    hideAlert={this.hideAlertAndFinish}
-                />
+                SELECT_NOMINATION(this.sendWSCommand, this.state.gameState, this.state.name)
             ),
             showAlert: true
         });

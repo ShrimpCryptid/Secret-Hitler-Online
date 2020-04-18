@@ -79,6 +79,7 @@ PlayerPrompt.propTypes = {
 
     buttonText: PropTypes.string,
     buttonOnClick: PropTypes.func,
+    buttonDisabled: PropTypes.bool,
 };
 
 export default PlayerPrompt;

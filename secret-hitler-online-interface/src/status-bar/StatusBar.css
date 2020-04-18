@@ -2,7 +2,7 @@
 
 #status-bar {
     background-color: var(--alertFill);
-    min-height: 6vmin;
+    min-height: 8vmin;
 }
 
 #status-bar-text {
