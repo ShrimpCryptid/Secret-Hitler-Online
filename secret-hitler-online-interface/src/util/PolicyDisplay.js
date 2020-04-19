@@ -7,7 +7,6 @@ import FascistPolicy from "../assets/policy-fascist.png";
 
 class PolicyDisplay extends Component {
     render() {
-        let selectable = this.props.onClick !== undefined;
         return (
             <div id={"legislative-policy-container"}>
                 {this.props.policies.map((value, index) => {
@@ -15,11 +14,11 @@ class PolicyDisplay extends Component {
                     return (
                         <img
                             id={"legislative-policy"}
-                            className={selectable ? "selectable " + (index === this.props.selection ? " selected" : ""):""}
+                            className={this.props.allowSelection ? "selectable " + (index === this.props.selection ? " selected" : ""):""}
                             onClick={() => this.props.onClick(index)}
-                            disabled={!selectable}
+                            disabled={!this.props.allowSelection}
                             src={value === LIBERAL ? LiberalPolicy : FascistPolicy} // Toggles fascist/liberal policy
-                            alt={"A " + policyName + " policy." + (selectable ? " Click to select." : "")}
+                            alt={"A " + policyName + " policy." + (this.props.allowSelection ? " Click to select." : "")}
                         />
                     );
                 } )}
@@ -32,6 +31,7 @@ PolicyDisplay.propTypes = {
     policies: PropTypes.array.isRequired,
     onClick: PropTypes.func,  // If undefined, the policies cannot be selected.
     selection: PropTypes.number,
+    allowSelection: PropTypes.bool,
 };
 
 export default PolicyDisplay;

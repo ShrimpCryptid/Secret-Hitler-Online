@@ -7,7 +7,6 @@ import game.datastructures.Policy;
 import org.json.JSONObject;
 
 import java.util.List;
-
 /**
  * Converts a SecretHitlerGame to a JSONObject that represents the game state.
  */
@@ -98,6 +97,9 @@ public class GameToJSONConverter {
         }
         if (game.getState() == GameState.LEGISLATIVE_CHANCELLOR) {
             out.put("chancellor-choices", convertPolicyListToStringArray(game.getChancellorLegislativeChoices()));
+        }
+        if (game.getState() == GameState.PRESIDENTIAL_POWER_PEEK) {
+            out.put("peek", convertPolicyListToStringArray(game.getPeek()));
         }
 
         return out;

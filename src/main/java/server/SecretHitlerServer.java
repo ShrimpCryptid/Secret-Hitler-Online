@@ -36,13 +36,11 @@ public class SecretHitlerServer {
     // The type of the packet tells the client how to parse the contents.
     public static final String PARAM_PACKET_TYPE = "type";
     public static final String PACKET_INVESTIGATION = "investigation";
-    public static final String PACKET_PEEK = "peek";
     public static final String PACKET_GAME_STATE = "game";
     public static final String PACKET_LOBBY = "lobby";
     public static final String PACKET_OK = "ok"; // general response packet sent after any successful command.
 
     public static final String PARAM_INVESTIGATION = "investigation";
-    public static final String PARAM_PEEK = "peek";
     public static final String FASCIST = "FASCIST";
     public static final String LIBERAL = "LIBERAL";
 
@@ -61,7 +59,7 @@ public class SecretHitlerServer {
     public static final String COMMAND_REGISTER_EXECUTION = "register-execution";
     public static final String COMMAND_REGISTER_SPECIAL_ELECTION = "register-special-election";
     public static final String COMMAND_GET_INVESTIGATION = "get-investigation";
-    public static final String COMMAND_GET_PEEK = "get-peek";
+    public static final String COMMAND_REGISTER_PEEK = "register-peek";
 
     public static final String COMMAND_END_TERM = "end-term";
 
@@ -363,23 +361,9 @@ public class SecretHitlerServer {
                     ctx.send(obj.toString());
                     break;
 
-                case COMMAND_GET_PEEK:
+                case COMMAND_REGISTER_PEEK:
                     verifyIsPresident(name, lobby);
-                    Policy[] policies = lobby.game().getPeek();
-                    // Turn Policy array into a String array
-                    String[] stringPolicies = new String[policies.length];
-                    for (int i = 0; i < policies.length; i++) {
-                        if (policies[i].getType() == Policy.Type.FASCIST) {
-                            stringPolicies[i] = FASCIST;
-                        } else {
-                            stringPolicies[i] = LIBERAL;
-                        }
-                    }
-                    // Construct and send JSONObject
-                    JSONObject msg = new JSONObject();
-                    msg.put(PARAM_PACKET_TYPE, PACKET_PEEK);
-                    msg.put(PARAM_PEEK, stringPolicies);
-                    ctx.send(msg.toString());
+                    lobby.game().endPeek();
                     break;
 
                 case COMMAND_END_TERM:

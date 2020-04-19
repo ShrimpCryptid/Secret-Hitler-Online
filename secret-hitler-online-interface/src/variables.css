@@ -23,16 +23,16 @@
     --playerBrightnessFilter: 40%;
     --playerDisabledTextColor: #999999;
 
-    --selectionHover: #f6b53fff;
-    --selectionPressed: #cd8709ff;
-    --selectionSelected: #e46949ff;
-    --selectionNone: #f6b53f00;
+    --selectionHover: rgba(246, 181, 63, 1.00);
+    --selectionPressed: rgba(205, 135, 9, 1.00);
+    --selectionSelected: rgba(228, 105, 73, 1.00);
+    --selectionNone: rgba(246, 181, 63, 0.00);
 
     --eventBarIn: 1s;
     --eventBarOut: 1s;
     --eventBarOpacity: 0.9;
 
-    --statusBarColor: 141414;
+    --statusBarColor: #141414;
 
     --etOffset: 17.6%;
     --etSpacing: 19.14%;

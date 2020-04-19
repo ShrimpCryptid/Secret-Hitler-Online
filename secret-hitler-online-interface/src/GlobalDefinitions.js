@@ -52,7 +52,7 @@ export const COMMAND_REGISTER_PRESIDENT_VETO = "president-veto";
 export const COMMAND_REGISTER_EXECUTION = "register-execution";
 export const COMMAND_REGISTER_SPECIAL_ELECTION = "register-special-election";
 export const COMMAND_GET_INVESTIGATION = "get-investigation";
-export const COMMAND_GET_PEEK = "get-peek";
+export const COMMAND_REGISTER_PEEK = "register-peek";
 export const COMMAND_END_TERM = "end-term";
 
 //</editor-fold>

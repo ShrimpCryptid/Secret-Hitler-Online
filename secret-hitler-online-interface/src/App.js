@@ -89,6 +89,7 @@ import {
 import ButtonPrompt from "./custom-alert/ButtonPrompt";
 import Player from "./player/Player";
 import PolicyDisplay from "./util/PolicyDisplay";
+import PeekPrompt from "./custom-alert/PeekPrompt";
 
 const EVENT_BAR_FADE_OUT_DURATION = 500;
 const CUSTOM_ALERT_FADE_DURATION = 1000;
@@ -285,19 +286,6 @@ class App extends Component {
                         footerText={"The player is a " + message[PARAM_INVESTIGATION]}
                         buttonOnClick={this.hideAlertAndFinish}
                     />
-                , false);
-                break;
-
-            case PACKET_PEEK:
-                this.queueAlert(
-                    <ButtonPrompt
-                        label={"PEEK"}
-                        headerText={"These are the next three policies in the draw deck."}
-                        buttonText={"OK"}
-                        buttonOnClick={this.hideAlertAndFinish}
-                    >
-                        <PolicyDisplay policies={message[PARAM_PEEK]} />
-                    </ButtonPrompt>
                 , false);
                 break;
             default:
@@ -766,8 +754,12 @@ class App extends Component {
                 case STATE_PP_PEEK:
                     this.queueEventUpdate("PRESIDENTIAL POWER UNLOCKED");
                     if (isPresident) {
-                        //TODO: Queue Peek alert
-                        this.sendWSCommand(COMMAND_GET_PEEK);
+                        this.queueAlert(
+                            <PeekPrompt
+                                policies={newState[PARAM_PEEK]}
+                                sendWSCommand={this.sendWSCommand}
+                            />
+                            , true);
                     } else {
                         this.queueStatusMessage("Peek: President is previewing the next 3 policies.");
                     }
@@ -809,7 +801,7 @@ class App extends Component {
                                         label={"SPECIAL ELECTION"}
                                         footerText={"The president has chosen " + newState[PARAM_TARGET] + " to be the next president." +
                                         "\nThe normal presidential order will resume after the next round."}
-                                        buttonText={"OK"}
+                                        buttonText={"OKAY"}
                                         buttonOnClick={this.hideAlertAndFinish}
                                     >
                                         <PlayerDisplay
@@ -835,7 +827,7 @@ class App extends Component {
                                         label={"EXECUTION RESULTS"}
                                         footerText={newState[PARAM_TARGET] + " has been executed. They may no longer speak, vote, or run for office."}
                                         buttonOnClick={this.hideAlertAndFinish}
-                                        buttonText={"OK"}
+                                        buttonText={"OKAY"}
                                     >
                                         <PlayerDisplay
                                             user={name}
@@ -857,7 +849,7 @@ class App extends Component {
                                         + " been investigated by " + newState[PARAM_PRESIDENT] + ". "
                                         + "The president now knows " + (isTarget ? "your" : "their") + " party affiliation (Liberal/Fascist)."}
                                         buttonOnClick={this.hideAlertAndFinish}
-                                        buttonText={"OK"}
+                                        buttonText={"OKAY"}
                                     >
                                         <PlayerDisplay
                                             user={name}
@@ -1074,6 +1066,7 @@ class App extends Component {
                     user={this.state.name}
                     showVotes={this.state.showVotes}
                     showBusy={this.state.allAnimationsFinished} // Only show busy when there isn't an active animation.
+                    playerDisabledFilter={DISABLE_EXECUTED_PLAYERS}
                 />
 
                 <StatusBar>{this.state.statusBarText}</StatusBar>

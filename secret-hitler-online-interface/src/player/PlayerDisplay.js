@@ -164,7 +164,7 @@ class PlayerDisplay extends Component {
             }
 
             let label;
-            if (this.props.showLabels) {
+            if (true) {
                 label = (
                     <p id="player-display-label">{roleText}</p>
                 );

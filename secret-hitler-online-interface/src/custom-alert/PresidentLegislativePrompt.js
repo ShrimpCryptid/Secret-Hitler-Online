@@ -49,6 +49,7 @@ class PresidentLegislativePrompt extends Component {
                     policies={this.props.policyOptions}
                     onClick={(index) => this.setState({selection: index})}
                     selection={this.state.selection}
+                    allowSelection={true}
                 />
             </ButtonPrompt>
         );

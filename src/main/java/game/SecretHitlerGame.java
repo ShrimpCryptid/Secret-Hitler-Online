@@ -683,17 +683,28 @@ public class SecretHitlerGame {
     /**
      * Gets the preview of the top 3 cards of the deck during the {@code PRESIDENTIAL_POWER_PEEK} state.
      * @throws IllegalStateException if called when state is not {@code PRESIDENTIAL_POWER_PEEK}.
-     * @return a size-3 array of Policies, where index 0 is the top of the stack. Advances the state of the game to
-     *         POST_LEGISLATIVE.
+     * @return a size-3 list of Policies, where index 0 is the top of the stack.
      */
-    public Policy[] getPeek() {
+    public List<Policy> getPeek() {
         if (state != GameState.PRESIDENTIAL_POWER_PEEK) {
             throw new IllegalStateException("Cannot peek when the power is not active.");
         } else if (draw.getSize() < 3) {
             throw new IllegalStateException("Insufficient cards in the draw deck.");
         }
+        List<Policy> policies = new ArrayList<>();
+        policies.add(draw.peek(0));
+        policies.add(draw.peek(1));
+        policies.add(draw.peek(2));
+        return policies;
+    }
+
+    /**
+     * Ends the {@code PRESIDENTIAL_POWER_PEEK} state.
+     * @throws IllegalStateException if called when state is not {@code PRESIDENTIAL_POWER_PEEK}.
+     * @effects Advances the state to {@code POST_LEGISLATIVE}.
+     */
+    public void endPeek() {
         concludePresidentialActions();
-        return new Policy[] {draw.peek(0), draw.peek(1), draw.peek(2)};
     }
 
     /**
