@@ -48,7 +48,7 @@
 #policy-enacted-back {
     position: absolute;
     width: auto;
-    height: 26.1vmin;
+    height: 26vmin;
     z-index: 51;
     left: -100%;
     transition: 0.5s left;

@@ -284,6 +284,8 @@ class PlayerDisplay extends Component {
 
 // <editor-fold desc="Player Filters">
 
+export const DISABLE_NONE = () => {return "";}
+
 /**
  * Filter to disable only executed players.
  * @param name the name of the player

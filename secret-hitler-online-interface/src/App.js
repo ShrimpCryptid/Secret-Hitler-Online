@@ -69,10 +69,14 @@ import {
     STATE_LIBERAL_VICTORY_EXECUTION,
     STATE_LIBERAL_VICTORY_POLICY,
     PARAM_PEEK,
-    PARAM_INVESTIGATION
+    PARAM_INVESTIGATION, HITLER
 } from "./GlobalDefinitions";
 
-import PlayerDisplay, {DISABLE_EXECUTED_PLAYERS, DISABLE_TERM_LIMITED_PLAYERS} from "./player/PlayerDisplay";
+import PlayerDisplay, {
+    DISABLE_EXECUTED_PLAYERS,
+    DISABLE_NONE,
+    DISABLE_TERM_LIMITED_PLAYERS
+} from "./player/PlayerDisplay";
 import StatusBar from "./status-bar/StatusBar";
 import Board from "./board/Board";
 import VotingPrompt from "./custom-alert/VotingPrompt";
@@ -807,6 +811,7 @@ class App extends Component {
                                         <PlayerDisplay
                                             user={name}
                                             gameState={newState}
+                                            showLabels={false}
                                             players={newState[PARAM_TARGET]}
                                         />
                                     </ButtonPrompt>
@@ -832,6 +837,7 @@ class App extends Component {
                                         <PlayerDisplay
                                             user={name}
                                             gameState={newState}
+                                            showRoles={false}
                                             playerDisabledFilter={DISABLE_EXECUTED_PLAYERS}
                                             players={[newState[PARAM_TARGET]]}
                                         />
@@ -854,6 +860,7 @@ class App extends Component {
                                         <PlayerDisplay
                                             user={name}
                                             gameState={newState}
+                                            showLabels={false}
                                             players={[newState[PARAM_TARGET]]}
                                         />
                                     </ButtonPrompt>
@@ -870,8 +877,80 @@ class App extends Component {
 
                 case STATE_FASCIST_VICTORY_ELECTION:
                 case STATE_FASCIST_VICTORY_POLICY:
+                    let victoryMessage = "";
+                    if (newState[PARAM_STATE] === STATE_FASCIST_VICTORY_POLICY) {
+                        victoryMessage = "Fascists successfully passed six policies!"
+                    } else {
+                        victoryMessage = "Fascists successfully elected Hitler as chancellor!"
+                    }
+
+                    // Count up all the fascist players.
+                    let fascistPlayers = [];
+                    newState[PARAM_PLAYER_ORDER].forEach(player => {
+                        let role = newState[PARAM_PLAYERS][player][PLAYER_IDENTITY];
+                        if (role === FASCIST || role === HITLER) {
+                            fascistPlayers.push(player);
+                        }
+                    });
+
+                    //TODO: Move players to the lobby.
+                    this.queueAlert(
+                        <ButtonPrompt
+                            renderLabel={ () => {
+                                return (
+                                    <h2 className={"highlight"}>FASCIST VICTORY</h2>
+                                );
+                            }}
+                            headerText={victoryMessage}
+                            buttonText={"RETURN TO LOBBY"}
+                        >
+                            <PlayerDisplay
+                                players={fascistPlayers}
+                                playerDisabledFilter={DISABLE_NONE}
+                                showRoles={true}
+                                showLabels={false}
+                            />
+                        </ButtonPrompt>
+                    );
+                    break;
+
                 case STATE_LIBERAL_VICTORY_EXECUTION:
                 case STATE_LIBERAL_VICTORY_POLICY:
+                    let liberalVictoryMessage = "";
+                    if (newState[PARAM_STATE] === STATE_LIBERAL_VICTORY_POLICY) {
+                        victoryMessage = "Liberals successfully passed five policies!"
+                    } else {
+                        victoryMessage = "Liberals successfully executed Hitler!"
+                    }
+
+                    let liberalPlayers = [];
+                    newState[PARAM_PLAYER_ORDER].forEach(player => {
+                        let role = newState[PARAM_PLAYERS][player][PLAYER_IDENTITY];
+                        if (role === LIBERAL) {
+                            liberalPlayers.push(player);
+                        }
+                    });
+
+                    //TODO: Move players to the lobby.
+                    this.queueAlert(
+                        <ButtonPrompt
+                            renderLabel={ () => {
+                                return (
+                                    <h2 className={"highlight"}>LIBERAL VICTORY</h2>
+                                );
+                            }}
+                            headerText={liberalVictoryMessage}
+                            buttonText={"RETURN TO LOBBY"}
+                        >
+                            <PlayerDisplay
+                                players={liberalPlayers}
+                                playerDisabledFilter={DISABLE_NONE}
+                                showRoles={true}
+                                showLabels={false}
+                            />
+                        </ButtonPrompt>
+                    );
+                    break;
 
                 default:
                     // Do nothing

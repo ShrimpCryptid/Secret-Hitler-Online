@@ -26,7 +26,6 @@
 }
 
 #player-image.darken {
-    -ms-filter: brightness(var(--playerBrightnessFilter));
     filter: brightness(calc(var(--playerBrightnessFilter) - 5%));
 }
 
