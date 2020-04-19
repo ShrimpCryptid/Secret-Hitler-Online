@@ -108,7 +108,7 @@ class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            page:PAGE.LOGIN,
+            page:PAGE.GAME,
 
             joinName:"",
             joinLobby:"",

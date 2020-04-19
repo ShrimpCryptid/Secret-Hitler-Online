@@ -43,7 +43,7 @@ ButtonPrompt.defaultProps = {
     footerText: "",
     renderFooter: (obj) => {
         return (
-            <p id={"prompt-header"}>{obj.props.footerText}</p>
+            <p id={"prompt-header"} className={"left-align"}>{obj.props.footerText}</p>
         );
     },
 
