@@ -1,4 +1,4 @@
-@import 'src/variables.css';
+@import '../variables.css';
 
 #event-bar {
     width: 100%;

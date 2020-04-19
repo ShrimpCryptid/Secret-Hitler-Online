@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import PropTypes from "prop-types";
 import FascistPolicy from "../assets/policy-fascist.png";
 import LiberalPolicy from "../assets/policy-liberal.png";
-import OptionPrompt from "./OptionPrompt";
+import ButtonPrompt from "./ButtonPrompt";
 import {
     COMMAND_REGISTER_CHANCELLOR_CHOICE, COMMAND_REGISTER_CHANCELLOR_VETO,
     LIBERAL,
@@ -10,7 +10,8 @@ import {
     SERVER_TIMEOUT
 } from "../GlobalDefinitions";
 
-import './LegislativePrompt.css';
+import '../util/PolicyDisplay.css';
+import PolicyDisplay from "../util/PolicyDisplay";
 
 class ChancellorLegislativePrompt extends Component {
 
@@ -53,7 +54,7 @@ class ChancellorLegislativePrompt extends Component {
     render() {
         let props = this.props;
         return (
-            <OptionPrompt
+            <ButtonPrompt
                 label={"LEGISLATIVE SESSION"}
                 headerText={"Choose a policy to enact. The remaining policy will be discarded."}
                 renderHeader={ () => {
@@ -84,21 +85,12 @@ class ChancellorLegislativePrompt extends Component {
                     ;}
                 }
             >
-                <div id={"legislative-policy-container"}>
-                    {this.props.policyOptions.map((value, index) => {
-                        let policyName = value === LIBERAL ? "liberal" : "fascist";
-                        return (
-                            <img
-                                id={"legislative-policy"}
-                                className={"selectable " + (index === this.state.selection ? " selected" : "")} // Mark as selectable (and selected)
-                                onClick={() => {this.setState({selection: index});}}
-                                src={value === LIBERAL ? LiberalPolicy : FascistPolicy} // Toggles fascist/liberal policy
-                                alt={"A " + policyName + " policy. Click to select."}
-                            />
-                        );
-                    } )}
-                </div>
-            </OptionPrompt>
+                <PolicyDisplay
+                    policies={this.props.policyOptions}
+                    onClick={(index) => this.setState({selection: index})}
+                    selection={this.state.selection}
+                />
+            </ButtonPrompt>
         );
     }
 }

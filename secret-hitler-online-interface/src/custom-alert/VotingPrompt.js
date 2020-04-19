@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import OptionPrompt from "./OptionPrompt";
+import ButtonPrompt from "./ButtonPrompt";
 import {
     COMMAND_REGISTER_VOTE, FASCIST, HITLER, LIBERAL, PARAM_CHANCELLOR, PARAM_ELECTION_TRACKER,
     PARAM_FASCIST_POLICIES, PARAM_PLAYER_ORDER, PARAM_PLAYERS, PARAM_VOTE, PLAYER_IDENTITY, SERVER_TIMEOUT
@@ -78,7 +78,7 @@ class VotingPrompt extends Component {
         let shouldShowChancellorRole = this.shouldChancellorRoleBeShown();
         let chancellorRole = this.props.gameState[PARAM_PLAYERS][chancellorName][PLAYER_IDENTITY];
         return (
-            <OptionPrompt
+            <ButtonPrompt
                 label={"VOTING"}
                 renderHeader={ () => {
                         return(
@@ -127,7 +127,7 @@ class VotingPrompt extends Component {
                         onClick={()=>this.setState({selection: "no"})}
                     />
                 </div>
-            </OptionPrompt>
+            </ButtonPrompt>
         )
     }
 }

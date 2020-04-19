@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import PropTypes from "prop-types";
-import OptionPrompt from "./OptionPrompt";
+import ButtonPrompt from "./ButtonPrompt";
 
 import ETBoard from '../assets/board-election-tracker.png';
 import ETToken from '../assets/board-tracker.png';
@@ -21,7 +21,7 @@ class ElectionTrackerAlert extends Component {
 
     render() {
         return (
-            <OptionPrompt
+            <ButtonPrompt
                 label={"LEGISLATURE FAILED"}
                 renderHeader={() => {
                     return (<>
@@ -48,7 +48,7 @@ class ElectionTrackerAlert extends Component {
                          alt={"The election tracker token. It is at position " + this.props.trackerPosition + " out of 3."}
                      />
                 </div>
-            </OptionPrompt>
+            </ButtonPrompt>
         )
     }
 }

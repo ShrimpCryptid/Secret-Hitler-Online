@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 /**
  * A template set of contents for the CustomAlert class that holds a series of selectable options.
  */
-class OptionPrompt extends Component {
+class ButtonPrompt extends Component {
 
     constructor(props) {
         super(props);
@@ -27,7 +27,7 @@ class OptionPrompt extends Component {
 }
 
 // noinspection JSUnusedGlobalSymbols
-OptionPrompt.defaultProps = {
+ButtonPrompt.defaultProps = {
     label: "LABEL GOES HERE",
     renderLabel: (obj) => {
         return (<h2 id={"prompt-label"} className={"left-align"}>{obj.props.label}</h2>);
@@ -60,7 +60,7 @@ OptionPrompt.defaultProps = {
 
 };
 
-OptionPrompt.propTypes = {
+ButtonPrompt.propTypes = {
     label: PropTypes.string,
     renderLabel: PropTypes.func,
     headerText: PropTypes.string,
@@ -79,4 +79,4 @@ OptionPrompt.propTypes = {
 };
 
 
-export default OptionPrompt;
+export default ButtonPrompt;

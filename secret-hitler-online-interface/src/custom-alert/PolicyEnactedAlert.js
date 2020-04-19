@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import PropTypes from "prop-types";
-import OptionPrompt from "./OptionPrompt";
+import ButtonPrompt from "./ButtonPrompt";
 
 import LiberalPolicy from '../assets/policy-liberal.png';
 import FascistPolicy from '../assets/policy-fascist.png';
@@ -31,7 +31,7 @@ class PolicyEnactedAlert extends Component {
 
     render() {
         return (
-            <OptionPrompt
+            <ButtonPrompt
                 renderLabel={() => {
                     return <h2 className={"left-align"}>POLICY ENACTED</h2> // allows us to align it with center
                 }}
@@ -62,7 +62,7 @@ class PolicyEnactedAlert extends Component {
                          alt={"A manila folder labeled 'New Policy.'"}
                     />
                 </div>
-            </OptionPrompt>
+            </ButtonPrompt>
         );
     }
 }

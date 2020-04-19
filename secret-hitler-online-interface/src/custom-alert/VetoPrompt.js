@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import PropTypes from "prop-types";
-import OptionPrompt from "./OptionPrompt";
+import ButtonPrompt from "./ButtonPrompt";
 import {COMMAND_REGISTER_PRESIDENT_VETO, PARAM_VETO, SERVER_TIMEOUT} from "../GlobalDefinitions";
 
 class VetoPrompt extends Component {
@@ -11,7 +11,6 @@ class VetoPrompt extends Component {
             waitingForServer: false,
         }
     }
-
 
     onButtonClick(accepted) {
         this.setState({waitingForServer: true});
@@ -24,7 +23,7 @@ class VetoPrompt extends Component {
 
     render() {
         return (
-            <OptionPrompt
+            <ButtonPrompt
                 label={"LEGISLATIVE VETO"}
                 renderHeader={() => {
                     return (

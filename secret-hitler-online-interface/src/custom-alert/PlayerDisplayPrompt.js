@@ -1,17 +1,13 @@
 import React, {Component} from 'react';
 import PlayerDisplay, {DISABLE_EXECUTED_PLAYERS} from "../player/PlayerDisplay";
-import {
-    PARAM_PLAYERS,
-    PLAYER_IS_ALIVE
-} from "../GlobalDefinitions";
-import OptionPrompt from "./OptionPrompt";
+import ButtonPrompt from "./ButtonPrompt";
 import PropTypes from "prop-types";
 
 /**
  * A PlayerPrompt is the content for an alert box. It has a header, text, and a PlayerList, as well
  * as an associated button.
  */
-class PlayerPrompt extends Component{
+class PlayerDisplayPrompt extends Component{
 
     constructor(props) {
         super(props);
@@ -23,7 +19,7 @@ class PlayerPrompt extends Component{
     render() {
         let props = this.props;
         return (
-            <OptionPrompt
+            <ButtonPrompt
                 label={props.label}
                 headerText={props.headerText}
                 renderHeader={props.renderHeader}
@@ -44,13 +40,13 @@ class PlayerPrompt extends Component{
                         this.setState({selection: itemSelected});
                     }}
                 />
-            </OptionPrompt>
+            </ButtonPrompt>
 
         )
     }
 }
 
-PlayerPrompt.defaultProps = {
+PlayerDisplayPrompt.defaultProps = {
     user: "",
     includeUser: false,
     disabledFilter: DISABLE_EXECUTED_PLAYERS,
@@ -60,7 +56,7 @@ PlayerPrompt.defaultProps = {
     }
 };
 
-PlayerPrompt.propTypes = {
+PlayerDisplayPrompt.propTypes = {
     user: PropTypes.string.isRequired,
     gameState: PropTypes.object.isRequired,
     includeUser:PropTypes.bool,
@@ -75,4 +71,4 @@ PlayerPrompt.propTypes = {
     buttonDisabled: PropTypes.bool,
 };
 
-export default PlayerPrompt;
+export default PlayerDisplayPrompt;

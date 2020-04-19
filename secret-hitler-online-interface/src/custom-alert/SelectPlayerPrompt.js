@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import PropTypes from "prop-types";
-import PlayerPrompt from "./PlayerPrompt";
+import PlayerDisplayPrompt from "./PlayerDisplayPrompt";
 import {
     COMMAND_GET_INVESTIGATION,
     COMMAND_NOMINATE_CHANCELLOR, COMMAND_REGISTER_EXECUTION, COMMAND_REGISTER_SPECIAL_ELECTION, PARAM_FASCIST_POLICIES,
@@ -47,7 +47,7 @@ class SelectPlayerPrompt extends Component {
     render() {
         let props = this.props;
         return (
-            <PlayerPrompt
+            <PlayerDisplayPrompt
                 label={props.label}
                 headerText={props.headerText}
                 renderHeader={props.renderHeader}
@@ -90,7 +90,7 @@ export default SelectPlayerPrompt;
  * @param user {String} the name of the user.
  * @param gameState {Object} the state of the game.
  * @param sendWSCommand {function} the callback function for sending websocket commands.
- * @return The HTML Tag for a SelectPlayerPrompt that requests the player to select a chancellor.
+ * @return {html} the HTML Tag for a SelectPlayerPrompt that requests the player to select a chancellor.
  *         Notably, the prompt disables players that are term-limited, and when the button is pressed sends the
  *         COMMAND_NOMINATE_CHANCELLOR command to the server.
  */
@@ -125,7 +125,7 @@ export const SelectNominationPrompt = (user, gameState, sendWSCommand) => {
  * @param user {String} the name of the user.
  * @param gameState {Object} the state of the game.
  * @param sendWSCommand {function} the callback function for sending websocket commands.
- * @return The HTML Tag for a SelectPlayerPrompt that requests the player to select a player to investigate.
+ * @return {html} The HTML Tag for a SelectPlayerPrompt that requests the player to select a player to investigate.
  *         The prompt disables players that have been investigated, and when the button is pressed sends the
  *         COMMAND_GET_INVESTIGATION command to the server.
  */

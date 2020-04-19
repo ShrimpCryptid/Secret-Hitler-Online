@@ -100,7 +100,7 @@ class PlayerDisplay extends Component {
                 break;
             case STATE_CHANCELLOR_VOTING:
 
-                let playerOrder = game[PARAM_PLAYER_ORDER];
+                let playerOrder = this.getPlayerOrder();
                 let i = 0;
                 for (i; i < game[PARAM_PLAYER_ORDER].length; i++) {
                     let name = playerOrder[i];
@@ -118,16 +118,27 @@ class PlayerDisplay extends Component {
     }
 
     /**
+     * Returns an array representing the player order.
+     */
+    getPlayerOrder() {
+        if (this.props.players === undefined) {
+            return this.props.gameState[PARAM_PLAYER_ORDER]
+        } else {
+            return this.props.players;
+        }
+    }
+
+    /**
      * Gets the HTML tags for the players in the provided indices.
      * @param start {int} the starting index, inclusive.
      * @param end {int} the ending index, exclusive.
      * @return {html[]} an array of html tags representing the players in indices {@code start} (inclusive)
      *         to {@code end} (exclusive).
      */
-    getPlayers(start, end) {
+    getPlayerHTML(start, end) {
         let out = [];
         let players = this.props.gameState[PARAM_PLAYERS];
-        let playerOrder = this.props.gameState[PARAM_PLAYER_ORDER];
+        let playerOrder = this.getPlayerOrder();
         let busyPlayers = this.getBusyPlayerSet();
         let i = 0;
         for (i; start + i < end; i++) {
@@ -170,7 +181,7 @@ class PlayerDisplay extends Component {
                     <Player
                         isBusy ={busyPlayers.has(playerName) && !this.props.showVotes && this.props.showBusy} // Do not show while voting.
                         role = {playerData[PLAYER_IDENTITY]}
-                        showRole = {this.showRoleByRole[playerData[PLAYER_IDENTITY]] || playerName === this.props.user}
+                        showRole = {this.showRoleByRole[playerData[PLAYER_IDENTITY]] || playerName === this.props.user || this.props.showRoles}
                         highlight = {playerName === this.props.user}
                         disabled = {disabled}
                         disabledText = {disabledText}
@@ -207,9 +218,9 @@ class PlayerDisplay extends Component {
      */
     setupVoteAnimation() {
         let duration = 1000;
-        let numVotes = this.props.gameState[PARAM_PLAYER_ORDER].length;
+        let playerOrder = this.getPlayerOrder();
+        let numVotes = playerOrder.length;
         let timePerPlayer = duration / numVotes;
-        let playerOrder = this.props.gameState[PARAM_PLAYER_ORDER];
         let players = this.props.gameState[PARAM_PLAYERS];
         let delay = 0;
         for (let i = 0; i < playerOrder.length; i++) {
@@ -238,7 +249,7 @@ class PlayerDisplay extends Component {
     /* Note that there are two player-display-containers, so that the player tiles can be split into two rows if there
     * is insufficient space for them.*/
     render() {
-        let playerOrder = this.props.gameState[PARAM_PLAYER_ORDER];
+        let playerOrder = this.getPlayerOrder();
         let middleIndex;
         if (this.props.includeUser) {
             middleIndex = Math.floor(playerOrder.length / 2);
@@ -261,10 +272,10 @@ class PlayerDisplay extends Component {
         return (
             <div id="player-display">
                 <div id="player-display-container">
-                    {this.getPlayers(0, middleIndex)}
+                    {this.getPlayerHTML(0, middleIndex)}
                 </div>
                 <div id="player-display-container">
-                    {this.getPlayers(middleIndex, playerOrder.length)}
+                    {this.getPlayerHTML(middleIndex, playerOrder.length)}
                 </div>
             </div>
         );
@@ -316,8 +327,11 @@ export const DISABLE_INVESTIGATED_PLAYERS = (name, gameState) => {
 export const DISABLE_TERM_LIMITED_PLAYERS = (name, gameState) => {
     // Count number of living players
     let livingPlayers = 0;
-    for (let player in gameState[PARAM_PLAYER_ORDER]) {
-        if (gameState[PARAM_PLAYERS][player][PLAYER_IS_ALIVE]) {
+    console.log(gameState);
+    for (let playerIndex in gameState[PARAM_PLAYER_ORDER]) {
+        let playerName = gameState[PARAM_PLAYER_ORDER][playerIndex];
+        console.log("Checking if " + playerName + " is alive.");
+        if (gameState[PARAM_PLAYERS][playerName][PLAYER_IS_ALIVE]) {
             livingPlayers++;
         }
     }
@@ -338,6 +352,7 @@ export const DISABLE_TERM_LIMITED_PLAYERS = (name, gameState) => {
 PlayerDisplay.defaultProps = {
     user: "", /* The name of the user. */
     gameState: {},
+    players: undefined,
     /* A function that returns a label based on a player name and the game state.
     *  A string that is non-empty represents a disabled player, and the string is used to label them. */
     playerDisabledFilter: DISABLE_EXECUTED_PLAYERS,
@@ -346,12 +361,14 @@ PlayerDisplay.defaultProps = {
     useAsButtons: false,
     includeUser: true,
     showVotes: false,
+    showRoles: false,
     showLabels: true
 };
 
 PlayerDisplay.propTypes = {
-    user: PropTypes.string,
+    user: PropTypes.string.isRequired,
     gameState: PropTypes.object.isRequired,
+    players: PropTypes.array, // Optional. If not undefined, shows only the listed players instead of all players.
 
     playerDisabledFilter: PropTypes.func,
     onSelection: PropTypes.func,
@@ -359,6 +376,7 @@ PlayerDisplay.propTypes = {
     useAsButtons: PropTypes.bool,
     showVotes: PropTypes.bool,
     showLabels: PropTypes.bool,
+    showRoles: PropTypes.bool,
     showBusy: PropTypes.bool,
     includeUser: PropTypes.bool,
 };

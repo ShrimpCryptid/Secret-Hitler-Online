@@ -56,7 +56,7 @@ public class SecretHitlerGame {
     private int electionTracker;
 
     private GameState state;
-    private GameState lastState;
+    private GameState lastState = GameState.SETUP;
 
     private Random random;
 
@@ -73,6 +73,9 @@ public class SecretHitlerGame {
     // The president that was elected to take power next (due to the PRESIDENTIAL_POWER_ELECTION power being active).
     private String electedPresident;
 
+    // The player that was targeted with the last presidential power.
+    private String target;
+
     // The options available to either the President or the Chancellor during the legislative session
     private List<Policy> legislativePolicies;
 
@@ -86,6 +89,8 @@ public class SecretHitlerGame {
     //<editor-fold desc="Public Observers">
 
     public GameState getLastState() { return lastState; }
+
+    public String getTarget() { return target; }
 
     public String getCurrentPresident() { return currentPresident; }
 
@@ -711,6 +716,7 @@ public class SecretHitlerGame {
             throw new IllegalArgumentException("Cannot investigate a player twice (" + username + ").");
         }
 
+        target = username;
         getPlayer(username).investigate(); // sets a flag that this player has been investigated.
         concludePresidentialActions();
 
@@ -739,6 +745,7 @@ public class SecretHitlerGame {
         }
 
         Player playerToKill = getPlayer(username);
+        target = username;
         if (!playerToKill.isAlive()) {
             throw new IllegalArgumentException("Cannot execute " + username + " because they are not alive.");
         }
@@ -772,6 +779,7 @@ public class SecretHitlerGame {
             throw new IllegalArgumentException("Cannot elect " + username + " because they are not alive.");
         }
 
+        target = username;
         nextPresident = getNextActivePlayer(currentPresident);
         electedPresident = username;
         concludePresidentialActions();

@@ -55,10 +55,24 @@ import {
     STATE_LEGISLATIVE_PRESIDENT_VETO,
     STATE_PP_INVESTIGATE,
     STATE_PP_EXECUTION,
-    STATE_PP_ELECTION, PARAM_ELEC_TRACKER_ADVANCED, COMMAND_END_TERM, COMMAND_GET_INVESTIGATION
+    STATE_PP_ELECTION,
+    PARAM_ELEC_TRACKER_ADVANCED,
+    COMMAND_END_TERM,
+    COMMAND_GET_INVESTIGATION,
+    PARAM_LAST_STATE,
+    STATE_PP_PEEK,
+    PLAYER_IS_ALIVE,
+    COMMAND_GET_PEEK,
+    PARAM_TARGET,
+    STATE_FASCIST_VICTORY_ELECTION,
+    STATE_FASCIST_VICTORY_POLICY,
+    STATE_LIBERAL_VICTORY_EXECUTION,
+    STATE_LIBERAL_VICTORY_POLICY,
+    PARAM_PEEK,
+    PARAM_INVESTIGATION
 } from "./GlobalDefinitions";
 
-import PlayerDisplay, {DISABLE_TERM_LIMITED_PLAYERS} from "./player/PlayerDisplay";
+import PlayerDisplay, {DISABLE_EXECUTED_PLAYERS, DISABLE_TERM_LIMITED_PLAYERS} from "./player/PlayerDisplay";
 import StatusBar from "./status-bar/StatusBar";
 import Board from "./board/Board";
 import VotingPrompt from "./custom-alert/VotingPrompt";
@@ -70,8 +84,11 @@ import PolicyEnactedAlert from "./custom-alert/PolicyEnactedAlert";
 import {
     SelectExecutionPrompt,
     SelectInvestigationPrompt,
-    SelectNominationPrompt
+    SelectNominationPrompt, SelectSpecialElectionPrompt
 } from "./custom-alert/SelectPlayerPrompt";
+import ButtonPrompt from "./custom-alert/ButtonPrompt";
+import Player from "./player/Player";
+import PolicyDisplay from "./util/PolicyDisplay";
 
 const EVENT_BAR_FADE_OUT_DURATION = 500;
 const CUSTOM_ALERT_FADE_DURATION = 1000;
@@ -90,7 +107,7 @@ class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            page:PAGE.GAME,
+            page:PAGE.LOGIN,
 
             joinName:"",
             joinLobby:"",
@@ -261,7 +278,28 @@ class App extends Component {
                 break;
 
             case PACKET_INVESTIGATION:
+                this.queueAlert(
+                    <ButtonPrompt
+                        label={"INVESTIGATE LOYALTY"}
+                        headerText={"Sorry, this one is still being implemented."}
+                        footerText={"The player is a " + message[PARAM_INVESTIGATION]}
+                        buttonOnClick={this.hideAlertAndFinish}
+                    />
+                , false);
+                break;
+
             case PACKET_PEEK:
+                this.queueAlert(
+                    <ButtonPrompt
+                        label={"PEEK"}
+                        headerText={"These are the next three policies in the draw deck."}
+                        buttonText={"OK"}
+                        buttonOnClick={this.hideAlertAndFinish}
+                    >
+                        <PolicyDisplay policies={message[PARAM_PEEK]} />
+                    </ButtonPrompt>
+                , false);
+                break;
             default:
                 // Unrecognized.
         }
@@ -581,7 +619,7 @@ class App extends Component {
 
         // Check for changes in enacted policies and election tracker.
         if (state === STATE_POST_LEGISLATIVE || state === STATE_PP_INVESTIGATE || state === STATE_PP_EXECUTION
-            || state === STATE_PP_ELECTION || state === STATE_PP_ELECTION) {
+            || state === STATE_PP_ELECTION || state === STATE_PP_PEEK) {
 
             // Check if the election tracker changed positions.
             if (newState[PARAM_ELECTION_TRACKER] !== this.state.gameState[PARAM_ELECTION_TRACKER]) {
@@ -657,7 +695,7 @@ class App extends Component {
                     if(isPresident) {
                         //Show the chancellor nomination window.
                         this.queueAlert(
-                            SelectNominationPrompt(this.sendWSCommand, newState, name)
+                            SelectNominationPrompt(name, newState, this.sendWSCommand)
                         );
                     }
 
@@ -725,9 +763,123 @@ class App extends Component {
                     }
                     break;
 
+                case STATE_PP_PEEK:
+                    this.queueEventUpdate("PRESIDENTIAL POWER UNLOCKED");
+                    if (isPresident) {
+                        //TODO: Queue Peek alert
+                        this.sendWSCommand(COMMAND_GET_PEEK);
+                    } else {
+                        this.queueStatusMessage("Peek: President is previewing the next 3 policies.");
+                    }
+                    break;
+
+                case STATE_PP_ELECTION:
+                    this.queueEventUpdate("PRESIDENTIAL POWER UNLOCKED");
+                    if (isPresident) {
+                        this.queueAlert(SelectSpecialElectionPrompt(name, newState, this.sendWSCommand));
+                    } else {
+                        this.queueStatusMessage("Special Election: President is choosing the next president.");
+                    }
+                    break;
+
+                case STATE_PP_EXECUTION:
+                    this.queueEventUpdate("PRESIDENTIAL POWER UNLOCKED");
+                    if (isPresident) {
+                        this.queueAlert(SelectExecutionPrompt(name, newState, this.sendWSCommand));
+                    } else {
+                        this.queueStatusMessage("Execution: President is choosing a player to execute.");
+                    }
+                    break;
+
+                case STATE_PP_INVESTIGATE:
+                    this.queueEventUpdate("PRESIDENTIAL POWER UNLOCKED");
+                    if (isPresident) {
+                        this.queueAlert(SelectInvestigationPrompt(name, newState, this.sendWSCommand));
+                    } else {
+                        this.queueStatusMessage("Investigation: President is choosing a player to investigate.");
+                    }
+                    break;
+
                 case STATE_POST_LEGISLATIVE:
+                    switch (newState[PARAM_LAST_STATE]) {
+                        case STATE_PP_ELECTION:
+                            if (!isPresident) {
+                                this.queueAlert(
+                                    <ButtonPrompt
+                                        label={"SPECIAL ELECTION"}
+                                        footerText={"The president has chosen " + newState[PARAM_TARGET] + " to be the next president." +
+                                        "\nThe normal presidential order will resume after the next round."}
+                                        buttonText={"OK"}
+                                        buttonOnClick={this.hideAlertAndFinish}
+                                    >
+                                        <PlayerDisplay
+                                            user={name}
+                                            gameState={newState}
+                                            players={newState[PARAM_TARGET]}
+                                        />
+                                    </ButtonPrompt>
+                                , false);
+                            }
+                            break;
+                        case STATE_PP_EXECUTION:
+                            // If player was executed
+                            if (oldState[PARAM_PLAYERS][name][PLAYER_IS_ALIVE] && !newState[PARAM_PLAYERS][name][PLAYER_IS_ALIVE]) {
+                                this.queueAlert(<ButtonPrompt
+                                    label={"YOU HAVE BEEN EXECUTED"}
+                                    headerText={"Executed players may not speak, vote, or run for office. You should not reveal your identity to the group."}
+                                    buttonOnClick={this.hideAlertAndFinish}
+                                />, false)
+                            } else {
+                                this.queueAlert(
+                                    <ButtonPrompt
+                                        label={"EXECUTION RESULTS"}
+                                        footerText={newState[PARAM_TARGET] + " has been executed. They may no longer speak, vote, or run for office."}
+                                        buttonOnClick={this.hideAlertAndFinish}
+                                        buttonText={"OK"}
+                                    >
+                                        <PlayerDisplay
+                                            user={name}
+                                            gameState={newState}
+                                            playerDisabledFilter={DISABLE_EXECUTED_PLAYERS}
+                                            players={[newState[PARAM_TARGET]]}
+                                        />
+                                    </ButtonPrompt>
+                            , false);
+                            }
+                            break;
+                        case STATE_PP_INVESTIGATE:
+                            if (!isPresident) {
+                                let isTarget = newState[PARAM_TARGET] === name;
+                                this.queueAlert(
+                                    <ButtonPrompt
+                                        label={"INVESTIGATION RESULTS"}
+                                        footerText={(isTarget ? "You have " : newState[PARAM_TARGET] + " has ")
+                                        + " been investigated by " + newState[PARAM_PRESIDENT] + ". "
+                                        + "The president now knows " + (isTarget ? "your" : "their") + " party affiliation (Liberal/Fascist)."}
+                                        buttonOnClick={this.hideAlertAndFinish}
+                                        buttonText={"OK"}
+                                    >
+                                        <PlayerDisplay
+                                            user={name}
+                                            gameState={newState}
+                                            players={[newState[PARAM_TARGET]]}
+                                        />
+                                    </ButtonPrompt>
+                                )
+                            }
+                            break;
+                        case STATE_PP_PEEK:
+                        default:
+                            // Do nothing.
+                    }
+
                     this.queueStatusMessage("Waiting for the president to conclude their term.");
                     break;
+
+                case STATE_FASCIST_VICTORY_ELECTION:
+                case STATE_FASCIST_VICTORY_POLICY:
+                case STATE_LIBERAL_VICTORY_EXECUTION:
+                case STATE_LIBERAL_VICTORY_POLICY:
 
                 default:
                     // Do nothing

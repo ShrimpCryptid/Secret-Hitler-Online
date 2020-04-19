@@ -4,7 +4,6 @@ import game.GameState;
 import game.SecretHitlerGame;
 import game.datastructures.Player;
 import game.datastructures.Policy;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.List;
@@ -83,6 +82,8 @@ public class GameToJSONConverter {
         out.put("last-state", game.getLastState().toString());
         out.put("last-president", game.getLastPresident());
         out.put("last-chancellor", game.getLastChancellor());
+        out.put("target-user", game.getTarget());
+
         out.put("election-tracker", game.getElectionTracker());
         out.put("election-tracker-advanced", game.didElectionTrackerAdvance());
 
