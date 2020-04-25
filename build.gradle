@@ -37,6 +37,18 @@ dependencies {
     testImplementation 'junit:junit:4.12'
 }
 
+jar {
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    manifest {
+        attributes(
+                'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
+                'Main-Class': 'server.SecretHitlerServer'
+        )
+    }
+}
+
 javadoc {
     options.tags = ["requires:a:Requires:", "modifies:a:Modifies:", "effects:a:Effects:"]
 }
