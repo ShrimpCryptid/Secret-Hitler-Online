@@ -6,6 +6,11 @@ In the game, players are divided into Liberals, Fascists, and one secret Hitler.
 
 Can you find and stop the Secret Hitler?
 
+### How to Play: 
+Go to [secrethitler.online](https://secrethitler.online) and open a new lobby! Use the lobby's code or the provided link to invite your friends. You can start the game once you have 5-10 players.
+
+There are instructions on how to play the game provided on the website, and plenty of helpful tips are provided for first-time players. You can read the [full rulebook here](https://cdn.vapid.site/sites/a67e0c72-4902-4365-a899-3386df73c2c4/assets/Secret_Hitler_Rules-023bc755617986cb2276a3b6920e43e0.pdf).
+
 ## Technical Specs
 The Java server is divided into the [game simulation](src/main/java/game) and the [REST API](src/main/java/server). Communication between the server and client is done via websocket and HTTP requests, using the [Javalin library](https://javalin.io/).
 
@@ -14,4 +19,7 @@ The [webpage](/secret-hitler-online-interface) is written in [React](https://rea
 ## Creative Commons License and Credit
 Secret Hitler Online is licensed under [Creative Commons BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/), and is adapted from the original board game released by Goat, Wolf & Cabbage (© 2016-2020).
 
-All art assets were either adapted from the original game or custom-made by me in Inkscape.
+### What's changed?
+Art assets from the game (the boards, policies, identity cards, etc.) were adapted for the website with some minor modifications. 
+Custom assets (made in Inkscape) were added based on the style of the original, most notably for the election tracker and policy reveal popup windows.
+All of the base game's rules were kept as-is, but the web interface, animations, and server are new additions.
