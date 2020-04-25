@@ -94,6 +94,7 @@ import ButtonPrompt from "./custom-alert/ButtonPrompt";
 import Player from "./player/Player";
 import PolicyDisplay from "./util/PolicyDisplay";
 import PeekPrompt from "./custom-alert/PeekPrompt";
+import InvestigationAlert from "./custom-alert/InvestigationAlert";
 
 const EVENT_BAR_FADE_OUT_DURATION = 500;
 const CUSTOM_ALERT_FADE_DURATION = 1000;
@@ -851,9 +852,14 @@ class App extends Component {
                                 this.queueAlert(
                                     <ButtonPrompt
                                         label={"INVESTIGATION RESULTS"}
+                                        // If target: You have been investigated by [President Name].
+                                        //            The president now knows your party affiliation.
+                                        // If not target: [Target Name] has been investigated by [President Name].
+                                        //                The president now knows their party affiliation.
                                         footerText={(isTarget ? "You have " : newState[PARAM_TARGET] + " has ")
                                         + " been investigated by " + newState[PARAM_PRESIDENT] + ". "
-                                        + "The president now knows " + (isTarget ? "your" : "their") + " party affiliation (Liberal/Fascist)."}
+                                        + "The president now knows " + (isTarget ? "your" : "their")
+                                        + " party affiliation (Liberal/Fascist)."}
                                         buttonOnClick={this.hideAlertAndFinish}
                                         buttonText={"OKAY"}
                                     >
@@ -865,11 +871,21 @@ class App extends Component {
                                         />
                                     </ButtonPrompt>
                                 )
+                            } else { // is President
+                                let target = newState[PARAM_TARGET];
+                                // Set party according to liberal/fascist
+                                let party = (newState[PARAM_PLAYERS][target][PLAYER_IDENTITY] === LIBERAL ? LIBERAL : FASCIST);
+
+                                this.queueAlert(
+                                    <InvestigationAlert party={party}
+                                                        target={target}
+                                                        hideAlert={this.hideAlertAndFinish}
+                                    />
+                                , false);
                             }
                             break;
-                        case STATE_PP_PEEK:
+                        case STATE_PP_PEEK: // No additional case is necessary for peeking.
                         default:
-                            // Do nothing.
                     }
 
                     this.queueStatusMessage("Waiting for the president to conclude their term.");
@@ -1118,7 +1134,11 @@ class App extends Component {
     testAlert() {
         this.setState({
             alertContent:(
-                SelectInvestigationPrompt(this.state.name, this.state.gameState, this.sendWSCommand)
+                <InvestigationAlert
+                    party={"LIBERAL"}
+                    target={"P1"}
+                    hideAlert={this.setState({alertContent:(<></>), showAlert: false})}
+                />
             ),
             showAlert: true
         });

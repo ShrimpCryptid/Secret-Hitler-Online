@@ -1,0 +1,54 @@
+@import '../variables.css';
+
+#investigation-text {
+    transition: 0.5s opacity;
+}
+
+#investigation-text.investigation-text-hide {
+    opacity: 0;
+}
+
+#investigation-text.investigation-text-show {
+    opacity: 100%;
+}
+
+#party-card-container, #party-card-back, #party-card-front {
+    width: 28vmin;
+    height: 40vmin;
+}
+
+#party-card-container {
+    margin: auto auto;
+    position: relative;
+    perspective: 1000px;
+    display: flex;
+}
+
+#party-card-back, #party-card-front {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    -moz-backface-visibility: hidden;
+    transition: 1.5s transform ease;
+    top: 0;
+    left: 0;
+    position: absolute;
+}
+
+#party-card-back.investigation-container-default {
+    z-index: 51;
+}
+
+#party-card-back.investigation-container-flip {
+    transform: rotateY(180deg);
+    z-index: 50;
+}
+
+#party-card-front.investigation-container-default {
+    transform: rotateY(180deg);
+    z-index: 50;
+}
+
+#party-card-front.investigation-container-flip {
+    transform: rotateY(360deg);
+    z-index: 51;
+}
