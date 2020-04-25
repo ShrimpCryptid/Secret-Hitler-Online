@@ -877,79 +877,79 @@ class App extends Component {
 
                 case STATE_FASCIST_VICTORY_ELECTION:
                 case STATE_FASCIST_VICTORY_POLICY:
-                    let victoryMessage = "";
-                    if (newState[PARAM_STATE] === STATE_FASCIST_VICTORY_POLICY) {
-                        victoryMessage = "Fascists successfully passed six policies!"
-                    } else {
-                        victoryMessage = "Fascists successfully elected Hitler as chancellor!"
-                    }
-
-                    // Count up all the fascist players.
+                case STATE_LIBERAL_VICTORY_EXECUTION:
+                case STATE_LIBERAL_VICTORY_POLICY:
+                    // Divide fascist and liberal players.
                     let fascistPlayers = [];
+                    let liberalPlayers = [];
                     newState[PARAM_PLAYER_ORDER].forEach(player => {
                         let role = newState[PARAM_PLAYERS][player][PLAYER_IDENTITY];
                         if (role === FASCIST || role === HITLER) {
                             fascistPlayers.push(player);
-                        }
-                    });
-
-                    //TODO: Move players to the lobby.
-                    this.queueAlert(
-                        <ButtonPrompt
-                            renderLabel={ () => {
-                                return (
-                                    <h2 className={"highlight"}>FASCIST VICTORY</h2>
-                                );
-                            }}
-                            headerText={victoryMessage}
-                            buttonText={"RETURN TO LOBBY"}
-                        >
-                            <PlayerDisplay
-                                players={fascistPlayers}
-                                playerDisabledFilter={DISABLE_NONE}
-                                showRoles={true}
-                                showLabels={false}
-                            />
-                        </ButtonPrompt>
-                    );
-                    break;
-
-                case STATE_LIBERAL_VICTORY_EXECUTION:
-                case STATE_LIBERAL_VICTORY_POLICY:
-                    let liberalVictoryMessage = "";
-                    if (newState[PARAM_STATE] === STATE_LIBERAL_VICTORY_POLICY) {
-                        victoryMessage = "Liberals successfully passed five policies!"
-                    } else {
-                        victoryMessage = "Liberals successfully executed Hitler!"
-                    }
-
-                    let liberalPlayers = [];
-                    newState[PARAM_PLAYER_ORDER].forEach(player => {
-                        let role = newState[PARAM_PLAYERS][player][PLAYER_IDENTITY];
-                        if (role === LIBERAL) {
+                        } else {
                             liberalPlayers.push(player);
                         }
                     });
 
+                    let victors, losers, victoryMessage, headerText, headerClass;
+                    let state = newState[PARAM_STATE];
+                    let fascistVictoryPolicy = state === STATE_FASCIST_VICTORY_POLICY;
+                    let fascistVictoryElection = state === STATE_FASCIST_VICTORY_ELECTION;
+                    let liberalVictoryPolicy = state === STATE_LIBERAL_VICTORY_POLICY;
+                    let liberalVictoryExecution = state === STATE_LIBERAL_VICTORY_EXECUTION;
+
+                    if (fascistVictoryElection || fascistVictoryPolicy) {
+                        victors = fascistPlayers;
+                        losers = liberalPlayers;
+                        headerClass = "highlight";
+                        headerText = "FASCIST VICTORY";
+                        if (fascistVictoryPolicy) {
+                            victoryMessage = "Fascists successfully passed six policies!"
+                        } else if (fascistVictoryElection) {
+                            victoryMessage = "Fascists successfully elected Hitler as chancellor!"
+                        }
+                    } else {
+                        victors = liberalPlayers;
+                        losers = fascistPlayers;
+                        headerClass = "highlight blue";
+                        headerText = "LIBERAL VICTORY";
+                        if (liberalVictoryPolicy) {
+                            victoryMessage = "Liberals successfully passed five policies!";
+                        } else if (liberalVictoryExecution) {
+                            victoryMessage = "Liberals successfully executed Hitler!";
+                        }
+                    }
+
                     //TODO: Move players to the lobby.
-                    this.queueAlert(
-                        <ButtonPrompt
-                            renderLabel={ () => {
-                                return (
-                                    <h2 className={"highlight"}>LIBERAL VICTORY</h2>
-                                );
-                            }}
-                            headerText={liberalVictoryMessage}
-                            buttonText={"RETURN TO LOBBY"}
-                        >
-                            <PlayerDisplay
-                                players={liberalPlayers}
-                                playerDisabledFilter={DISABLE_NONE}
-                                showRoles={true}
-                                showLabels={false}
-                            />
-                        </ButtonPrompt>
-                    );
+                    this.addAnimationToQueue( () => {
+
+                        this.setState({
+                            alertContent: (
+                            <ButtonPrompt
+                                renderLabel={() => {
+                                    return (
+                                        <h2 className={headerClass}>{headerText}</h2>
+                                    );
+                                }}
+                                headerText={victoryMessage}
+                                buttonText={"RETURN TO LOBBY"}
+                                //buttonOnClick={() => this.sendWSCommand("")} TODO
+                            >
+                                <PlayerDisplay
+                                    players={victors}
+                                    playerDisabledFilter={DISABLE_NONE}
+                                    showRoles={true}
+                                    showLabels={false}
+                                />
+                                <PlayerDisplay
+                                    players={losers}
+                                    playerDisabledFilter={DISABLE_NONE}
+                                    showRoles={true}
+                                    showLabels={false}
+                                />
+                            </ButtonPrompt>
+                            ),
+                        showAlert: true});});
                     break;
 
                 default:
