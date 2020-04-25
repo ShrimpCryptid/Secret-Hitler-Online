@@ -11,7 +11,10 @@ import io.javalin.websocket.WsMessageContext;
 import org.json.JSONObject;
 import server.util.Lobby;
 
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SecretHitlerServer {
@@ -74,7 +77,7 @@ public class SecretHitlerServer {
 
     final private static Map<WsContext, Lobby> userToLobby = new ConcurrentHashMap<>();
     final private static Map<String, Lobby> codeToLobby = new ConcurrentHashMap<>();
-    final private static Map<Lobby, String> lobbyToCode = new ConcurrentHashMap<>();
+
 
     // </editor-fold>
 
@@ -97,6 +100,37 @@ public class SecretHitlerServer {
             wsHandler.onMessage(SecretHitlerServer::onWebSocketMessage);
             wsHandler.onClose(SecretHitlerServer::onWebSocketClose);
         });
+
+
+    }
+
+    /**
+     * Checks for and removes any lobbies that have timed out.
+     * @effects For each lobby in the {@code codeToLobby} map, checks if the lobby has timed out.
+     *          If so, closes all websockets associated with the lobby and removes them from the
+     *          {@code userToLobby} map, then removes the lobby from the {@code codeToLobby} map.
+     */
+    private static void removeInactiveLobbies() {
+        Set<String> removedLobbyCodes = new HashSet<>();
+        int removedCount = 0;
+        Iterator<Map.Entry<String, Lobby>> itr = codeToLobby.entrySet().iterator();
+        while (itr.hasNext()) {
+            Map.Entry<String, Lobby> entry = itr.next();
+            Lobby lobby = entry.getValue();
+            if (lobby.hasTimedOut()) {
+                // Remove the websocket connections.
+                for (WsContext ctx : lobby.getConnections()) {
+                    ctx.session.close(504, "The lobby has timed out.");
+                    userToLobby.remove(ctx);
+                }
+                removedLobbyCodes.add(entry.getKey());
+                removedCount++;
+                itr.remove();
+            }
+        }
+        if (removedCount > 0) {
+            System.out.println(String.format("Removed %d lobbies: %s", removedCount, removedLobbyCodes));
+        }
     }
 
 
@@ -159,6 +193,7 @@ public class SecretHitlerServer {
      * @param ctx the HTTP get request context.
      */
     public static void createNewLobby(Context ctx) {
+        removeInactiveLobbies();
 
         String newCode = generateCode();
         while(codeToLobby.containsKey(newCode)) {
@@ -167,7 +202,6 @@ public class SecretHitlerServer {
 
         Lobby lobby = new Lobby();
         codeToLobby.put(newCode, lobby); // add a new lobby with the given code.
-        lobbyToCode.put(lobby, newCode);
 
         ctx.status(200);
         ctx.result(newCode);
@@ -289,6 +323,8 @@ public class SecretHitlerServer {
             ctx.session.close(403, "The user is not in the lobby " + lobbyCode + ".");
             return;
         }
+
+        lobby.resetTimeout();
 
         boolean updateUsers = true; // this flag can be disabled by certain commands.
         try {
@@ -424,7 +460,6 @@ public class SecretHitlerServer {
      *          shuts down the lobby.
      */
     private static void onWebSocketClose(WsCloseContext ctx) {
-        // if this is the last connection in a lobby, delete the lobby.
         if (userToLobby.containsKey(ctx)) {
             Lobby lobby = userToLobby.get(ctx);
             if (lobby.hasUser(ctx)) {

@@ -20,6 +20,11 @@ public class Lobby {
     final private Set<String> activeUsernames;
     final private Set<String> usersInGame;
 
+    // The timeout duration for the server. (currently 30 minutes)
+    private static long MS_PER_MINUTE = 1000 * 60;
+    public static long TIMEOUT_DURATION_IN_MIN = 30;
+    private long timeout;
+
     /**
      * Constructs a new Lobby.
      */
@@ -27,6 +32,31 @@ public class Lobby {
         userToUsername = new HashMap<>();
         activeUsernames = new LinkedHashSet<>();
         usersInGame = new LinkedHashSet<>();
+        resetTimeout();
+    }
+
+    /**
+     * Resets the internal timeout for this.
+     * @effects The lobby will time out in {@code TIMEOUT_DURATION_MS} ms from now.
+     */
+    public void resetTimeout() {
+        timeout = System.currentTimeMillis() + MS_PER_MINUTE * TIMEOUT_DURATION_IN_MIN;
+    }
+
+    /**
+     * Returns whether the lobby has timed out.
+     * @return true if the Lobby has timed out.
+     */
+    public boolean hasTimedOut() {
+        return timeout <= System.currentTimeMillis();
+    }
+
+    /**
+     * Returns the set of websocket connections connected to this Lobby.
+     * @return a set of WsContexts, where each context is a user connected to the Lobby.
+     */
+    public Set<WsContext> getConnections() {
+        return userToUsername.keySet();
     }
 
     /////// User Management

@@ -113,7 +113,7 @@ class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            page:PAGE.GAME,
+            page:PAGE.LOGIN,
 
             joinName:"",
             joinLobby:"",
@@ -698,14 +698,17 @@ class App extends Component {
                     this.setState({statusBarText: ""});
                     this.queueEventUpdate("VOTING");
                     this.queueStatusMessage("Waiting for all players to vote.");
-                    this.queueAlert(
-                        <VotingPrompt
-                            gameState={newState}
-                            sendWSCommand={this.sendWSCommand}
-                            user={this.state.name}
-                        />
-                        , true
-                    );
+                    // Check if the player is dead-- if so, do not show the voting prompt.
+                    if (newState[PARAM_PLAYERS][name][PLAYER_IS_ALIVE]) {
+                        this.queueAlert(
+                            <VotingPrompt
+                                gameState={newState}
+                                sendWSCommand={this.sendWSCommand}
+                                user={this.state.name}
+                            />
+                            , true
+                        );
+                    }
 
                     break;
 
@@ -1060,12 +1063,20 @@ class App extends Component {
 
     /**
      * Hides the CustomAlert and marks this animation as finished.
-     * @effects: Sets {@code this.state.showAlert} to false and hides the CustomAlert. Once the CustomAlert is done
-     *           hiding, advances the animation queue.
+     * @param delayExit {boolean} When true, delays advancing the animation queue until after the alert is hidden.
+     * @effects: Sets {@code this.state.showAlert} to false and hides the CustomAlert.
+     *           If delayExit is true, waits until the CustomAlert is done hiding before advancing the animation queue.
+     *           Otherwise, immediately queues the next animation.
      */
-    hideAlertAndFinish() {
+    hideAlertAndFinish(delayExit = true) {
         this.setState({showAlert: false});
-        setTimeout(() => {this.onAnimationFinish();}, CUSTOM_ALERT_FADE_DURATION);
+        if (delayExit) {
+            setTimeout(() => {
+                this.onAnimationFinish();
+            }, CUSTOM_ALERT_FADE_DURATION);
+        } else {
+            this.onAnimationFinish();
+        }
     }
 
     /**
@@ -1092,7 +1103,8 @@ class App extends Component {
      * @param closeOnOK {boolean} whether to close the alert when the server responds with an ok message. (default = true)
      * @effects Adds a new function to the animation queue that, when called, causes a CustomAlert with the
      *          given {@code content} to appear. If {@code closeOnOK} is true, once shown, the alert box will
-     *          be closed when the server responds with an 'ok' to any command.
+     *          be closed when the server responds with an 'ok' to any command. (There will be a short delay before the
+     *          animation queue advances if not waiting for a server response.)
      */
     queueAlert(content, closeOnOK=true) {
         this.addAnimationToQueue(() => {
@@ -1101,7 +1113,9 @@ class App extends Component {
                 showAlert: true,
             });
             if (closeOnOK) {
-                this.addServerOKListener(this.hideAlertAndFinish);
+                // Remove the exit delay if waiting for the server response, because otherwise the player will lag
+                // behind everyone else.
+                this.addServerOKListener(()=>this.hideAlertAndFinish(false));
             }
         });
     }
@@ -1160,13 +1174,15 @@ class App extends Component {
 
                 <EventBar show={this.state.showEventBar} message={this.state.eventBarMessage}/>
 
-                <PlayerDisplay
-                    gameState={this.state.gameState}
-                    user={this.state.name}
-                    showVotes={this.state.showVotes}
-                    showBusy={this.state.allAnimationsFinished} // Only show busy when there isn't an active animation.
-                    playerDisabledFilter={DISABLE_EXECUTED_PLAYERS}
-                />
+                <div style={{backgroundColor: "var(--backgroundDark)"}}>
+                    <PlayerDisplay
+                        gameState={this.state.gameState}
+                        user={this.state.name}
+                        showVotes={this.state.showVotes}
+                        showBusy={this.state.allAnimationsFinished} // Only show busy when there isn't an active animation.
+                        playerDisabledFilter={DISABLE_EXECUTED_PLAYERS}
+                    />
+                </div>
 
                 <StatusBar>{this.state.statusBarText}</StatusBar>
 

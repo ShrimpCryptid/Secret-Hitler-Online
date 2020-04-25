@@ -648,9 +648,12 @@ public class SecretHitlerGame {
      * @modifies this
      * @effects sets the state to handle any presidential powers that arise.
      *          Otherwise, state is set to {@code CHANCELLOR_SELECTION}.
-     *          Also handles reshuffling the discard into the draw deck when there are insufficient cards for a hand.
+     *          Also handles reshuffling the discard into the draw deck when there are insufficient cards for a hand,
+     *          and resets the election tracker to 0.
      */
     private void onEnactPolicy() {
+        electionTracker = 0;
+
         if (draw.getSize() < MIN_DRAW_DECK_SIZE) {
             shuffleDiscardIntoDraw();
         }
