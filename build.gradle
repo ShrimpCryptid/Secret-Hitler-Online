@@ -12,6 +12,8 @@ plugins {
 
     // Apply the application plugin to add support for building an application
     id 'application'
+
+    id "com.heroku.sdk.heroku-gradle" version "1.0.4"
 }
 
 repositories {
@@ -41,3 +43,6 @@ javadoc {
 
 // Define the main class for the application
 mainClassName = 'server.SecretHitlerServer'
+
+task stage(dependsOn: ['build', 'clean', 'jar'])
+build.mustRunAfter clean

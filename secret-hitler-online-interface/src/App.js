@@ -742,6 +742,7 @@ class App extends Component {
                                 showError={(message) => this.setState({snackbarMessage: message})}
                                 policyOptions={newState[PARAM_CHANCELLOR_CHOICES]}
                                 sendWSCommand={this.sendWSCommand}
+                                enableVeto={newState[PARAM_FASCIST_POLICIES] === 5}
                             />
                         );
                     }

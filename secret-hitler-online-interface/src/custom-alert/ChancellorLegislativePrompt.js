@@ -105,7 +105,7 @@ ChancellorLegislativePrompt.propTypes = {
     sendWSCommand: PropTypes.func.isRequired,
     fascistPolicies: PropTypes.number.isRequired,
     showError: PropTypes.func.isRequired,
-    enableVeto: PropTypes.bool,
+    enableVeto: PropTypes.bool.isRequired,
 };
 
 export default ChancellorLegislativePrompt;

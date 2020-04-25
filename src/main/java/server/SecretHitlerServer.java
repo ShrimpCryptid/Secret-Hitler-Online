@@ -1,7 +1,6 @@
 package server;
 
 import game.datastructures.Identity;
-import game.datastructures.Policy;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.javalin.websocket.WsCloseContext;
@@ -23,7 +22,7 @@ public class SecretHitlerServer {
     ////// Static Fields
     // <editor-fold desc="Static Fields">
 
-    public static final int PORT_NUMBER = 4000;
+    public static final int DEFAULT_PORT_NUMBER = 4000;
 
     // Passed to server
     public static final String PARAM_LOBBY = "lobby";
@@ -83,14 +82,21 @@ public class SecretHitlerServer {
 
     ////// Private Classes
 
-
+    private static int getHerokuAssignedPort() {
+        String herokuPort = System.getenv("PORT");
+        if (herokuPort != null) {
+            return Integer.parseInt(herokuPort);
+        }
+        return DEFAULT_PORT_NUMBER;
+    }
 
     public static void main(String[] args) {
 
         Javalin serverApp = Javalin.create(config -> {
-            config.enableCorsForOrigin("http://localhost:3000/");
+            //config.enableCorsForOrigin("http://localhost:3000/");
             //config.enableCorsForOrigin("http://192.168.29.242");
-        }).start(PORT_NUMBER);
+            config.enableCorsForAllOrigins();
+        }).start(getHerokuAssignedPort());
 
         serverApp.get("/check-login", SecretHitlerServer::checkLogin); // Checks if a login is valid.
         serverApp.get("/new-lobby", SecretHitlerServer::createNewLobby); // Creates and returns the code for a new lobby
