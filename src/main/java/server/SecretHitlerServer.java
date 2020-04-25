@@ -67,7 +67,7 @@ public class SecretHitlerServer {
 
 
     private static final String CODE_CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    private static final int CODE_LENGTH = 6;
+    private static final int CODE_LENGTH = 4;
 
     //</editor-fold>
 

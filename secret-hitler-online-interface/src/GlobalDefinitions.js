@@ -8,13 +8,13 @@ export const PAGE = {
     GAME: 'game'
 };
 
-export const SERVER_ADDRESS = "192.168.29.242:4000";
+export const SERVER_ADDRESS = "secret-hitler-web.herokuapp.com";
 export const SERVER_ADDRESS_HTTP = "http://" + SERVER_ADDRESS;
 export const CHECK_LOGIN = "/check-login";
 export const NEW_LOBBY = '/new-lobby';
 export const WEBSOCKET = '/game';
 export const MAX_FAILED_CONNECTIONS = 3;
-export const LOBBY_CODE_LENGTH = 6;
+export const LOBBY_CODE_LENGTH = 4;
 export const SERVER_TIMEOUT = 4000;
 
 //////// Game Constants
