@@ -194,7 +194,7 @@ class App extends Component {
     tryOpenWebSocket(name, lobby) {
         console.log("Opening connection with lobby: " + lobby);
         console.log("Failed connections: " + this.failedConnections);
-        let ws = new WebSocket('ws://' + SERVER_ADDRESS + WEBSOCKET + "?name=" + encodeURIComponent(name) + "&lobby=" + encodeURIComponent(lobby));
+        let ws = new WebSocket('wss://' + SERVER_ADDRESS + WEBSOCKET + "?name=" + encodeURIComponent(name) + "&lobby=" + encodeURIComponent(lobby));
         if (ws.OPEN) {
             this.websocket = ws;
             this.reconnectOnConnectionClosed = true;

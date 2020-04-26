@@ -93,9 +93,7 @@ public class SecretHitlerServer {
     public static void main(String[] args) {
 
         Javalin serverApp = Javalin.create(config -> {
-            //config.enableCorsForOrigin("http://localhost:3000/");
-            //config.enableCorsForOrigin("http://192.168.29.242");
-            config.enableCorsForAllOrigins();
+            config.enableCorsForOrigin("https://secret-hitler.online");
         }).start(getHerokuAssignedPort());
 
         serverApp.get("/check-login", SecretHitlerServer::checkLogin); // Checks if a login is valid.
