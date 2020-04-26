@@ -23,3 +23,5 @@ Secret Hitler Online is licensed under [Creative Commons BY-NC-SA 4.0](https://c
 Art assets from the game (the boards, policies, identity cards, etc.) were adapted for the website with some minor modifications. 
 Custom assets (made in Inkscape) were added based on the style of the original, most notably for the election tracker and policy reveal popup windows.
 All of the base game's rules were kept as-is, but the web interface, animations, and server are new additions.
+
+### Report problems on the [Issues page](https://github.com/ShrimpCryptid/Secret-Hitler-Online/issues).
