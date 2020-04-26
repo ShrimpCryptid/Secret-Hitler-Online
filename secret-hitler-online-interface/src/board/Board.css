@@ -31,7 +31,7 @@
 }
 
 /* For placing each tile. */
-.show{
+.show {
     transition-timing-function: ease-in-out;
     visibility: visible;
     -webkit-animation: appear 1s, drop 0.3s 1s;

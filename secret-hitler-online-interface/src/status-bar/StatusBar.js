@@ -19,9 +19,9 @@ class StatusBar extends Component {
     }
 
     fadeAndReplaceText() {
-        let text = document.getElementById("target");
+        //let text = document.getElementById("status-bar-text");
         setTimeout(() => {
-                text.className = text.className.replace("hide", "");
+                //text.className = text.className.replace("hide", "");
                 this.setState({text:this.props.children});
             },
             250);

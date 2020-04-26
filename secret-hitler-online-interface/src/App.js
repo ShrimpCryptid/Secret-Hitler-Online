@@ -3,10 +3,6 @@ import './App.css';
 import MaxLengthTextField from "./util/MaxLengthTextField";
 import './fonts.css';
 
-import PolicyBack from "./assets/board-policy.png";
-
-import DrawDeck from "./assets/board-draw.png";
-import DiscardDeck from "./assets/board-discard.png";
 import CustomAlert from "./custom-alert/CustomAlert";
 import RoleAlert from "./custom-alert/RoleAlert";
 import EventBar from "./event-bar/EventBar";
@@ -42,7 +38,6 @@ import {
     PACKET_LOBBY,
     PACKET_GAME_STATE,
     PACKET_INVESTIGATION,
-    PACKET_PEEK,
     PACKET_OK,
     STATE_SETUP,
     PARAM_VOTES,
@@ -58,11 +53,9 @@ import {
     STATE_PP_ELECTION,
     PARAM_ELEC_TRACKER_ADVANCED,
     COMMAND_END_TERM,
-    COMMAND_GET_INVESTIGATION,
     PARAM_LAST_STATE,
     STATE_PP_PEEK,
     PLAYER_IS_ALIVE,
-    COMMAND_GET_PEEK,
     PARAM_TARGET,
     STATE_FASCIST_VICTORY_ELECTION,
     STATE_FASCIST_VICTORY_POLICY,
@@ -75,7 +68,6 @@ import {
 import PlayerDisplay, {
     DISABLE_EXECUTED_PLAYERS,
     DISABLE_NONE,
-    DISABLE_TERM_LIMITED_PLAYERS
 } from "./player/PlayerDisplay";
 import StatusBar from "./status-bar/StatusBar";
 import Board from "./board/Board";
@@ -91,10 +83,9 @@ import {
     SelectNominationPrompt, SelectSpecialElectionPrompt
 } from "./custom-alert/SelectPlayerPrompt";
 import ButtonPrompt from "./custom-alert/ButtonPrompt";
-import Player from "./player/Player";
-import PolicyDisplay from "./util/PolicyDisplay";
 import PeekPrompt from "./custom-alert/PeekPrompt";
 import InvestigationAlert from "./custom-alert/InvestigationAlert";
+import Deck from "./board/Deck";
 
 const EVENT_BAR_FADE_OUT_DURATION = 500;
 const CUSTOM_ALERT_FADE_DURATION = 1000;
@@ -113,7 +104,7 @@ class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            page:PAGE.LOGIN,
+            page:PAGE.GAME,
 
             joinName:"",
             joinLobby:"",
@@ -979,10 +970,11 @@ class App extends Component {
 
         }
 
-        // Check for change in election tracker. => show the change via an alert.
-
         // Check for change in policy counts.
-        // Show an alert for policies being enacted.
+        this.setState({
+            liberalPolicies: newState[PARAM_LIBERAL_POLICIES],
+            fascistPolicies: newState[PARAM_FASCIST_POLICIES],
+        })
     }
 
     //// Animation Handling
@@ -1137,9 +1129,15 @@ class App extends Component {
     // </editor-fold>
 
     playAnimationTest() {
-        this.setState({
-            showVotes: !this.state.showVotes
-        });
+        if (this.state.discardDeckSize === 11) {
+            this.setState({
+                discardDeckSize: 4
+            });
+        } else {
+            this.setState({
+                discardDeckSize: 11
+            });
+        }
 
     }
 
@@ -1190,31 +1188,19 @@ class App extends Component {
                 <div style={{display:"inline-block"}}>
                     <div id={"Board Layout"} style={{alignItems:"center", display:"flex", flexDirection:"column", margin:"10px auto"}}>
 
-                        <div style={{display:"flex", flexDirection:"row"}}>
-                            <div id={"draw-deck"}>
-                                <img src={DrawDeck} style={{width:"11vmin"}} alt={"The draw deck. (" + this.state.drawDeckSize + " cards)"}/>
-                            </div>
+                        <div style={{display:"flex", flexDirection:"row", marginTop: "15px"}}>
+                            <Deck cardCount={this.state.drawDeckSize} deckType={"DRAW"} />
 
-                            <div>
+                            <div style={{margin:"auto auto"}}>
                                 <button
                                     disabled={this.state.gameState[PARAM_STATE] !== STATE_POST_LEGISLATIVE || this.state.name !== this.state.gameState[PARAM_PRESIDENT]}
                                     onClick={() => {this.sendWSCommand(COMMAND_END_TERM);}}
-                                >END TERM</button>
+                                >
+                                    END TERM
+                                </button>
                             </div>
 
-                            <div id={"discard-deck"} style={{position:"relative"}}>
-                                <img src={DiscardDeck} style={{width:"11vmin"}} alt={"The discard deck. (" + this.state.discardDeckSize + " cards)"}/>
-                                <div>
-                                    <img id="Discard1" src={PolicyBack} style={{width:"7.5vmin", position:"absolute", top:"9%", left:"16%"}} />
-                                </div>
-                                <img id="Discard2" src={PolicyBack} style={{width:"7.5vmin", position:"absolute", top:"6%", left:"16%"}} />
-                                <img id="Discard3" src={PolicyBack} style={{width:"7.5vmin", position:"absolute", top:"3%", left:"16%"}} />
-                                <img id="Discard4" src={PolicyBack} style={{width:"7.5vmin", position:"absolute", top:"0%", left:"16%"}} />
-                                <div style={{position:"absolute", top:"-3%", left:"16%"}}>
-                                    <img className="" id="target" src={PolicyBack} style={{width:"7.5vmin", position:"relative", zIndex:"5"}} />
-                                </div>
-                                <p style={{marginTop:"0px"}}>4</p>
-                            </div>
+                            <Deck cardCount={this.state.discardDeckSize} deckType={"DISCARD"}/>
                         </div>
 
                         <Board
@@ -1226,17 +1212,15 @@ class App extends Component {
 
 
                     </div>
-
-                    <button
-                        onClick={this.testAlert}
-                    >Show Alert</button>
-
-
                 </div>
 
                 <div style={{textAlign:"center"}}>
                     <div id="snackbar">{this.state.snackbarMessage}</div>
                 </div>
+
+                <button
+                    onClick={this.testAlert}
+                >Show Alert</button>
 
                 <button
                     onClick={this.playAnimationTest}>

@@ -192,8 +192,6 @@ textarea {
     to {bottom: 0; opacity: 0; visibility: hidden}
 }
 
-/* Election Tracker */
-
 .removeTile {
     transition-timing-function: ease-in-out;
     -webkit-animation: slideOut 0.5s;

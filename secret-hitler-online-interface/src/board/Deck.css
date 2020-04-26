@@ -1,0 +1,28 @@
+@import '../variables.css';
+
+#deck-container {
+
+}
+
+#deck-base {
+    width: 14vmin;
+    height: auto;
+}
+
+#deck-policy {
+    position: absolute;
+    width: 69%;
+    opacity: 1;
+}
+
+#deck-policy.deck-final-show, #deck-policy.deck-transition-show {
+    transition: 0.4s top ease-in, 0.2s opacity;
+    opacity: 1;
+    left: 16%;
+}
+
+#deck-policy.deck-final-hide, #deck-policy.deck-transition-hide {
+    transition: 0.2s 0.3s opacity, 0.5s left ease-in;
+    opacity: 0;
+    left: -30%;
+}
