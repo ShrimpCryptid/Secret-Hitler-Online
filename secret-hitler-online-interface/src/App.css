@@ -63,6 +63,12 @@ p {
     color: var(--textColorOnDark);
 }
 
+a {
+    font-family: var(--textFont);
+    font-size: calc(4px + 1.8vmin);
+    color: var(--textColorHighlight);
+}
+
 .highlight {
     font-family: var(--textFont);
     font-weight: 700;

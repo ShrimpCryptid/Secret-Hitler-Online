@@ -473,6 +473,19 @@ class App extends Component {
                         CREATE LOBBY
                     </button>
                 </div>
+
+                <br/>
+                <br/>
+                <p style={{margin: "10px 20pxpx", fontWeight: "400", fontSize: "calc(4px + 1.8vmin)"}}>
+                    Developed by ShrimpCryptid - <a href={"https://github.com/ShrimpCryptid/Secret-Hitler-Online/blob/master/README.md"} target={"_blank"}>
+                        about this project
+                    </a>
+                </p>
+
+                <p
+                    style={{margin: "10px 20pxpx", fontWeight: "400", fontSize: "calc(4px + 1.8vmin)"}}
+                >
+                    Based on the original <a href={"https://secrethitler.com"} target={"_blank"}>Secret Hitler</a> board game by Goat, Wolf, & Cabbage (© 2016-2020).</p>
         </div>
         );
     }
