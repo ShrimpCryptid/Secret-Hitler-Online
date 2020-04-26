@@ -56,6 +56,10 @@ class PlayerDisplay extends Component {
      *           Otherwise, if {@code HITLER}, only {@code HITLER} roles will be shown.
      */
     determineRolesToShow() {
+        if (this.props.user === undefined || !this.props.gameState[PARAM_PLAYERS].hasOwnProperty(this.props.user)) {
+            return;
+        }
+
         let playerOrder = this.props.gameState[PARAM_PLAYER_ORDER];
         let role = this.props.gameState[PARAM_PLAYERS][this.props.user][PLAYER_IDENTITY];
 

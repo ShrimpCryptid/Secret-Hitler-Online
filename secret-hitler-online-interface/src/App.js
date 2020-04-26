@@ -91,6 +91,12 @@ const EVENT_BAR_FADE_OUT_DURATION = 500;
 const CUSTOM_ALERT_FADE_DURATION = 1000;
 
 const DEBUG = false;
+const DEFAULT_GAME_STATE = {"liberal-policies":0,"fascist-policies":0,"discard-size":0,"draw-size":17,
+        "players":{}, "in-game":true, "player-order":[], "state":STATE_SETUP, "president":"", "chancellor":"", "election-tracker":0};
+const TEST_GAME_STATE = {"liberal-policies":0,"fascist-policies":0,"discard-size":0,"draw-size":17,
+    "players":{"P1":{"alive":true,"id":"FASCIST","investigated":false},"P2":{"alive":true,"id":"HITLER","investigated":false},"P3":{"alive":true,"id":"LIBERAL","investigated":true},"P4":{"alive":true,"id":"LIBERAL","investigated":false},"P5":{"alive":true,"id":"LIBERAL","investigated":false},"P6":{"alive":false,"id":"FASCIST","investigated":false},"P7":{"alive":true,"id":"LIBERAL","investigated":false}},
+    "in-game":true, "player-order":["P4","P2","P6","P1","P7","P3","P5"], "state":STATE_SETUP,"last-president": "P7", "last-chancellor": "P3", "president":"P4", "chancellor":"P5", "election-tracker":0,
+    "user-votes":{"P4": true, "P2": false, "P1": false, "P7": true, "P3": false, "P5": true}};
 
 class App extends Component {
 
@@ -118,14 +124,9 @@ class App extends Component {
             lobby:"AAAAAA",
 
             usernames:[],
-            userCount:1,
+            userCount:0,
 
-            gameState: {"liberal-policies":0,"fascist-policies":0,"discard-size":0,"draw-size":17,
-                "players":{"P1":{"alive":true,"id":"FASCIST","investigated":false},"P2":{"alive":true,"id":"HITLER","investigated":false},"P3":{"alive":true,"id":"LIBERAL","investigated":true},"P4":{"alive":true,"id":"LIBERAL","investigated":false},"P5":{"alive":true,"id":"LIBERAL","investigated":false},"P6":{"alive":false,"id":"FASCIST","investigated":false},"P7":{"alive":true,"id":"LIBERAL","investigated":false}},
-                "in-game":true,
-                "player-order":["P4","P2","P6","P1","P7","P3","P5"],
-                "state":STATE_SETUP,"last-president": "P7", "last-chancellor": "P3", "president":"P4", "chancellor":"P5", "election-tracker":0,
-                "user-votes":{"P4": true, "P2": false, "P1": false, "P7": true, "P3": false, "P5": true}},
+            gameState: DEFAULT_GAME_STATE,
             lastState: {}, /* Stores the last gameState[PARAM_STATE] value to check for changes. */
             liberalPolicies: 0,
             fascistPolicies: 0,
@@ -206,6 +207,8 @@ class App extends Component {
                 page: PAGE.LOBBY,
                 name: name,
                 lobby: lobby,
+                usernames: [],
+                userCount: 0,
                 joinName:"",
                 joinLobby:"",
                 joinError:"",
@@ -969,6 +972,14 @@ class App extends Component {
                                         this.reconnectOnConnectionClosed = true;
                                         this.tryOpenWebSocket(this.state.name, this.state.lobby);
                                         this.hideAlertAndFinish();
+                                        this.setState({
+                                            gameState: DEFAULT_GAME_STATE,
+                                            liberalPolicies: 0,
+                                            fascistPolicies: 0,
+                                            electionTracker: 0,
+                                            drawDeckSize: 17,
+                                            discardDeckSize: 0,
+                                        })
                                     }}
                                 >
                                     <PlayerDisplay
@@ -1157,13 +1168,13 @@ class App extends Component {
     // </editor-fold>
 
     playAnimationTest() {
-        if (this.state.discardDeckSize === 11) {
+        if (this.state.discardDeckSize === 15) {
             this.setState({
-                discardDeckSize: 4
+                discardDeckSize: 14
             });
         } else {
             this.setState({
-                discardDeckSize: 11
+                discardDeckSize: 15
             });
         }
 
@@ -1283,8 +1294,6 @@ class App extends Component {
                             numLiberalPolicies={this.state.liberalPolicies}
                             electionTracker={this.state.electionTracker}
                         />
-
-
                     </div>
                 </div>
 

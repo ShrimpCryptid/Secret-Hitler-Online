@@ -45,7 +45,12 @@ class Deck extends Component {
             let delayNext, delayChangeState;
             let totalDelay = 0;
             if (newCount < oldCount) {  // Cards were taken out of the deck
-                delayNext = 200;
+                let difference = oldCount - newCount;
+                if (difference <= 3) {
+                    delayNext = 350;
+                } else {
+                    delayNext = 150;
+                }
                 delayChangeState = 510;
                 for (let i = oldCount - 1; i >= newCount; i--) {
                     // Start transition out, then move to final hidden position.
@@ -55,7 +60,7 @@ class Deck extends Component {
                 }
             } else {  // Cards were added to the deck
                 delayNext = 150;
-                delayChangeState = 150;
+                delayChangeState = 300;
                 for (let i = oldCount; i < newCount; i++) {
                     // Start transition in, then move to final shown position.
                     setTimeout(() => {this.cardStates[i] = TRANSITION_SHOW; this.forceUpdate()}, totalDelay);
