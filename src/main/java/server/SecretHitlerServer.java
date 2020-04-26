@@ -370,6 +370,7 @@ public class SecretHitlerServer {
                 case COMMAND_REGISTER_CHANCELLOR_VETO:
                     verifyIsChancellor(name, lobby);
                     lobby.game().chancellorVeto();
+                    break;
 
                 case COMMAND_REGISTER_PRESIDENT_VETO: // params: PARAM_VETO (boolean)
                     verifyIsPresident(name, lobby);
@@ -466,6 +467,7 @@ public class SecretHitlerServer {
     private static void onWebSocketClose(WsCloseContext ctx) {
         if (userToLobby.containsKey(ctx)) {
             Lobby lobby = userToLobby.get(ctx);
+            // TODO: Bug here?
             if (lobby.hasUser(ctx)) {
                 lobby.removeUser(ctx);
                 lobby.updateAllUsers();

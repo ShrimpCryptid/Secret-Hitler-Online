@@ -6,6 +6,8 @@ import org.json.JSONObject;
 import server.SecretHitlerServer;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  * A Lobby holds a collection of websocket connections, each representing a player.
@@ -29,9 +31,9 @@ public class Lobby {
      * Constructs a new Lobby.
      */
     public Lobby() {
-        userToUsername = new HashMap<>();
-        activeUsernames = new LinkedHashSet<>();
-        usersInGame = new LinkedHashSet<>();
+        userToUsername = new ConcurrentHashMap<>();
+        activeUsernames = new ConcurrentSkipListSet<>();
+        usersInGame = new ConcurrentSkipListSet<>();
         resetTimeout();
     }
 
