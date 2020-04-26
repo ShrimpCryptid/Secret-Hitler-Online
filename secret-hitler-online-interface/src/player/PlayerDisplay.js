@@ -164,7 +164,7 @@ class PlayerDisplay extends Component {
             }
 
             let label;
-            if (true) {
+            if (this.props.showLabels) {
                 label = (
                     <p id="player-display-label">{roleText}</p>
                 );
@@ -174,7 +174,6 @@ class PlayerDisplay extends Component {
             let onClick = () => {
                 this.onPlayerSelected(playerName);
             };
-
             out[i] = (
                 <div id={"player-display-text-container"} key={playerName}>
                     {label}

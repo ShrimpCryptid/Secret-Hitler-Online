@@ -9,6 +9,7 @@ export const PAGE = {
 };
 
 export const SERVER_ADDRESS = "secret-hitler-web.herokuapp.com";
+//export const SERVER_ADDRESS = "localhost:4040";
 export const SERVER_ADDRESS_HTTP = "https://" + SERVER_ADDRESS;
 export const CHECK_LOGIN = "/check-login";
 export const NEW_LOBBY = '/new-lobby';

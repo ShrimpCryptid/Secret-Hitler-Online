@@ -107,7 +107,7 @@ class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            page:PAGE.LOGIN,
+            page:PAGE.GAME,
 
             joinName:"",
             joinLobby:"",
@@ -932,9 +932,8 @@ class App extends Component {
                     let liberalVictoryExecution = state === STATE_LIBERAL_VICTORY_EXECUTION;
 
                     if (fascistVictoryElection || fascistVictoryPolicy) {
-                        players = (fascistPlayers);
-                        players.push(liberalPlayers);
-                        headerClass = "highlight";
+                        players = fascistPlayers.concat(liberalPlayers);
+                        headerClass = "left-align highlight";
                         headerText = "FASCIST VICTORY";
                         if (fascistVictoryPolicy) {
                             victoryMessage = "Fascists successfully passed six policies!"
@@ -942,9 +941,8 @@ class App extends Component {
                             victoryMessage = "Fascists successfully elected Hitler as chancellor!"
                         }
                     } else {
-                        players = (liberalPlayers);
-                        players.push(fascistPlayers);
-                        headerClass = "highlight-blue";
+                        players = liberalPlayers.concat(fascistPlayers);
+                        headerClass = "left-align highlight-blue";
                         headerText = "LIBERAL VICTORY";
                         if (liberalVictoryPolicy) {
                             victoryMessage = "Liberals successfully passed five policies!";
@@ -1175,16 +1173,62 @@ class App extends Component {
      * Shows a sample test alert.
      */
     testAlert() {
-        this.setState({
-            alertContent:(
-                <InvestigationAlert
-                    party={"LIBERAL"}
-                    target={"P1"}
-                    hideAlert={this.setState({alertContent:(<></>), showAlert: false})}
-                />
-            ),
-            showAlert: true
+        // Divide fascist and liberal players.
+        let fascistPlayers = [];
+        let liberalPlayers = [];
+        this.state.gameState[PARAM_PLAYER_ORDER].forEach(player => {
+            let role = this.state.gameState[PARAM_PLAYERS][player][PLAYER_IDENTITY];
+            if (role === FASCIST || role === HITLER) {
+                fascistPlayers.push(player);
+            } else {
+                liberalPlayers.push(player);
+            }
         });
+
+        let victoryMessage, headerText, headerClass;
+        let players = [];
+        let state = this.state.gameState[PARAM_STATE];
+
+        players = players.concat(fascistPlayers, liberalPlayers);
+        console.log(players);
+        headerClass = "highlight";
+        headerText = "FASCIST VICTORY";
+
+        victoryMessage = "Fascists successfully passed six policies!";
+
+        if (DEBUG) {
+            console.log("Player ordering: " + players);
+        }
+        this.addAnimationToQueue( () => {
+            this.setState({
+                alertContent: (
+                    <ButtonPrompt
+                        renderLabel={() => {
+                            return (
+                                <h2 className={headerClass}>{headerText}</h2>
+                            );
+                        }}
+                        headerText={victoryMessage}
+                        buttonText={"RETURN TO LOBBY"}
+                        buttonOnClick={() => {
+                            this.gameOver = false;
+                            this.reconnectOnConnectionClosed = true;
+                            this.tryOpenWebSocket(this.state.name, this.state.lobby);
+                            this.hideAlertAndFinish();
+                        }}
+                    >
+                        <PlayerDisplay
+                            players={players}
+                            playerDisabledFilter={DISABLE_NONE}
+                            showRoles={true}
+                            showLabels={false}
+                            useAsButtons={false}
+                            user={this.state.name}
+                            gameState={this.state.gameState}
+                        />
+                    </ButtonPrompt>
+                ),
+                showAlert: true});});
     }
 
     /**

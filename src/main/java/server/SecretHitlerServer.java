@@ -21,8 +21,8 @@ public class SecretHitlerServer {
 
     ////// Static Fields
     // <editor-fold desc="Static Fields">
-
-    public static final int DEFAULT_PORT_NUMBER = 4000;
+    private static boolean DEBUG = false;
+    public static final int DEFAULT_PORT_NUMBER = 4040;
 
     // Passed to server
     public static final String PARAM_LOBBY = "lobby";
@@ -83,6 +83,9 @@ public class SecretHitlerServer {
     ////// Private Classes
 
     private static int getHerokuAssignedPort() {
+        if (DEBUG) {
+            return DEFAULT_PORT_NUMBER;
+        }
         String herokuPort = System.getenv("PORT");
         if (herokuPort != null) {
             return Integer.parseInt(herokuPort);
@@ -93,7 +96,11 @@ public class SecretHitlerServer {
     public static void main(String[] args) {
 
         Javalin serverApp = Javalin.create(config -> {
-            config.enableCorsForOrigin("https://secret-hitler.online");
+            if (DEBUG) {
+                config.enableCorsForOrigin("https://localhost:3000");
+            } else {
+                config.enableCorsForOrigin("https://secret-hitler.online");
+            }
         }).start(getHerokuAssignedPort());
 
         serverApp.get("/check-login", SecretHitlerServer::checkLogin); // Checks if a login is valid.

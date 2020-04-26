@@ -70,9 +70,6 @@ a {
 }
 
 .highlight {
-    font-family: var(--textFont);
-    font-weight: 700;
-    font-size: calc(4px + 2vmin);
     color: var(--textColorHighlight);
 }
 
