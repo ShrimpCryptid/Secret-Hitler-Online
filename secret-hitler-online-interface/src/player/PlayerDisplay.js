@@ -259,12 +259,10 @@ class PlayerDisplay extends Component {
         this.determineRolesToShow();
 
         if (this.props.showVotes && !this.playingVoteAnimation) {
-            console.log("Changing state to play animation.");
             this.playingVoteAnimation = true;
             this.setupVoteAnimation();
 
         } else if (!this.props.showVotes && this.playingVoteAnimation) {
-            console.log("Stopping animation.");
             this.playingVoteAnimation = false;
             this.resetVoteAnimation();
         }
@@ -329,10 +327,8 @@ export const DISABLE_INVESTIGATED_PLAYERS = (name, gameState) => {
 export const DISABLE_TERM_LIMITED_PLAYERS = (name, gameState) => {
     // Count number of living players
     let livingPlayers = 0;
-    console.log(gameState);
     for (let playerIndex in gameState[PARAM_PLAYER_ORDER]) {
         let playerName = gameState[PARAM_PLAYER_ORDER][playerIndex];
-        console.log("Checking if " + playerName + " is alive.");
         if (gameState[PARAM_PLAYERS][playerName][PLAYER_IS_ALIVE]) {
             livingPlayers++;
         }

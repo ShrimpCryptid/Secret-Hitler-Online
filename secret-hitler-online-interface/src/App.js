@@ -90,6 +90,8 @@ import Deck from "./board/Deck";
 const EVENT_BAR_FADE_OUT_DURATION = 500;
 const CUSTOM_ALERT_FADE_DURATION = 1000;
 
+const DEBUG = false;
+
 class App extends Component {
 
     websocket = undefined;
@@ -192,8 +194,10 @@ class App extends Component {
      * @return {boolean} true if the connection was opened successfully. Otherwise, returns false.
      */
     tryOpenWebSocket(name, lobby) {
-        console.log("Opening connection with lobby: " + lobby);
-        console.log("Failed connections: " + this.failedConnections);
+        if (DEBUG) {
+            console.log("Opening connection with lobby: " + lobby);
+            console.log("Failed connections: " + this.failedConnections);
+        }
         let ws = new WebSocket('wss://' + SERVER_ADDRESS + WEBSOCKET + "?name=" + encodeURIComponent(name) + "&lobby=" + encodeURIComponent(lobby));
         if (ws.OPEN) {
             this.websocket = ws;
@@ -251,7 +255,9 @@ class App extends Component {
     }
 
     async onWebSocketMessage(msg) {
-        console.log(msg.data);
+        if (DEBUG) {
+            console.log(msg.data);
+        }
         this.failedConnections = 0;
         let message = JSON.parse(msg.data);
 
@@ -320,7 +326,9 @@ class App extends Component {
             }
         }
 
-        console.log(JSON.stringify(data));
+        if (DEBUG) {
+            console.log(JSON.stringify(data));
+        }
         if (this.websocket !== undefined) {
             this.websocket.send(JSON.stringify(data));
         } else {
@@ -379,7 +387,9 @@ class App extends Component {
         this.tryLogin(this.state.joinName, this.state.joinLobby)
             .then(response => {
                 if (!response.ok) {
-                    console.log("Response is not ok");
+                    if (DEBUG) {
+                        console.log("Response is not ok");
+                    }
                     if (response.status === 404) {
                         this.setState({joinError:"The lobby could not be found."});
                     } else if (response.status === 403) {
@@ -500,7 +510,9 @@ class App extends Component {
      * Written as "{@literal <p>} - {@code username} {@literal </p>}".
      */
     renderPlayerList() {
-        console.log("Lobby: " + this.state.lobby);
+        if (DEBUG) {
+            console.log("Lobby: " + this.state.lobby);
+        }
         let out = [];
         let i = 0;
         for (i; i < this.state.userCount; i++) {
@@ -940,8 +952,9 @@ class App extends Component {
                             victoryMessage = "Liberals successfully executed Hitler!";
                         }
                     }
-                    console.log("Player ordering: " + players);
-                    //TODO: Move players to the lobby.
+                    if (DEBUG) {
+                        console.log("Player ordering: " + players);
+                    }
                     this.addAnimationToQueue( () => {
                         this.setState({
                             alertContent: (
@@ -965,6 +978,7 @@ class App extends Component {
                                         playerDisabledFilter={DISABLE_NONE}
                                         showRoles={true}
                                         showLabels={false}
+                                        useAsButtons={false}
                                         user={this.state.name}
                                         gameState={newState}
                                     />

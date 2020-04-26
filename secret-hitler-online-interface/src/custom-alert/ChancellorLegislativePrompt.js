@@ -70,10 +70,11 @@ class ChancellorLegislativePrompt extends Component {
                 renderButton={() => {
                     return (
                         <div id={"legislative-button-container"}>
-                            <button onClick={this.onVetoButtonClick}
-                                    disabled={!this.props.enableVeto || this.state.waitingForServer}>
-                                VETO
-                            </button>
+                            {this.props.enableVeto &&
+                                <button onClick={this.onVetoButtonClick}
+                                        disabled={this.state.waitingForServer}>
+                                    VETO
+                                </button>}
                             <button onClick={this.onEnactButtonClick}
                                     disabled={this.state.selection === undefined || this.state.waitingForServer}>
                                 ENACT

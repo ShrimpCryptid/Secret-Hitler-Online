@@ -322,114 +322,117 @@ public class SecretHitlerServer {
 
         Lobby lobby = codeToLobby.get(lobbyCode);
 
-        if (!lobby.hasUser(ctx, name)) {
-            System.out.println("FAILED (Lobby does not have the user)");
-            ctx.session.close(403, "The user is not in the lobby " + lobbyCode + ".");
-            return;
-        }
+        synchronized (lobby) {
 
-        lobby.resetTimeout();
-
-        boolean updateUsers = true; // this flag can be disabled by certain commands.
-        try {
-            switch (message.getString(PARAM_COMMAND)) {
-                case COMMAND_PING:
-                    updateUsers = false;
-                    break;
-
-                case COMMAND_START_GAME: // Starts the game.
-                    lobby.startNewGame();
-                    break;
-
-                case COMMAND_GET_STATE: // Requests the updated state of the game.
-                    lobby.updateUser(ctx);
-                    break;
-
-                case COMMAND_NOMINATE_CHANCELLOR: // params: PARAM_TARGET (String)
-                    verifyIsPresident(name, lobby);
-                    lobby.game().nominateChancellor(message.getString(PARAM_TARGET));
-                    break;
-
-                case COMMAND_REGISTER_VOTE: // params: PARAM_VOTE (boolean)
-                    boolean vote = message.getBoolean(PARAM_VOTE);
-                    lobby.game().registerVote(name, vote);
-                    break;
-
-                case COMMAND_REGISTER_PRESIDENT_CHOICE: // params: PARAM_CHOICE (int)
-                    verifyIsPresident(name, lobby);
-                    int discard = message.getInt(PARAM_CHOICE);
-                    lobby.game().presidentDiscardPolicy(discard);
-                    break;
-
-                case COMMAND_REGISTER_CHANCELLOR_CHOICE: // params: PARAM_CHOICE (int)
-                    verifyIsChancellor(name, lobby);
-                    int enact = message.getInt(PARAM_CHOICE);
-                    lobby.game().chancellorEnactPolicy(enact);
-                    break;
-
-                case COMMAND_REGISTER_CHANCELLOR_VETO:
-                    verifyIsChancellor(name, lobby);
-                    lobby.game().chancellorVeto();
-                    break;
-
-                case COMMAND_REGISTER_PRESIDENT_VETO: // params: PARAM_VETO (boolean)
-                    verifyIsPresident(name, lobby);
-                    boolean veto = message.getBoolean(PARAM_VETO);
-                    lobby.game().presidentialVeto(veto);
-                    break;
-
-                case COMMAND_REGISTER_EXECUTION: // params: PARAM_TARGET (String)
-                    verifyIsPresident(name, lobby);
-                    lobby.game().executePlayer(message.getString(PARAM_TARGET));
-                    break;
-
-                case COMMAND_REGISTER_SPECIAL_ELECTION: // params: PARAM_TARGET (String)
-                    verifyIsPresident(name, lobby);
-                    lobby.game().electNextPresident(message.getString(PARAM_TARGET));
-                    break;
-
-                case COMMAND_GET_INVESTIGATION: // params: PARAM_TARGET (String)
-                    verifyIsPresident(name, lobby);
-                    Identity id = lobby.game().investigatePlayer(message.getString(PARAM_TARGET));
-                    // Construct and send a JSONObject.
-                    JSONObject obj = new JSONObject();
-                    obj.put(PARAM_PACKET_TYPE, PACKET_INVESTIGATION);
-                    if (id == Identity.FASCIST) {
-                        obj.put(PARAM_INVESTIGATION, FASCIST);
-                    } else {
-                        obj.put(PARAM_INVESTIGATION, LIBERAL);
-                    }
-                    ctx.send(obj.toString());
-                    break;
-
-                case COMMAND_REGISTER_PEEK:
-                    verifyIsPresident(name, lobby);
-                    lobby.game().endPeek();
-                    break;
-
-                case COMMAND_END_TERM:
-                    verifyIsPresident(name, lobby);
-                    lobby.game().endPresidentialTerm();
-                    break;
-
-                default: //This is an invalid command.
-                    throw new RuntimeException("FAILED (unrecognized command " + message.get(PARAM_COMMAND) + ")");
+            if (!lobby.hasUser(ctx, name)) {
+                System.out.println("FAILED (Lobby does not have the user)");
+                ctx.session.close(403, "The user is not in the lobby " + lobbyCode + ".");
+                return;
             }
 
-            System.out.println("SUCCESS");
-            JSONObject msg = new JSONObject();
-            msg.put(PARAM_PACKET_TYPE, PACKET_OK);
-            ctx.send(msg.toString());
+            lobby.resetTimeout();
 
-        } catch (NullPointerException e) {
-            System.out.println("FAILED (" + e.toString() + ")");
-            ctx.session.close(400, "NullPointerException:" + e.toString());
-        } catch (RuntimeException e) {
-            System.out.println("FAILED (" + e.toString() + ")");
-            ctx.session.close(400, "RuntimeException:" + e.toString());
-        }
-        if (updateUsers) {
-            lobby.updateAllUsers();
+            boolean updateUsers = true; // this flag can be disabled by certain commands.
+            try {
+                switch (message.getString(PARAM_COMMAND)) {
+                    case COMMAND_PING:
+                        updateUsers = false;
+                        break;
+
+                    case COMMAND_START_GAME: // Starts the game.
+                        lobby.startNewGame();
+                        break;
+
+                    case COMMAND_GET_STATE: // Requests the updated state of the game.
+                        lobby.updateUser(ctx);
+                        break;
+
+                    case COMMAND_NOMINATE_CHANCELLOR: // params: PARAM_TARGET (String)
+                        verifyIsPresident(name, lobby);
+                        lobby.game().nominateChancellor(message.getString(PARAM_TARGET));
+                        break;
+
+                    case COMMAND_REGISTER_VOTE: // params: PARAM_VOTE (boolean)
+                        boolean vote = message.getBoolean(PARAM_VOTE);
+                        lobby.game().registerVote(name, vote);
+                        break;
+
+                    case COMMAND_REGISTER_PRESIDENT_CHOICE: // params: PARAM_CHOICE (int)
+                        verifyIsPresident(name, lobby);
+                        int discard = message.getInt(PARAM_CHOICE);
+                        lobby.game().presidentDiscardPolicy(discard);
+                        break;
+
+                    case COMMAND_REGISTER_CHANCELLOR_CHOICE: // params: PARAM_CHOICE (int)
+                        verifyIsChancellor(name, lobby);
+                        int enact = message.getInt(PARAM_CHOICE);
+                        lobby.game().chancellorEnactPolicy(enact);
+                        break;
+
+                    case COMMAND_REGISTER_CHANCELLOR_VETO:
+                        verifyIsChancellor(name, lobby);
+                        lobby.game().chancellorVeto();
+                        break;
+
+                    case COMMAND_REGISTER_PRESIDENT_VETO: // params: PARAM_VETO (boolean)
+                        verifyIsPresident(name, lobby);
+                        boolean veto = message.getBoolean(PARAM_VETO);
+                        lobby.game().presidentialVeto(veto);
+                        break;
+
+                    case COMMAND_REGISTER_EXECUTION: // params: PARAM_TARGET (String)
+                        verifyIsPresident(name, lobby);
+                        lobby.game().executePlayer(message.getString(PARAM_TARGET));
+                        break;
+
+                    case COMMAND_REGISTER_SPECIAL_ELECTION: // params: PARAM_TARGET (String)
+                        verifyIsPresident(name, lobby);
+                        lobby.game().electNextPresident(message.getString(PARAM_TARGET));
+                        break;
+
+                    case COMMAND_GET_INVESTIGATION: // params: PARAM_TARGET (String)
+                        verifyIsPresident(name, lobby);
+                        Identity id = lobby.game().investigatePlayer(message.getString(PARAM_TARGET));
+                        // Construct and send a JSONObject.
+                        JSONObject obj = new JSONObject();
+                        obj.put(PARAM_PACKET_TYPE, PACKET_INVESTIGATION);
+                        if (id == Identity.FASCIST) {
+                            obj.put(PARAM_INVESTIGATION, FASCIST);
+                        } else {
+                            obj.put(PARAM_INVESTIGATION, LIBERAL);
+                        }
+                        ctx.send(obj.toString());
+                        break;
+
+                    case COMMAND_REGISTER_PEEK:
+                        verifyIsPresident(name, lobby);
+                        lobby.game().endPeek();
+                        break;
+
+                    case COMMAND_END_TERM:
+                        verifyIsPresident(name, lobby);
+                        lobby.game().endPresidentialTerm();
+                        break;
+
+                    default: //This is an invalid command.
+                        throw new RuntimeException("FAILED (unrecognized command " + message.get(PARAM_COMMAND) + ")");
+                }
+
+                System.out.println("SUCCESS");
+                JSONObject msg = new JSONObject();
+                msg.put(PARAM_PACKET_TYPE, PACKET_OK);
+                ctx.send(msg.toString());
+
+            } catch (NullPointerException e) {
+                System.out.println("FAILED (" + e.toString() + ")");
+                ctx.session.close(400, "NullPointerException:" + e.toString());
+            } catch (RuntimeException e) {
+                System.out.println("FAILED (" + e.toString() + ")");
+                ctx.session.close(400, "RuntimeException:" + e.toString());
+            }
+            if (updateUsers) {
+                lobby.updateAllUsers();
+            }
         }
     }
 
@@ -461,16 +464,16 @@ public class SecretHitlerServer {
      * Called when a websocket is closed.
      * @param ctx the WsContext of the websocket.
      * @modifies this
-     * @effects Removes the user from any connected lobbies. If the user was the last active user in the lobby,
-     *          shuts down the lobby.
+     * @effects Removes the user from any connected lobbies.
      */
     private static void onWebSocketClose(WsCloseContext ctx) {
         if (userToLobby.containsKey(ctx)) {
             Lobby lobby = userToLobby.get(ctx);
-            // TODO: Bug here?
-            if (lobby.hasUser(ctx)) {
-                lobby.removeUser(ctx);
-                lobby.updateAllUsers();
+            synchronized (lobby) {
+                if (lobby.hasUser(ctx)) {
+                    lobby.removeUser(ctx);
+                    lobby.updateAllUsers();
+                }
             }
             userToLobby.remove(ctx);
         }

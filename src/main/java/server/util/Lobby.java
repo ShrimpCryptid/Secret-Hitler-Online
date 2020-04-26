@@ -7,6 +7,7 @@ import server.SecretHitlerServer;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
@@ -19,11 +20,9 @@ public class Lobby {
 
     private SecretHitlerGame game;
     final private Map<WsContext, String> userToUsername;
-    final private Set<String> activeUsernames;
+    final private Queue<String> activeUsernames;
     final private Set<String> usersInGame;
 
-    // The timeout duration for the server. (currently 30 minutes)
-    private static long MS_PER_MINUTE = 1000 * 60;
     public static long TIMEOUT_DURATION_IN_MIN = 30;
     private long timeout;
 
@@ -32,7 +31,7 @@ public class Lobby {
      */
     public Lobby() {
         userToUsername = new ConcurrentHashMap<>();
-        activeUsernames = new ConcurrentSkipListSet<>();
+        activeUsernames = new ConcurrentLinkedQueue<>();
         usersInGame = new ConcurrentSkipListSet<>();
         resetTimeout();
     }
@@ -42,7 +41,9 @@ public class Lobby {
      * @effects The lobby will time out in {@code TIMEOUT_DURATION_MS} ms from now.
      */
     synchronized public void resetTimeout() {
-        timeout = System.currentTimeMillis() + MS_PER_MINUTE * TIMEOUT_DURATION_IN_MIN;
+        // The timeout duration for the server. (currently 30 minutes)
+            long MS_PER_MINUTE = 1000 * 60;
+            timeout = System.currentTimeMillis() + MS_PER_MINUTE * TIMEOUT_DURATION_IN_MIN;
     }
 
     /**
@@ -198,7 +199,7 @@ public class Lobby {
             message = new JSONObject();
             message.put(SecretHitlerServer.PARAM_PACKET_TYPE, SecretHitlerServer.PACKET_LOBBY);
             message.put("user-count", getUserCount());
-            message.put("usernames", activeUsernames);
+            message.put("usernames", activeUsernames.toArray());
         }
         ctx.send(message.toString());
     }
