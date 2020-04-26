@@ -90,7 +90,7 @@ import Deck from "./board/Deck";
 const EVENT_BAR_FADE_OUT_DURATION = 500;
 const CUSTOM_ALERT_FADE_DURATION = 1000;
 
-const DEBUG = false;
+const DEBUG = true;
 const DEFAULT_GAME_STATE = {"liberal-policies":0,"fascist-policies":0,"discard-size":0,"draw-size":17,
         "players":{}, "in-game":true, "player-order":[], "state":STATE_SETUP, "president":"", "chancellor":"", "election-tracker":0};
 const TEST_GAME_STATE = {"liberal-policies":0,"fascist-policies":0,"discard-size":0,"draw-size":17,
@@ -113,7 +113,7 @@ class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            page:PAGE.GAME,
+            page:PAGE.LOGIN,
 
             joinName:"",
             joinLobby:"",

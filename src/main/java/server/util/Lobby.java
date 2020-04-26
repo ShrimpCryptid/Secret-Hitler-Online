@@ -1,5 +1,6 @@
 package server.util;
 
+import game.GameState;
 import game.SecretHitlerGame;
 import io.javalin.websocket.WsContext;
 import org.json.JSONObject;
@@ -180,6 +181,13 @@ public class Lobby {
     synchronized public void updateAllUsers() {
         for (WsContext ws : userToUsername.keySet()) {
             updateUser(ws);
+        }
+        //Check if the game ended.
+        if (game.getState() == GameState.FASCIST_VICTORY_ELECTION
+                || game.getState() == GameState.FASCIST_VICTORY_POLICY
+                || game.getState() == GameState.LIBERAL_VICTORY_EXECUTION
+                || game.getState() == GameState.LIBERAL_VICTORY_POLICY) {
+            game = null;
         }
     }
 
