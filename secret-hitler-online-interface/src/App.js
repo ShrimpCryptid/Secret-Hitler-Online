@@ -767,12 +767,12 @@ class App extends Component {
                                 sendWSCommand={this.sendWSCommand}
                                 electionTracker={newState[PARAM_ELECTION_TRACKER]}
                             />
-                        )
+                        , true)
                     }
                     break;
 
                 case STATE_PP_PEEK:
-                    this.queueEventUpdate("PRESIDENTIAL POWER UNLOCKED");
+                    this.queueEventUpdate("PRESIDENTIAL POWER");
                     if (isPresident) {
                         this.queueAlert(
                             <PeekPrompt
@@ -786,7 +786,7 @@ class App extends Component {
                     break;
 
                 case STATE_PP_ELECTION:
-                    this.queueEventUpdate("PRESIDENTIAL POWER UNLOCKED");
+                    this.queueEventUpdate("PRESIDENTIAL POWER");
                     if (isPresident) {
                         this.queueAlert(SelectSpecialElectionPrompt(name, newState, this.sendWSCommand));
                     } else {
@@ -795,7 +795,7 @@ class App extends Component {
                     break;
 
                 case STATE_PP_EXECUTION:
-                    this.queueEventUpdate("PRESIDENTIAL POWER UNLOCKED");
+                    this.queueEventUpdate("PRESIDENTIAL POWER");
                     if (isPresident) {
                         this.queueAlert(SelectExecutionPrompt(name, newState, this.sendWSCommand));
                     } else {
@@ -804,7 +804,7 @@ class App extends Component {
                     break;
 
                 case STATE_PP_INVESTIGATE:
-                    this.queueEventUpdate("PRESIDENTIAL POWER UNLOCKED");
+                    this.queueEventUpdate("PRESIDENTIAL POWER");
                     if (isPresident) {
                         this.queueAlert(SelectInvestigationPrompt(name, newState, this.sendWSCommand));
                     } else {
@@ -892,7 +892,7 @@ class App extends Component {
                         default:
                     }
 
-                    this.queueStatusMessage("Waiting for the president to conclude their term.");
+                    this.queueStatusMessage("Waiting for the president to end their term.");
                     break;
 
                 case STATE_FASCIST_VICTORY_ELECTION:
@@ -920,7 +920,7 @@ class App extends Component {
                     let liberalVictoryExecution = state === STATE_LIBERAL_VICTORY_EXECUTION;
 
                     if (fascistVictoryElection || fascistVictoryPolicy) {
-                        players.push(fascistPlayers);
+                        players = (fascistPlayers);
                         players.push(liberalPlayers);
                         headerClass = "highlight";
                         headerText = "FASCIST VICTORY";
@@ -930,7 +930,7 @@ class App extends Component {
                             victoryMessage = "Fascists successfully elected Hitler as chancellor!"
                         }
                     } else {
-                        players.push(liberalPlayers);
+                        players = (liberalPlayers);
                         players.push(fascistPlayers);
                         headerClass = "highlight-blue";
                         headerText = "LIBERAL VICTORY";
@@ -940,7 +940,7 @@ class App extends Component {
                             victoryMessage = "Liberals successfully executed Hitler!";
                         }
                     }
-
+                    console.log("Player ordering: " + players);
                     //TODO: Move players to the lobby.
                     this.addAnimationToQueue( () => {
                         this.setState({
@@ -965,13 +965,15 @@ class App extends Component {
                                         playerDisabledFilter={DISABLE_NONE}
                                         showRoles={true}
                                         showLabels={false}
+                                        user={this.state.name}
+                                        gameState={newState}
                                     />
                                 </ButtonPrompt>
                             ),
                         showAlert: true});});
                     this.gameOver = true;
                     this.reconnectOnConnectionClosed = false;
-                    this.websocket.disconnect();
+                    this.websocket.close();
                     break;
 
                 default:

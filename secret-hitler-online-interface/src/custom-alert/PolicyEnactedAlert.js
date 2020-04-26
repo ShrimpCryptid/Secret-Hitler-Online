@@ -25,8 +25,8 @@ class PolicyEnactedAlert extends Component {
 
     setAnimation() {
         this.setState({className: ""});
-        setTimeout(()=> {this.setState({className: "show-policy-shift"})}, 2000);
-        setTimeout(()=> {this.setState({className: "show-policy-flip show-policy-shift"})}, 2500);
+        setTimeout(()=> {this.setState({className: "show-policy-shift"})}, 500);
+        setTimeout(()=> {this.setState({className: "show-policy-flip show-policy-shift"})}, 1000);
     }
 
     render() {

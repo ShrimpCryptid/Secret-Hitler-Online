@@ -39,7 +39,7 @@ public class Lobby {
      * Resets the internal timeout for this.
      * @effects The lobby will time out in {@code TIMEOUT_DURATION_MS} ms from now.
      */
-    public void resetTimeout() {
+    synchronized public void resetTimeout() {
         timeout = System.currentTimeMillis() + MS_PER_MINUTE * TIMEOUT_DURATION_IN_MIN;
     }
 
@@ -47,7 +47,7 @@ public class Lobby {
      * Returns whether the lobby has timed out.
      * @return true if the Lobby has timed out.
      */
-    public boolean hasTimedOut() {
+    synchronized public boolean hasTimedOut() {
         return timeout <= System.currentTimeMillis();
     }
 
@@ -55,7 +55,7 @@ public class Lobby {
      * Returns the set of websocket connections connected to this Lobby.
      * @return a set of WsContexts, where each context is a user connected to the Lobby.
      */
-    public Set<WsContext> getConnections() {
+    synchronized public Set<WsContext> getConnections() {
         return userToUsername.keySet();
     }
 
@@ -67,7 +67,7 @@ public class Lobby {
      * @param context the Websocket context of a user.
      * @return true iff the {@code context} is in this lobby.
      */
-    public boolean hasUser(WsContext context) {
+    synchronized public boolean hasUser(WsContext context) {
         return userToUsername.containsKey(context);
     }
 
@@ -77,14 +77,14 @@ public class Lobby {
      * @param name the name of the user.
      * @return true iff {@code context} is a user in the lobby with the name {@code name}.
      */
-    public boolean hasUser(WsContext context, String name) {return userToUsername.containsKey(context) && userToUsername.get(context).equals(name); }
+    synchronized public boolean hasUser(WsContext context, String name) {return userToUsername.containsKey(context) && userToUsername.get(context).equals(name); }
 
     /**
      * Returns true if the lobby has a user with a given username.
      * @param name the username to check the Lobby for.
      * @return true iff the username {@code name} is in this lobby.
      */
-    public boolean hasUserWithName(String name) {
+    synchronized public boolean hasUserWithName(String name) {
         return activeUsernames.contains(name);
     }
 
@@ -95,7 +95,7 @@ public class Lobby {
      *         removed from the lobby.
      *
      */
-    public boolean canAddUserDuringGame(String name) {
+    synchronized public boolean canAddUserDuringGame(String name) {
         return (usersInGame.contains(name) && !activeUsernames.contains(name)); // the user was in the game but was disconnected.
     }
 
@@ -103,7 +103,7 @@ public class Lobby {
      * Checks whether the lobby is full.
      * @return Returns true if the number of players in the lobby is {@literal >= } {@code SecretHitlerGame.MAX_PLAYERS}.
      */
-    public boolean isFull() {
+    synchronized public boolean isFull() {
         return activeUsernames.size() >= SecretHitlerGame.MAX_PLAYERS;
     }
 
@@ -119,7 +119,7 @@ public class Lobby {
      *          If the game has already started, the player can only join if a player with the name {@name} was
      *          previously in the same game but was removed.
      */
-    public void addUser(WsContext context, String name) {
+    synchronized public void addUser(WsContext context, String name) {
         if(userToUsername.containsKey(context)) {
             throw new IllegalArgumentException("Duplicate websockets cannot be added to a lobby.");
         } else {
@@ -152,7 +152,7 @@ public class Lobby {
      * @modifies this
      * @effects removes the user context (websocket connection) of the player from the lobby.
      */
-    public void removeUser(WsContext context) {
+    synchronized public void removeUser(WsContext context) {
         if (!hasUser(context)) {
             throw new IllegalArgumentException("Cannot remove a websocket that is not in the Lobby.");
         } else {
@@ -165,7 +165,7 @@ public class Lobby {
      * Returns the number of active users connected to the Lobby.
      * @return the number of active websocket connections currently in the lobby.
      */
-    public int getUserCount() {
+    synchronized public int getUserCount() {
         return userToUsername.size();
     }
 
@@ -174,7 +174,7 @@ public class Lobby {
      * @effects a message containing a JSONObject representing the state of the SecretHitlerGame is sent
      *          to each connected WsContext. ({@code GameToJSONConverter.convert()})
      */
-    public void updateAllUsers() {
+    synchronized public void updateAllUsers() {
         for (WsContext ws : userToUsername.keySet()) {
             updateUser(ws);
         }
@@ -186,7 +186,7 @@ public class Lobby {
      * @effects a message containing a JSONObject representing the state of the SecretHitlerGame is sent
      *          to the specified WsContext. ({@code GameToJSONConverter.convert()})
      */
-    public void updateUser(WsContext ctx) {
+    synchronized public void updateUser(WsContext ctx) {
         JSONObject message;
 
         if (isInGame()) {
@@ -210,7 +210,7 @@ public class Lobby {
      * Returns whether the Lobby is currently in a game.
      * @return true iff the Lobby has a currently active game.
      */
-    public boolean isInGame() {
+    synchronized public boolean isInGame() {
         return game != null;
     }
 
@@ -222,7 +222,7 @@ public class Lobby {
      * @effects creates and stores a new SecretHitlerGame.
      *          The usernames of all active users are added to the game in a randomized order.
      */
-    public void startNewGame() {
+    synchronized public void startNewGame() {
         if (userToUsername.size() < SecretHitlerGame.MIN_PLAYERS) {
             throw new RuntimeException("Too many users to start a game.");
         } else if (userToUsername.size() > SecretHitlerGame.MAX_PLAYERS) {
@@ -242,7 +242,7 @@ public class Lobby {
      * @throws RuntimeException if called when there is no active game ({@code !this.isInGame()}).
      * @return the SecretHitlerGame for this lobby.
      */
-    public SecretHitlerGame game() {
+    synchronized public SecretHitlerGame game() {
         if (game == null) {
             throw new RuntimeException();
         } else {
