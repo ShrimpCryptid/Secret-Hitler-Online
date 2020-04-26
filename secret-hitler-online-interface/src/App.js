@@ -62,7 +62,7 @@ import {
     STATE_LIBERAL_VICTORY_EXECUTION,
     STATE_LIBERAL_VICTORY_POLICY,
     PARAM_PEEK,
-    PARAM_INVESTIGATION, HITLER
+    PARAM_INVESTIGATION, HITLER, PARAM_DRAW_DECK, PARAM_DISCARD_DECK
 } from "./GlobalDefinitions";
 
 import PlayerDisplay, {
@@ -104,7 +104,7 @@ class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            page:PAGE.GAME,
+            page:PAGE.LOGIN,
 
             joinName:"",
             joinLobby:"",
@@ -275,14 +275,16 @@ class App extends Component {
                 break;
 
             case PACKET_INVESTIGATION:
-                this.queueAlert(
-                    <ButtonPrompt
-                        label={"INVESTIGATE LOYALTY"}
-                        headerText={"Sorry, this one is still being implemented."}
-                        footerText={"The player is a " + message[PARAM_INVESTIGATION]}
-                        buttonOnClick={this.hideAlertAndFinish}
+                    let target = this.state.gameState[PARAM_TARGET];
+                    // Set party according to liberal/fascist
+                    let party = (this.state.gameState[PARAM_PLAYERS][target][PLAYER_IDENTITY] === LIBERAL ? LIBERAL : FASCIST);
+
+                    this.queueAlert(
+                    <InvestigationAlert party={party}
+                                        target={target}
+                                        hideAlert={this.hideAlertAndFinish}
                     />
-                , false);
+                    , false);
                 break;
             default:
                 // Unrecognized.
@@ -644,7 +646,7 @@ class App extends Component {
             }
 
 
-            // Update the board with the new policies / election tracker.
+            // Update the decks, board with the new policies / election tracker.
             this.addAnimationToQueue(() => {
                 this.setState({
                     liberalPolicies: newState[PARAM_LIBERAL_POLICIES],
@@ -866,17 +868,6 @@ class App extends Component {
                                         />
                                     </ButtonPrompt>
                                 )
-                            } else { // is President
-                                let target = newState[PARAM_TARGET];
-                                // Set party according to liberal/fascist
-                                let party = (newState[PARAM_PLAYERS][target][PLAYER_IDENTITY] === LIBERAL ? LIBERAL : FASCIST);
-
-                                this.queueAlert(
-                                    <InvestigationAlert party={party}
-                                                        target={target}
-                                                        hideAlert={this.hideAlertAndFinish}
-                                    />
-                                , false);
                             }
                             break;
                         case STATE_PP_PEEK: // No additional case is necessary for peeking.
@@ -970,11 +961,14 @@ class App extends Component {
 
         }
 
-        // Check for change in policy counts.
-        this.setState({
-            liberalPolicies: newState[PARAM_LIBERAL_POLICIES],
-            fascistPolicies: newState[PARAM_FASCIST_POLICIES],
-        })
+        // Update the draw decks
+        this.addAnimationToQueue(() => {
+            this.setState({
+                drawDeckSize: newState[PARAM_DRAW_DECK],
+                discardDeckSize: newState[PARAM_DISCARD_DECK],
+            });
+            this.onAnimationFinish();
+        });
     }
 
     //// Animation Handling
@@ -1217,16 +1211,6 @@ class App extends Component {
                 <div style={{textAlign:"center"}}>
                     <div id="snackbar">{this.state.snackbarMessage}</div>
                 </div>
-
-                <button
-                    onClick={this.testAlert}
-                >Show Alert</button>
-
-                <button
-                    onClick={this.playAnimationTest}>
-                    Test Animation
-                </button>
-
             </div>
         );
     }

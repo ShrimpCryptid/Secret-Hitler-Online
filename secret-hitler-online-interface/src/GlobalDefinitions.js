@@ -103,6 +103,8 @@ export const PARAM_ELEC_TRACKER_ADVANCED = "election-tracker-advanced";
 export const PARAM_VOTES = "user-votes";
 export const PARAM_LIBERAL_POLICIES = "liberal-policies";
 export const PARAM_FASCIST_POLICIES = "fascist-policies";
+export const PARAM_DRAW_DECK = "draw-size";
+export const PARAM_DISCARD_DECK = "discard-size";
 export const PARAM_PRESIDENT_CHOICES = "president-choices";
 export const PARAM_CHANCELLOR_CHOICES = "chancellor-choices";
 

@@ -491,6 +491,11 @@ public class SecretHitlerGame {
             electedPresident = null;
         } else if (nextPresident != null) { // Once the PRESIDENTIAL_POWER_ELECTION round concludes, returns to the normal order.
             currentPresident = nextPresident;
+            while (!getPlayer(currentPresident).isAlive()) {
+                // Advance to the next president
+                int presIndex = indexOfPlayer(currentPresident);
+                currentPresident = getPlayerList().get(presIndex + 1).getUsername();
+            }
             nextPresident = null;
         } else { // advance the presidency
             // Advance presidency:
