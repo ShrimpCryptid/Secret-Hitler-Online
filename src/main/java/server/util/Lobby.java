@@ -183,10 +183,10 @@ public class Lobby {
             updateUser(ws);
         }
         //Check if the game ended.
-        if (game.getState() == GameState.FASCIST_VICTORY_ELECTION
+        if (game != null && (game.getState() == GameState.FASCIST_VICTORY_ELECTION
                 || game.getState() == GameState.FASCIST_VICTORY_POLICY
                 || game.getState() == GameState.LIBERAL_VICTORY_EXECUTION
-                || game.getState() == GameState.LIBERAL_VICTORY_POLICY) {
+                || game.getState() == GameState.LIBERAL_VICTORY_POLICY)) {
             game = null;
         }
     }
