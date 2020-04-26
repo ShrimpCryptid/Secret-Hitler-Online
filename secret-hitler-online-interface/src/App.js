@@ -90,7 +90,7 @@ import Deck from "./board/Deck";
 const EVENT_BAR_FADE_OUT_DURATION = 500;
 const CUSTOM_ALERT_FADE_DURATION = 1000;
 
-const DEBUG = true;
+const DEBUG = false;
 const DEFAULT_GAME_STATE = {"liberal-policies":0,"fascist-policies":0,"discard-size":0,"draw-size":17,
         "players":{}, "in-game":true, "player-order":[], "state":STATE_SETUP, "president":"", "chancellor":"", "election-tracker":0};
 const TEST_GAME_STATE = {"liberal-policies":0,"fascist-policies":0,"discard-size":0,"draw-size":17,
@@ -231,7 +231,7 @@ class App extends Component {
      *          login screen with a relevant error message.
      */
     onWebSocketClose() {
-        if (this.failedConnections < MAX_FAILED_CONNECTIONS && this.reconnectOnConnectionClosed) {
+        if (this.reconnectOnConnectionClosed && this.failedConnections < MAX_FAILED_CONNECTIONS) {
             this.failedConnections += 1;
             this.showSnackBar("Lost connection to the server: retrying...");
             this.tryOpenWebSocket(this.state.name, this.state.lobby);
@@ -244,7 +244,7 @@ class App extends Component {
             });
             this.clearAnimationQueue();
         } else { // User purposefully closed the connection.
-            if (this.state.gameOver) {
+            if (this.gameOver) {
                 // Do not reopen if the game is over, since disconnecting is intentional.
             } else {
                 this.setState({
