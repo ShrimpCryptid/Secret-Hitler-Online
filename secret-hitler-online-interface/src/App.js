@@ -99,6 +99,7 @@ class App extends Component {
     animationQueue = [];
     okMessageListeners = [];
     allAnimationsFinished = true;
+    gameOver = false;
 
     // noinspection DuplicatedCode
     constructor(props) {
@@ -140,7 +141,7 @@ class App extends Component {
             eventBarMessage: "",
 
             statusBarText:"---",
-            allAnimationsFinished: true
+            allAnimationsFinished: true,
         };
 
         // These are necessary for handling class fields (ex: websocket)
@@ -236,12 +237,16 @@ class App extends Component {
             });
             this.clearAnimationQueue();
         } else { // User purposefully closed the connection.
-            this.setState({
-                page: PAGE.LOGIN,
-                joinName: decodeURIComponent(this.state.name),
-                joinError: ""
-            });
-            this.clearAnimationQueue();
+            if (this.state.gameOver) {
+                // Do not reopen if the game is over, since disconnecting is intentional.
+            } else {
+                this.setState({
+                    page: PAGE.LOGIN,
+                    joinName: decodeURIComponent(this.state.name),
+                    joinError: ""
+                });
+                this.clearAnimationQueue();
+            }
         }
     }
 
@@ -893,7 +898,8 @@ class App extends Component {
                         }
                     });
 
-                    let victors, losers, victoryMessage, headerText, headerClass;
+                    let victoryMessage, headerText, headerClass;
+                    let players = [];
                     let state = newState[PARAM_STATE];
                     let fascistVictoryPolicy = state === STATE_FASCIST_VICTORY_POLICY;
                     let fascistVictoryElection = state === STATE_FASCIST_VICTORY_ELECTION;
@@ -901,8 +907,8 @@ class App extends Component {
                     let liberalVictoryExecution = state === STATE_LIBERAL_VICTORY_EXECUTION;
 
                     if (fascistVictoryElection || fascistVictoryPolicy) {
-                        victors = fascistPlayers;
-                        losers = liberalPlayers;
+                        players.push(fascistPlayers);
+                        players.push(liberalPlayers);
                         headerClass = "highlight";
                         headerText = "FASCIST VICTORY";
                         if (fascistVictoryPolicy) {
@@ -911,9 +917,9 @@ class App extends Component {
                             victoryMessage = "Fascists successfully elected Hitler as chancellor!"
                         }
                     } else {
-                        victors = liberalPlayers;
-                        losers = fascistPlayers;
-                        headerClass = "highlight blue";
+                        players.push(liberalPlayers);
+                        players.push(fascistPlayers);
+                        headerClass = "highlight-blue";
                         headerText = "LIBERAL VICTORY";
                         if (liberalVictoryPolicy) {
                             victoryMessage = "Liberals successfully passed five policies!";
@@ -924,34 +930,35 @@ class App extends Component {
 
                     //TODO: Move players to the lobby.
                     this.addAnimationToQueue( () => {
-
                         this.setState({
                             alertContent: (
-                            <ButtonPrompt
-                                renderLabel={() => {
-                                    return (
-                                        <h2 className={headerClass}>{headerText}</h2>
-                                    );
-                                }}
-                                headerText={victoryMessage}
-                                buttonText={"RETURN TO LOBBY"}
-                                //buttonOnClick={() => this.sendWSCommand("")} TODO
-                            >
-                                <PlayerDisplay
-                                    players={victors}
-                                    playerDisabledFilter={DISABLE_NONE}
-                                    showRoles={true}
-                                    showLabels={false}
-                                />
-                                <PlayerDisplay
-                                    players={losers}
-                                    playerDisabledFilter={DISABLE_NONE}
-                                    showRoles={true}
-                                    showLabels={false}
-                                />
-                            </ButtonPrompt>
+                                <ButtonPrompt
+                                    renderLabel={() => {
+                                        return (
+                                            <h2 className={headerClass}>{headerText}</h2>
+                                        );
+                                    }}
+                                    headerText={victoryMessage}
+                                    buttonText={"RETURN TO LOBBY"}
+                                    buttonOnClick={() => {
+                                        this.gameOver = false;
+                                        this.reconnectOnConnectionClosed = true;
+                                        this.tryOpenWebSocket(this.state.name, this.state.lobby);
+                                        this.hideAlertAndFinish();
+                                    }}
+                                >
+                                    <PlayerDisplay
+                                        players={players}
+                                        playerDisabledFilter={DISABLE_NONE}
+                                        showRoles={true}
+                                        showLabels={false}
+                                    />
+                                </ButtonPrompt>
                             ),
                         showAlert: true});});
+                    this.gameOver = true;
+                    this.reconnectOnConnectionClosed = false;
+                    this.websocket.disconnect();
                     break;
 
                 default:

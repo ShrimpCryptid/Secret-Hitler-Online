@@ -70,6 +70,10 @@ p {
     color: var(--textColorHighlight);
 }
 
+.highlight-blue {
+    color: var(--textColorLiberal);
+}
+
 /* Credit to https://designtheway.com/css-buttons/ for the CSS source code.*/
 button {
     background:transparent;
