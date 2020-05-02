@@ -19,7 +19,7 @@ The [webpage](/secret-hitler-online-interface) is written in [React](https://rea
 ## Creative Commons License and Credit
 Secret Hitler Online is licensed under [Creative Commons BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/), and is adapted from the original board game released by Goat, Wolf & Cabbage (© 2016-2020).
 
-### What's changed?
+#### What's changed from the original?
 Art assets from the game (the boards, policies, identity cards, etc.) were adapted for the website with some minor modifications. 
 Custom assets (made in Inkscape) were added based on the style of the original, most notably for the election tracker and policy reveal popup windows.
 All of the base game's rules were kept as-is, but the web interface, animations, and server are new additions.
