@@ -1,5 +1,5 @@
 # Secret-Hitler-Online
-A web adaptation of [Secret Hitler](https://secrethitler.com), a social deduction board game for 5-10 players by Goat, Wolf & Cabbage. You can play it with friends at [secrethitler.online](https://secrethitler.online)!
+A web adaptation of [Secret Hitler](https://secrethitler.com), a social deduction board game for 5-10 players by Goat, Wolf & Cabbage. You can play it with friends at [secret-hitler.online](https://secret-hitler.online)!
 
 ## The Game
 In the game, players are divided into Liberals, Fascists, and one secret Hitler. The Liberals must work together (or not) to discover the secret Hitler hiding in their midst, all while the Fascists try to elevate the secret Hitler to power. Pass policies to achieve victory and unlock presidential powers to investigate your friends. 
@@ -7,7 +7,7 @@ In the game, players are divided into Liberals, Fascists, and one secret Hitler.
 Can you find and stop the Secret Hitler?
 
 ### How to Play: 
-Go to [secrethitler.online](https://secrethitler.online) and open a new lobby! Use the lobby's code or the provided link to invite your friends. You can start the game once you have 5-10 players.
+Go to [secret-hitler.online](https://secret-hitler.online) and open a new lobby! Use the lobby's code or the provided link to invite your friends. You can start the game once you have 5-10 players.
 
 There are instructions on how to play the game provided on the website, and plenty of helpful tips are provided for first-time players. You can read the [full rulebook here](https://cdn.vapid.site/sites/a67e0c72-4902-4365-a899-3386df73c2c4/assets/Secret_Hitler_Rules-023bc755617986cb2276a3b6920e43e0.pdf).
 
@@ -19,7 +19,7 @@ The [webpage](/secret-hitler-online-interface) is written in [React](https://rea
 ## Creative Commons License and Credit
 Secret Hitler Online is licensed under [Creative Commons BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/), and is adapted from the original board game released by Goat, Wolf & Cabbage (© 2016-2020).
 
-### What's changed?
+#### What's changed from the original?
 Art assets from the game (the boards, policies, identity cards, etc.) were adapted for the website with some minor modifications. 
 Custom assets (made in Inkscape) were added based on the style of the original, most notably for the election tracker and policy reveal popup windows.
 All of the base game's rules were kept as-is, but the web interface, animations, and server are new additions.
