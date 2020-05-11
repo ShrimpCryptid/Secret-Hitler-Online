@@ -97,7 +97,7 @@ public class SecretHitlerServer {
 
         Javalin serverApp = Javalin.create(config -> {
             if (DEBUG) {
-                config.enableCorsForOrigin("https://localhost:3000");
+                config.enableCorsForAllOrigins();
             } else {
                 config.enableCorsForOrigin("https://secret-hitler.online");
             }

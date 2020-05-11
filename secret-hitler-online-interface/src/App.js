@@ -62,7 +62,7 @@ import {
     STATE_LIBERAL_VICTORY_EXECUTION,
     STATE_LIBERAL_VICTORY_POLICY,
     PARAM_PEEK,
-    PARAM_INVESTIGATION, HITLER, PARAM_DRAW_DECK, PARAM_DISCARD_DECK
+    PARAM_INVESTIGATION, HITLER, PARAM_DRAW_DECK, PARAM_DISCARD_DECK, WEBSOCKET_HEADER
 } from "./GlobalDefinitions";
 
 import PlayerDisplay, {
@@ -213,7 +213,7 @@ class App extends Component {
             console.log("Opening connection with lobby: " + lobby);
             console.log("Failed connections: " + this.failedConnections);
         }
-        let ws = new WebSocket('wss://' + SERVER_ADDRESS + WEBSOCKET + "?name=" + encodeURIComponent(name) + "&lobby=" + encodeURIComponent(lobby));
+        let ws = new WebSocket(WEBSOCKET_HEADER + SERVER_ADDRESS + WEBSOCKET + "?name=" + encodeURIComponent(name) + "&lobby=" + encodeURIComponent(lobby));
         if (ws.OPEN) {
             this.websocket = ws;
             this.reconnectOnConnectionClosed = true;
@@ -262,7 +262,6 @@ class App extends Component {
             this.tryOpenWebSocket(this.state.name, this.state.lobby);
         } else if (this.reconnectOnConnectionClosed) {
             this.setState({
-                page: PAGE.LOGIN,
                 joinName: decodeURIComponent(this.state.name),
                 joinLobby: decodeURIComponent(this.state.lobby),
                 joinError: "Disconnected from the lobby."
@@ -275,11 +274,6 @@ class App extends Component {
         } else { // User purposefully closed the connection.
             if (this.gameOver) {
                 // Do not reopen if the game is over, since disconnecting is intentional.
-                this.setState({page: PAGE.LOGIN, joinLobby: ""});
-                ReactGA.event( {
-                    category: "Disconnected From Lobby (Purposeful)",
-                    action: "User purposefully disconnected from the lobby."
-                });
             } else {
                 this.setState({
                     page: PAGE.LOGIN,
