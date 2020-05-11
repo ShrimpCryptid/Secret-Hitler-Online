@@ -147,7 +147,7 @@ class RoleAlert extends Component {
                     <p className={"left-align"}>{roleText[1]}</p>
                     <p className="highlight left-align">{roleText[2]}</p>
                 </div>
-                <p>You can review this later by clicking Your Role below.</p>
+
                 <button onClick={this.props.onClick}>OKAY</button>
             </div>
         );

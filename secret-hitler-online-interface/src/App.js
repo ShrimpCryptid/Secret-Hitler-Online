@@ -1,8 +1,8 @@
 import React, {Component} from 'react';
+import ReactGA from 'react-ga';
 import './App.css';
-import MaxLengthTextField from "./util/MaxLengthTextField";
 import './fonts.css';
-
+import MaxLengthTextField from "./util/MaxLengthTextField";
 import CustomAlert from "./custom-alert/CustomAlert";
 import RoleAlert from "./custom-alert/RoleAlert";
 import EventBar from "./event-bar/EventBar";
@@ -87,6 +87,7 @@ import PeekPrompt from "./custom-alert/PeekPrompt";
 import InvestigationAlert from "./custom-alert/InvestigationAlert";
 import Deck from "./board/Deck";
 
+const queryString = require('query-string');
 const EVENT_BAR_FADE_OUT_DURATION = 500;
 const CUSTOM_ALERT_FADE_DURATION = 1000;
 
@@ -97,6 +98,7 @@ const TEST_GAME_STATE = {"liberal-policies":0,"fascist-policies":0,"discard-size
     "players":{"P1":{"alive":true,"id":"FASCIST","investigated":false},"P2":{"alive":true,"id":"HITLER","investigated":false},"P3":{"alive":true,"id":"LIBERAL","investigated":true},"P4":{"alive":true,"id":"LIBERAL","investigated":false},"P5":{"alive":true,"id":"LIBERAL","investigated":false},"P6":{"alive":false,"id":"FASCIST","investigated":false},"P7":{"alive":true,"id":"LIBERAL","investigated":false}},
     "in-game":true, "player-order":["P4","P2","P6","P1","P7","P3","P5"], "state":STATE_SETUP,"last-president": "P7", "last-chancellor": "P3", "president":"P4", "chancellor":"P5", "election-tracker":0,
     "user-votes":{"P4": true, "P2": false, "P1": false, "P7": true, "P3": false, "P5": true}};
+const trackingID = "G-HE89YTGH69";
 
 class App extends Component {
 
@@ -122,6 +124,7 @@ class App extends Component {
             createLobbyError:"",
             name:"P1",
             lobby:"AAAAAA",
+            lobbyFromURL: false,
 
             usernames:[],
             userCount:0,
@@ -146,6 +149,9 @@ class App extends Component {
             statusBarText:"---",
             allAnimationsFinished: true,
         };
+
+        // The website uses Google Analytics!
+        ReactGA.initialize(trackingID);
 
         // These are necessary for handling class fields (ex: websocket)
         this.onWebSocketClose = this.onWebSocketClose.bind(this);
@@ -182,6 +188,14 @@ class App extends Component {
      * @return {Promise<Response>} The response from the server.
      */
     async tryLogin(name, lobby) {
+        // Register a hashed version of the user name with Google Analytics.
+        ReactGA.set( {
+            userID: name.hash,
+        });
+        ReactGA.event({
+            category: "Join Lobby",
+            action: "User attempted to join a lobby.",
+        });
         return await fetch(SERVER_ADDRESS_HTTP + CHECK_LOGIN + "?name=" + encodeURIComponent(name)
                             + "&lobby=" + encodeURIComponent(lobby));
     }
@@ -203,8 +217,13 @@ class App extends Component {
         if (ws.OPEN) {
             this.websocket = ws;
             this.reconnectOnConnectionClosed = true;
+            // Only move the player to the lobby page if they were logging in.
+            // This is to prevent the bug where players flash in/out of the lobby page
+            // at random points in the game.
+            if (this.state.page === PAGE.LOGIN) {
+                this.setState({page: PAGE.LOBBY});
+            }
             this.setState({
-                page: PAGE.LOBBY,
                 name: name,
                 lobby: lobby,
                 usernames: [],
@@ -231,9 +250,15 @@ class App extends Component {
      *          login screen with a relevant error message.
      */
     onWebSocketClose() {
+        ReactGA.event( {
+            category: "Disconnected From Server",
+            action: "User disconnected from the server."
+        });
         if (this.reconnectOnConnectionClosed && this.failedConnections < MAX_FAILED_CONNECTIONS) {
+            if (this.failedConnections >= 1) {  // Only show the error bar if the first attempt has failed.
+                this.showSnackBar("Lost connection to the server: retrying...");
+            }
             this.failedConnections += 1;
-            this.showSnackBar("Lost connection to the server: retrying...");
             this.tryOpenWebSocket(this.state.name, this.state.lobby);
         } else if (this.reconnectOnConnectionClosed) {
             this.setState({
@@ -242,10 +267,19 @@ class App extends Component {
                 joinLobby: decodeURIComponent(this.state.lobby),
                 joinError: "Disconnected from the lobby."
             });
+            ReactGA.event( {
+                category: "Disconnected From Lobby (Timeout)",
+                action: "User was unable to reconnect to the server."
+            });
             this.clearAnimationQueue();
         } else { // User purposefully closed the connection.
             if (this.gameOver) {
                 // Do not reopen if the game is over, since disconnecting is intentional.
+                this.setState({page: PAGE.LOGIN, joinLobby: ""});
+                ReactGA.event( {
+                    category: "Disconnected From Lobby (Purposeful)",
+                    action: "User purposefully disconnected from the lobby."
+                });
             } else {
                 this.setState({
                     page: PAGE.LOGIN,
@@ -585,7 +619,7 @@ class App extends Component {
 
                     <p style={{marginBottom:"2px"}}>Copy and share this link to invite other players.</p>
                     <div style={{textAlign:"left", display:"flex", flexDirection:"row", alignItems:"center"}}>
-                        <textarea id="linkText" readOnly={true} value={"secret-hitler.online/join/" + this.state.lobby}/>
+                        <textarea id="linkText" readOnly={true} value={"secret-hitler.online/?lobby=" + this.state.lobby}/>
                         <button
                             onClick={this.onClickCopy}
                         >
@@ -933,6 +967,23 @@ class App extends Component {
                     let fascistVictoryElection = state === STATE_FASCIST_VICTORY_ELECTION;
                     let liberalVictoryPolicy = state === STATE_LIBERAL_VICTORY_POLICY;
                     let liberalVictoryExecution = state === STATE_LIBERAL_VICTORY_EXECUTION;
+                    let playerID = newState[PARAM_PLAYERS][name][PLAYER_IDENTITY];
+                    let playerWon =
+                        (playerID === LIBERAL && (liberalVictoryExecution || liberalVictoryPolicy))
+                        || (playerID !== LIBERAL && (fascistVictoryElection || fascistVictoryPolicy));
+
+                    // Register player victory/loss with analytics.
+                    if (playerWon) {
+                        ReactGA.event({
+                            category: "Player Victory - " + playerID,
+                            action: "Player's team won the game."
+                        });
+                    } else {
+                        ReactGA.event({
+                            category: "Player Loss - " + playerID,
+                            action: "Player's team lost the game."
+                        });
+                    }
 
                     if (fascistVictoryElection || fascistVictoryPolicy) {
                         players = fascistPlayers.concat(liberalPlayers);
@@ -973,6 +1024,7 @@ class App extends Component {
                                         this.tryOpenWebSocket(this.state.name, this.state.lobby);
                                         this.hideAlertAndFinish();
                                         this.setState({
+                                            page: PAGE.LOBBY,
                                             gameState: DEFAULT_GAME_STATE,
                                             liberalPolicies: 0,
                                             fascistPolicies: 0,
@@ -1307,6 +1359,13 @@ class App extends Component {
     //</editor-fold>
 
     render() {
+        // Check URL params. If joining from a lobby link, open the lobby with the given code.
+        let url = window.location.search;
+        let lobby = new URLSearchParams(url).get('lobby');
+        if (lobby !== null && !this.state.lobbyFromURL) {
+            this.setState({joinLobby: lobby.toUpperCase().substr(0, 4), lobbyFromURL: true});
+        }
+
         switch (this.state.page) {
             case PAGE.LOGIN:
                 return this.renderLoginPage();
