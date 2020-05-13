@@ -569,6 +569,14 @@ class App extends Component {
                     </a>
                 </p>
 
+                <p style={{margin: "10px 20pxpx", fontWeight: "400", fontSize: "calc(4px + 1.8vmin)"}}>
+                    Note: Secret-Hitler.Online is in BETA.
+                    <br/>
+                    Game-breaking bugs may occur while playing.
+                    <br/>
+                    You can report bugs on the <a href={"https://github.com/ShrimpCryptid/Secret-Hitler-Online/issues"} target={"_blank"} >Issues page.</a>
+                </p>
+
                 <p
                     style={{margin: "10px 20pxpx", fontWeight: "400", fontSize: "calc(4px + 1.8vmin)"}}
                 >
@@ -694,6 +702,14 @@ class App extends Component {
                                 <a href={"https://github.com/ShrimpCryptid/Secret-Hitler-Online/blob/master/README.md"} target={"_blank"} onClick={this.onClickAbout}>
                                 About this project
                             </a>
+                            </p>
+                            <br/>
+                            <p style={{margin: "10px 20pxpx", fontWeight: "400", fontSize: "calc(4px + 1.8vmin)"}}>
+                                Note: Secret-Hitler.Online is in BETA.
+                                <br />
+                                Game-breaking bugs may occur while playing.
+                                <br/>
+                                You can report bugs on the <a href={"https://github.com/ShrimpCryptid/Secret-Hitler-Online/issues"} target={"_blank"} >Issues page.</a>
                             </p>
                         </div>
                     </div>
