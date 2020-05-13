@@ -515,7 +515,7 @@ class App extends Component {
         return (
             <div className="App">
                 <header className="App-header">
-                    SECRET HITLER ONLINE
+                    SECRET-HITLER.ONLINE
                 </header>
                 <br/>
                 <div style={{textAlign: "center"}}>
@@ -651,7 +651,7 @@ class App extends Component {
         return (
             <div className="App">
                 <header className="App-header">
-                    SECRET HITLER ONLINE
+                    SECRET-HITLER.ONLINE
                 </header>
 
                 <div style={{textAlign:"left", marginLeft:"20px", marginRight:"20px"}}>
@@ -1026,13 +1026,13 @@ class App extends Component {
                     // Register player victory/loss with analytics.
                     if (playerWon) {
                         ReactGA.event({
-                            category: "Player Victory - " + playerID,
-                            action: "Player's team won the game."
+                            category: "Victory",
+                            action: playerID + " team won the game."
                         });
                     } else {
                         ReactGA.event({
-                            category: "Player Loss - " + playerID,
-                            action: "Player's team lost the game."
+                            category: "Loss",
+                            action: playerID + " team lost the game."
                         });
                     }
 
@@ -1352,7 +1352,7 @@ class App extends Component {
         return (
             <div className="App" style={{textAlign:"center"}}>
                 <header className="App-header">
-                    SECRET HITLER ONLINE
+                    SECRET-HITLER.ONLINE
                 </header>
 
                 <CustomAlert show={this.state.showAlert}>
