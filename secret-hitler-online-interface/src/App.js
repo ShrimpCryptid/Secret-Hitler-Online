@@ -87,7 +87,6 @@ import PeekPrompt from "./custom-alert/PeekPrompt";
 import InvestigationAlert from "./custom-alert/InvestigationAlert";
 import Deck from "./board/Deck";
 
-const queryString = require('query-string');
 const EVENT_BAR_FADE_OUT_DURATION = 500;
 const CUSTOM_ALERT_FADE_DURATION = 1000;
 
@@ -98,7 +97,6 @@ const TEST_GAME_STATE = {"liberal-policies":0,"fascist-policies":0,"discard-size
     "players":{"P1":{"alive":true,"id":"FASCIST","investigated":false},"P2":{"alive":true,"id":"HITLER","investigated":false},"P3":{"alive":true,"id":"LIBERAL","investigated":true},"P4":{"alive":true,"id":"LIBERAL","investigated":false},"P5":{"alive":true,"id":"LIBERAL","investigated":false},"P6":{"alive":false,"id":"FASCIST","investigated":false},"P7":{"alive":true,"id":"LIBERAL","investigated":false}},
     "in-game":true, "player-order":["P4","P2","P6","P1","P7","P3","P5"], "state":STATE_SETUP,"last-president": "P7", "last-chancellor": "P3", "president":"P4", "chancellor":"P5", "election-tracker":0,
     "user-votes":{"P4": true, "P2": false, "P1": false, "P7": true, "P3": false, "P5": true}};
-const trackingID = "G-HE89YTGH69";
 
 class App extends Component {
 
@@ -151,7 +149,8 @@ class App extends Component {
         };
 
         // The website uses Google Analytics!
-        ReactGA.initialize(trackingID);
+        ReactGA.initialize("UA-166327773-1");
+        ReactGA.pageview("/");
 
         // These are necessary for handling class fields (ex: websocket)
         this.onWebSocketClose = this.onWebSocketClose.bind(this);
@@ -188,13 +187,9 @@ class App extends Component {
      * @return {Promise<Response>} The response from the server.
      */
     async tryLogin(name, lobby) {
-        // Register a hashed version of the user name with Google Analytics.
-        ReactGA.set( {
-            userID: name.hash,
-        });
         ReactGA.event({
-            category: "Join Lobby",
-            action: "User attempted to join a lobby.",
+            category: "Login Attempt",
+            action: "User attempted to provide login credentials to the server.",
         });
         return await fetch(SERVER_ADDRESS_HTTP + CHECK_LOGIN + "?name=" + encodeURIComponent(name)
                             + "&lobby=" + encodeURIComponent(lobby));
@@ -250,13 +245,13 @@ class App extends Component {
      *          login screen with a relevant error message.
      */
     onWebSocketClose() {
-        ReactGA.event( {
-            category: "Disconnected From Server",
-            action: "User disconnected from the server."
-        });
         if (this.reconnectOnConnectionClosed && this.failedConnections < MAX_FAILED_CONNECTIONS) {
             if (this.failedConnections >= 1) {  // Only show the error bar if the first attempt has failed.
                 this.showSnackBar("Lost connection to the server: retrying...");
+                ReactGA.event( {
+                    category: "Lost Server Connection",
+                    action: "User lost connection to the server. (>1 attempt)"
+                });
             }
             this.failedConnections += 1;
             this.tryOpenWebSocket(this.state.name, this.state.lobby);
@@ -267,8 +262,8 @@ class App extends Component {
                 joinError: "Disconnected from the lobby."
             });
             ReactGA.event( {
-                category: "Disconnected From Lobby (Timeout)",
-                action: "User was unable to reconnect to the server."
+                category: "Lost Server Connection (Terminal)",
+                action: "User was unable to reconnect to the server. (max attempts reached)"
             });
             this.clearAnimationQueue();
         } else { // User purposefully closed the connection.
@@ -423,14 +418,34 @@ class App extends Component {
                     }
                     if (response.status === 404) {
                         this.setState({joinError:"The lobby could not be found."});
+                        ReactGA.event( {
+                            category: "Login Failed",
+                            action: "Lobby not found - User unable to connect."
+                        });
                     } else if (response.status === 403) {
                         this.setState({joinError:"There is already a user with the name '" + this.state.joinName + "' in the lobby."});
+                        ReactGA.event( {
+                            category: "Login Failed",
+                            action: "Duplicate name - User unable to connect."
+                        });
                     } else if (response.status === 488) {
                         this.setState({joinError:"The lobby is currently in a game."});
+                        ReactGA.event( {
+                            category: "Login Failed",
+                            action: "Ongoing game - User unable to connect."
+                        });
                     } else if (response.status === 489) {
                         this.setState({joinError:"The lobby is currently full."})
+                        ReactGA.event( {
+                            category: "Login Failed",
+                            action: "Lobby full - User unable to connect."
+                        });
                     } else {
                         this.setState({joinError:"There was an error connecting to the server. Please try again."});
+                        ReactGA.event( {
+                            category: "Login Failed",
+                            action: "Misc - User was unable to connect."
+                        });
                     }
                 } else {
                     // Username and lobby were verified. Try to open websocket.
@@ -453,15 +468,46 @@ class App extends Component {
             if (response.ok) {
                 response.text().then(lobbyCode => {
                     if (!this.tryOpenWebSocket(encodeURIComponent(this.state.createLobbyName), lobbyCode)) { // if the connection failed
-                        this.setState({createLobbyError:"There was an error connecting to the server. Please try again."})
+                        this.setState({createLobbyError:"There was an error connecting to the server. Please try again."});
+                        ReactGA.event({
+                            category: "Lobby Creation Failed",
+                            action: "Failed to create a new lobby.",
+                        });
+                    } else {
+                        ReactGA.event({
+                            category: "Lobby Created",
+                            action: "Successfully created new lobby.",
+                        });
                     }
                 });
             } else {
                 this.setState({createLobbyError:"There was an error connecting to the server. Please try again."});
+                ReactGA.event({
+                    category: "Lobby Creation Failed",
+                    action: "Failed to create a new lobby.",
+                });
             }
         })
         .catch(() => {
             this.setState({createLobbyError:"There was an error connecting to the server. Please try again."});
+            ReactGA.event({
+                category: "Lobby Creation Failed",
+                action: "Failed to create a new lobby.",
+            });
+        });
+    };
+
+    onClickAbout = () => {
+        ReactGA.event( {
+            category: "Clicked About",
+            action: "User clicked the link for the about page."
+        });
+    };
+
+    onClickGameWebsite = () => {
+        ReactGA.event( {
+            category: "Clicked Game Website",
+            action: "User clicked the link for the board game website."
         });
     };
 
@@ -518,7 +564,7 @@ class App extends Component {
                 <br/>
                 <br/>
                 <p style={{margin: "10px 20pxpx", fontWeight: "400", fontSize: "calc(4px + 1.8vmin)"}}>
-                    Developed by ShrimpCryptid - <a href={"https://github.com/ShrimpCryptid/Secret-Hitler-Online/blob/master/README.md"} target={"_blank"}>
+                    Developed by ShrimpCryptid - <a href={"https://github.com/ShrimpCryptid/Secret-Hitler-Online/blob/master/README.md"} target={"_blank"} onClick={this.onClickAbout}>
                         about this project
                     </a>
                 </p>
@@ -526,7 +572,8 @@ class App extends Component {
                 <p
                     style={{margin: "10px 20pxpx", fontWeight: "400", fontSize: "calc(4px + 1.8vmin)"}}
                 >
-                    Based on the original <a href={"https://secrethitler.com"} target={"_blank"}>Secret Hitler</a> board game by Goat, Wolf, & Cabbage (© 2016-2020).</p>
+                    Based on the original <a href={"https://secrethitler.com"} target={"_blank"} onClick={this.onClickGameWebsite}>Secret Hitler</a> board game by Goat, Wolf, & Cabbage (© 2016-2020).
+                </p>
         </div>
         );
     }
@@ -567,6 +614,10 @@ class App extends Component {
      * Contacts the server and requests to start the game.
      */
     onClickStartGame() {
+        ReactGA.event( {
+            category: "Starting Game",
+            action: this.state.userCount + " players started game."
+        });
         this.sendWSCommand(COMMAND_START_GAME);
     }
 
@@ -638,6 +689,12 @@ class App extends Component {
                             >
                                 LEAVE LOBBY
                             </button>
+
+                            <p style={{margin: "10px 20pxpx", fontWeight: "400", fontSize: "calc(4px + 1.8vmin)"}}>
+                                <a href={"https://github.com/ShrimpCryptid/Secret-Hitler-Online/blob/master/README.md"} target={"_blank"} onClick={this.onClickAbout}>
+                                About this project
+                            </a>
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -1357,6 +1414,10 @@ class App extends Component {
         let url = window.location.search;
         let lobby = new URLSearchParams(url).get('lobby');
         if (lobby !== null && !this.state.lobbyFromURL) {
+            ReactGA.event({
+                category: "Lobby Link",
+                action: "User is using a lobby link.",
+            });
             this.setState({joinLobby: lobby.toUpperCase().substr(0, 4), lobbyFromURL: true});
         }
 
