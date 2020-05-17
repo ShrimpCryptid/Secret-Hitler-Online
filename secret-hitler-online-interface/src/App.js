@@ -62,7 +62,7 @@ import {
     STATE_LIBERAL_VICTORY_EXECUTION,
     STATE_LIBERAL_VICTORY_POLICY,
     PARAM_PEEK,
-    PARAM_INVESTIGATION, HITLER, PARAM_DRAW_DECK, PARAM_DISCARD_DECK, WEBSOCKET_HEADER
+    PARAM_INVESTIGATION, HITLER, PARAM_DRAW_DECK, PARAM_DISCARD_DECK, WEBSOCKET_HEADER, DEBUG
 } from "./GlobalDefinitions";
 
 import PlayerDisplay, {
@@ -90,7 +90,6 @@ import Deck from "./board/Deck";
 const EVENT_BAR_FADE_OUT_DURATION = 500;
 const CUSTOM_ALERT_FADE_DURATION = 1000;
 
-const DEBUG = false;
 const DEFAULT_GAME_STATE = {"liberal-policies":0,"fascist-policies":0,"discard-size":0,"draw-size":17,
         "players":{}, "in-game":true, "player-order":[], "state":STATE_SETUP, "president":"", "chancellor":"", "election-tracker":0};
 const TEST_GAME_STATE = {"liberal-policies":0,"fascist-policies":0,"discard-size":0,"draw-size":17,
@@ -597,6 +596,9 @@ class App extends Component {
             if(name === this.state.name) {
                 name += " (you)";
             }
+            if (i === 0) {
+                name += " [★VIP]";
+            }
             out[i] = <p style={{marginBottom:"0px", marginTop:"2px"}}>{" - " + decodeURIComponent(name)}</p>;
         }
         return out;
@@ -647,6 +649,8 @@ class App extends Component {
     }
 
     renderLobbyPage() {
+        // The first player in the lobby is counted as the VIP.
+        let isVIP = (this.state.usernames.length > 0 && this.state.usernames[0] === this.state.name);
         return (
             <div className="App">
                 <header className="App-header">
@@ -679,9 +683,12 @@ class App extends Component {
                         </div>
 
                         <div style={{display:"flex", flexDirection:"column", alignItems:"right"}}>
+                            {!isVIP &&
+                                <p>Only the VIP can start the game.</p>
+                            }
                             <button
                                 onClick={this.onClickStartGame}
-                                disabled={!this.shouldStartGameBeEnabled()}
+                                disabled={!isVIP || !this.shouldStartGameBeEnabled()}
                             >START GAME</button>
                             <button
                                 onClick={this.onClickLeaveLobby}

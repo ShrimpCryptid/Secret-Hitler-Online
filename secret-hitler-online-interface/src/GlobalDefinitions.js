@@ -7,15 +7,19 @@ export const PAGE = {
     LOBBY: 'lobby',
     GAME: 'game'
 };
+export const DEBUG = false;
+const USING_DEBUG_SERVER = false;
 
-export const SERVER_ADDRESS = "secret-hitler-web.herokuapp.com";
-export const SERVER_ADDRESS_HTTP = "https://" + SERVER_ADDRESS;
-export const WEBSOCKET_HEADER = "wss://";
+export let SERVER_ADDRESS = "secret-hitler-web.herokuapp.com";
+export let SERVER_ADDRESS_HTTP = "https://" + SERVER_ADDRESS;
+export let WEBSOCKET_HEADER = "wss://";
 
-// Debug Constants
-//export const SERVER_ADDRESS = "localhost:4040";
-//export const SERVER_ADDRESS_HTTP = "http://" + SERVER_ADDRESS;
-//export const WEBSOCKET_HEADER = "ws://";
+if (USING_DEBUG_SERVER) {
+    // Debug Constants
+    SERVER_ADDRESS = "localhost:4040";
+    SERVER_ADDRESS_HTTP = "http://" + SERVER_ADDRESS;
+    WEBSOCKET_HEADER = "ws://";
+}
 
 export const CHECK_LOGIN = "/check-login";
 export const NEW_LOBBY = '/new-lobby';
