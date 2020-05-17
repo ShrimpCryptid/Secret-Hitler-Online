@@ -1,8 +1,19 @@
 import React, {Component} from "react";
 import ButtonPrompt from "./ButtonPrompt";
 import {
-    COMMAND_REGISTER_VOTE, FASCIST, HITLER, LIBERAL, PARAM_CHANCELLOR, PARAM_ELECTION_TRACKER,
-    PARAM_FASCIST_POLICIES, PARAM_PLAYER_ORDER, PARAM_PLAYERS, PARAM_VOTE, PLAYER_IDENTITY, SERVER_TIMEOUT
+    COMMAND_REGISTER_VOTE,
+    FASCIST,
+    HITLER,
+    LIBERAL,
+    PARAM_CHANCELLOR,
+    PARAM_ELECTION_TRACKER,
+    PARAM_FASCIST_POLICIES,
+    PARAM_PLAYER_ORDER,
+    PARAM_PLAYERS,
+    PARAM_PRESIDENT,
+    PARAM_VOTE,
+    PLAYER_IDENTITY,
+    SERVER_TIMEOUT
 } from "../GlobalDefinitions";
 import "../selectable.css";
 import "./VotingPrompt.css";
@@ -77,6 +88,7 @@ class VotingPrompt extends Component {
         let chancellorName = this.props.gameState[PARAM_CHANCELLOR];
         let shouldShowChancellorRole = this.shouldChancellorRoleBeShown();
         let chancellorRole = this.props.gameState[PARAM_PLAYERS][chancellorName][PLAYER_IDENTITY];
+        let presidentName = this.props.gameState[PARAM_PRESIDENT];
         return (
             <ButtonPrompt
                 label={"VOTING"}
@@ -91,10 +103,11 @@ class VotingPrompt extends Component {
                                 />
 
                                 <p className="left-align">
-                                    {"Vote on whether you want " + chancellorName + " to be your chancellor."}
+                                    {"President " + presidentName + "has nominated "
+                                        + chancellorName + " as chancellor."}
                                 </p>
                                 <p className="left-align">
-                                    {"The vote passes if over 50% of the votes are yes."}
+                                    {"Vote on this proposed government; the vote passes if over 50% of the votes are yes."}
                                 </p>
 
                                 {/* These are two optional warnings that appear when player decisions are extra critical,

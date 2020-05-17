@@ -312,16 +312,7 @@ class App extends Component {
                 break;
 
             case PACKET_INVESTIGATION:
-                    let target = this.state.gameState[PARAM_TARGET];
-                    // Set party according to liberal/fascist
-                    let party = (this.state.gameState[PARAM_PLAYERS][target][PLAYER_IDENTITY] === LIBERAL ? LIBERAL : FASCIST);
 
-                    this.queueAlert(
-                    <InvestigationAlert party={party}
-                                        target={target}
-                                        hideAlert={this.hideAlertAndFinish}
-                    />
-                    , false);
                 break;
             default:
                 // Unrecognized.
@@ -737,6 +728,18 @@ class App extends Component {
         let isChancellor = this.state.name === newState[PARAM_CHANCELLOR];
         let state = newState[PARAM_STATE];
 
+        // If last state was setup, which indicates that the client is re-entering the game or starting the game, then
+        // we set the card count, liberal/fascist policy count, and the tracker to be visible.
+        if (oldState.hasOwnProperty(PARAM_STATE) && oldState[PARAM_STATE] === STATE_SETUP) {
+            this.setState({
+                liberalPolicies: newState[PARAM_LIBERAL_POLICIES],
+                fascistPolicies: newState[PARAM_FASCIST_POLICIES],
+                electionTracker: newState[PARAM_ELECTION_TRACKER],
+                drawDeckSize: newState[PARAM_DRAW_DECK],
+                discardDeckSize: newState[PARAM_DISCARD_DECK],
+            });
+        }
+
         // Check for changes in enacted policies and election tracker.
         if (state === STATE_POST_LEGISLATIVE || state === STATE_PP_INVESTIGATE || state === STATE_PP_EXECUTION
             || state === STATE_PP_ELECTION || state === STATE_PP_PEEK) {
@@ -788,7 +791,7 @@ class App extends Component {
                     electionTracker: newState[PARAM_ELECTION_TRACKER],
                 });
                 setTimeout(()=>this.onAnimationFinish(), 500);
-            })
+            });
         }
 
         // Check for state change
@@ -913,7 +916,7 @@ class App extends Component {
                 case STATE_PP_EXECUTION:
                     this.queueEventUpdate("PRESIDENTIAL POWER");
                     if (isPresident) {
-                        this.queueAlert(SelectExecutionPrompt(name, newState, this.sendWSCommand));
+                        this.queueAlert(SelectExecutionPrompt(name, newState, this.sendWSCommand), true);
                     } else {
                         this.queueStatusMessage("Execution: President is choosing a player to execute.");
                     }
@@ -932,11 +935,13 @@ class App extends Component {
                     switch (newState[PARAM_LAST_STATE]) {
                         case STATE_PP_ELECTION:
                             if (!isPresident) {
+                                console.log("Special Election Alert: " + newState[PARAM_TARGET]);
                                 this.queueAlert(
                                     <ButtonPrompt
                                         label={"SPECIAL ELECTION"}
-                                        footerText={"The president has chosen " + newState[PARAM_TARGET] + " to be the next president." +
-                                        "\nThe normal presidential order will resume after the next round."}
+                                        footerText={newState[PARAM_PRESIDENT] + " has chosen " + newState[PARAM_TARGET]
+                                            + " to be the next president."
+                                            + "\nThe normal presidential order will resume after the next round."}
                                         buttonText={"OKAY"}
                                         buttonOnClick={this.hideAlertAndFinish}
                                     >
@@ -944,7 +949,7 @@ class App extends Component {
                                             user={name}
                                             gameState={newState}
                                             showLabels={false}
-                                            players={newState[PARAM_TARGET]}
+                                            players={[newState[PARAM_TARGET]]}
                                         />
                                     </ButtonPrompt>
                                 , false);
@@ -952,7 +957,7 @@ class App extends Component {
                             break;
                         case STATE_PP_EXECUTION:
                             // If player was executed
-                            if (oldState[PARAM_PLAYERS][name][PLAYER_IS_ALIVE] && !newState[PARAM_PLAYERS][name][PLAYER_IS_ALIVE]) {
+                            if (name === newState[PARAM_TARGET]) {
                                 this.queueAlert(<ButtonPrompt
                                     label={"YOU HAVE BEEN EXECUTED"}
                                     headerText={"Executed players may not speak, vote, or run for office. You should not reveal your identity to the group."}
@@ -1001,7 +1006,19 @@ class App extends Component {
                                             players={[newState[PARAM_TARGET]]}
                                         />
                                     </ButtonPrompt>
-                                )
+                                , true);
+                            } else {
+                                // Is President
+                                let target = newState[PARAM_TARGET];
+                                // Set party according to liberal/fascist
+                                let party = (newState[PARAM_PLAYERS][target][PLAYER_IDENTITY] === LIBERAL ? LIBERAL : FASCIST);
+
+                                this.queueAlert(
+                                    <InvestigationAlert party={party}
+                                                        target={target}
+                                                        hideAlert={this.hideAlertAndFinish}
+                                    />
+                                    , false);
                             }
                             break;
                         case STATE_PP_PEEK: // No additional case is necessary for peeking.
@@ -1015,6 +1032,11 @@ class App extends Component {
                 case STATE_FASCIST_VICTORY_POLICY:
                 case STATE_LIBERAL_VICTORY_EXECUTION:
                 case STATE_LIBERAL_VICTORY_POLICY:
+                    // If the game was won via election, show the votes.
+                    if (newState[PARAM_STATE] === STATE_FASCIST_VICTORY_ELECTION) {
+                        this.addAnimationToQueue(() => this.showVotes(newState));
+                    }
+
                     // Divide fascist and liberal players.
                     let fascistPlayers = [];
                     let liberalPlayers = [];

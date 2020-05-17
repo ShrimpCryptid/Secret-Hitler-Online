@@ -148,11 +148,14 @@ class PlayerDisplay extends Component {
         for (i; start + i < end; i++) {
             let index = i + start;
             let playerName = playerOrder[index];
-            let playerData = players[playerName];
 
             if(!this.props.includeUser && playerName === this.props.user) { // skip this user
                 continue;
             }
+            if (!players.hasOwnProperty(playerName)) {
+                continue;
+            }
+            let playerData = players[playerName];
 
             let roleText = "";
             if (playerName === this.props.gameState[PARAM_CHANCELLOR]) {
@@ -162,10 +165,7 @@ class PlayerDisplay extends Component {
             }
 
             let disabledText = this.props.playerDisabledFilter(playerName, this.props.gameState);
-            let disabled = false;
-            if (disabledText !== "") {
-                disabled = true;
-            }
+            let disabled = disabledText !== "";
 
             let label;
             if (this.props.showLabels) {
