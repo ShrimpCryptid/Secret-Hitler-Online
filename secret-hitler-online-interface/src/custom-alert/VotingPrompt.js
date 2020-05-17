@@ -103,11 +103,14 @@ class VotingPrompt extends Component {
                                 />
 
                                 <p className="left-align">
-                                    {"President " + presidentName + "has nominated "
-                                        + chancellorName + " as chancellor."}
+                                    {presidentName + " has nominated "
+                                        + chancellorName + " as their chancellor."}
                                 </p>
                                 <p className="left-align">
-                                    {"Vote on this proposed government; the vote passes if over 50% of the votes are yes."}
+                                    {"Vote on whether you want this government to proceed."}
+                                </p>
+                                <p className="left-align">
+                                    {"The vote passes if over 50% of the votes are yes."}
                                 </p>
 
                                 {/* These are two optional warnings that appear when player decisions are extra critical,
