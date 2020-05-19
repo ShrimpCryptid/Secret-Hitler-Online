@@ -122,14 +122,21 @@ class PlayerDisplay extends Component {
     }
 
     /**
-     * Returns an array representing the player order.
+     * Returns an array representing the player order. Removes the player if this.props.includeUser is false.
      */
     getPlayerOrder() {
+        let basePlayers;
         if (this.props.players === undefined) {
-            return this.props.gameState[PARAM_PLAYER_ORDER]
-        } else {
-            return this.props.players;
+            basePlayers = this.props.gameState[PARAM_PLAYER_ORDER]
+        } else if (!this.props.includeUser) {
+            basePlayers = this.props.players;
         }
+
+        if (!this.props.includeUser) {
+            // Remove the user from the players.
+            return basePlayers.filter(player => player !== this.props.user);
+        }
+        return basePlayers;
     }
 
     /**
@@ -149,9 +156,6 @@ class PlayerDisplay extends Component {
             let index = i + start;
             let playerName = playerOrder[index];
 
-            if(!this.props.includeUser && playerName === this.props.user) { // skip this user
-                continue;
-            }
             if (!players.hasOwnProperty(playerName)) {
                 continue;
             }
@@ -253,12 +257,23 @@ class PlayerDisplay extends Component {
     * is insufficient space for them.*/
     render() {
         let playerOrder = this.getPlayerOrder();
-        let middleIndex;
-        if (this.props.includeUser) {
-            middleIndex = Math.floor(playerOrder.length / 2);
-        } else { // if excluding the user, account for smaller set of players.
-            middleIndex = Math.floor((playerOrder.length - 1) / 2);
+        // divides the playerOrder at the given index to allow for even groupings if the page is too narrow to fit
+        // all players.
+        let div1, div2;
+        if (playerOrder.length <= 4) {
+            // all players can be sorted into the first group.
+            div1 = playerOrder.length;
+            div2 = playerOrder.length;
+        } else if (playerOrder.length <= 8) {
+            // divide the players into two groups, with size preference given to the second group.
+            div1 = Math.floor(playerOrder.length / 2);
+            div2 = playerOrder.length;
+        } else {
+            div1 = Math.floor(playerOrder.length / 3);
+            div2 = Math.floor(playerOrder.length * 2 / 3)
         }
+
+
         this.determineRolesToShow();
 
         if (this.props.showVotes && !this.playingVoteAnimation) {
@@ -273,10 +288,13 @@ class PlayerDisplay extends Component {
         return (
             <div id="player-display">
                 <div id="player-display-container">
-                    {this.getPlayerHTML(0, middleIndex)}
+                    {this.getPlayerHTML(0, div1)}
                 </div>
                 <div id="player-display-container">
-                    {this.getPlayerHTML(middleIndex, playerOrder.length)}
+                    {this.getPlayerHTML(div1, div2)}
+                </div>
+                <div id="player-display-container">
+                    {this.getPlayerHTML(div2, playerOrder.length)}
                 </div>
             </div>
         );

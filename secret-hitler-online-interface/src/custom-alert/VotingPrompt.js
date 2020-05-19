@@ -100,17 +100,15 @@ class VotingPrompt extends Component {
                                     name={chancellorName}
                                     showRole={shouldShowChancellorRole}
                                     role={chancellorRole}
+                                    style={{marginRight: "10px"}}
                                 />
 
                                 <p className="left-align">
                                     {presidentName + " has nominated "
-                                        + chancellorName + " as their chancellor."}
+                                        + chancellorName + " as chancellor."}
                                 </p>
                                 <p className="left-align">
-                                    {"Vote on whether you want this government to proceed."}
-                                </p>
-                                <p className="left-align">
-                                    {"The vote passes if over 50% of the votes are yes."}
+                                    {"Vote on whether you want this government to proceed; The vote passes if over 50% of the votes are yes."}
                                 </p>
 
                                 {/* These are two optional warnings that appear when player decisions are extra critical,
