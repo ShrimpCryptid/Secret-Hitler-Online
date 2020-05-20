@@ -128,7 +128,7 @@ class PlayerDisplay extends Component {
         let basePlayers;
         if (this.props.players === undefined) {
             basePlayers = this.props.gameState[PARAM_PLAYER_ORDER]
-        } else if (!this.props.includeUser) {
+        } else {
             basePlayers = this.props.players;
         }
 

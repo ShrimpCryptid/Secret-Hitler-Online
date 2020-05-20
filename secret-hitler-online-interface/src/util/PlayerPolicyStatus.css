@@ -1,0 +1,32 @@
+@import '../variables.css';
+
+#pps-container {
+    padding: 10px;
+    background-color: var(--backgroundDark);
+    margin: 10px;
+    border-radius: 4%/6%;
+}
+
+#pps-icon-container {
+    display: flex;
+    align-items: center;
+}
+
+#pps-icon {
+    width: 5vmin;
+    height: 5vmin;
+    margin-left: 3px;
+}
+
+#pps-icon-number {
+    margin-bottom: 0;
+    margin-top: 0;
+}
+
+#pps-text {
+    text-align: left;
+    font-size: 2vmin;
+    margin-bottom: 0;
+    margin-top: 0;
+    color: var(--textColorWhite);
+}

@@ -86,6 +86,7 @@ import ButtonPrompt from "./custom-alert/ButtonPrompt";
 import PeekPrompt from "./custom-alert/PeekPrompt";
 import InvestigationAlert from "./custom-alert/InvestigationAlert";
 import Deck from "./board/Deck";
+import PlayerPolicyStatus from "./util/PlayerPolicyStatus";
 
 const EVENT_BAR_FADE_OUT_DURATION = 500;
 const CUSTOM_ALERT_FADE_DURATION = 1000;
@@ -1425,12 +1426,13 @@ class App extends Component {
                             <Deck cardCount={this.state.drawDeckSize} deckType={"DRAW"} />
 
                             <div style={{margin:"auto auto"}}>
+                               <PlayerPolicyStatus numFascistPolicies={this.state.fascistPolicies}
+                                                     numLiberalPolicies={this.state.liberalPolicies}
+                                                     playerCount={this.state.gameState[PARAM_PLAYER_ORDER].length} />
                                 <button
                                     disabled={this.state.gameState[PARAM_STATE] !== STATE_POST_LEGISLATIVE || this.state.name !== this.state.gameState[PARAM_PRESIDENT]}
                                     onClick={() => {this.sendWSCommand(COMMAND_END_TERM);}}
-                                >
-                                    END TERM
-                                </button>
+                                > END TERM </button>
                             </div>
 
                             <Deck cardCount={this.state.discardDeckSize} deckType={"DISCARD"}/>
