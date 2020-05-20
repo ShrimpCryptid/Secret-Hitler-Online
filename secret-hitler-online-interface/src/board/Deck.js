@@ -15,6 +15,7 @@ const TRANSITION_HIDE = "deck-transition-hide";
 class Deck extends Component {
 
     cardStates;
+    numCards;
 
     constructor(props) {
         super(props);
@@ -24,6 +25,7 @@ class Deck extends Component {
         };
 
         this.cardStates = [MAX_CARDS];
+        this.numCards = this.props.cardCount;
         for (let i = 0; i < MAX_CARDS; i++) {
             if (i < this.props.cardCount) {
                 this.cardStates[i] = FINAL_SHOW;
@@ -54,7 +56,7 @@ class Deck extends Component {
                 delayChangeState = 510;
                 for (let i = oldCount - 1; i >= newCount; i--) {
                     // Start transition out, then move to final hidden position.
-                    setTimeout(() => {this.cardStates[i] = TRANSITION_HIDE; this.forceUpdate()}, totalDelay);
+                    setTimeout(() => {this.cardStates[i] = TRANSITION_HIDE; this.numCards = i; this.forceUpdate()}, totalDelay);
                     setTimeout(() => {this.cardStates[i] = FINAL_HIDE; this.forceUpdate()}, totalDelay + delayChangeState);
                     totalDelay += delayNext;
                 }
@@ -64,19 +66,19 @@ class Deck extends Component {
                 for (let i = oldCount; i < newCount; i++) {
                     // Start transition in, then move to final shown position.
                     setTimeout(() => {this.cardStates[i] = TRANSITION_SHOW; this.forceUpdate()}, totalDelay);
-                    setTimeout(() => {this.cardStates[i] = FINAL_SHOW; this.forceUpdate()}, totalDelay + delayChangeState);
+                    setTimeout(() => {this.cardStates[i] = FINAL_SHOW; this.numCards = i + 1; this.forceUpdate()}, totalDelay + delayChangeState);
                     totalDelay += delayNext;
                 }
             }
             // After all cards have played their animations, reset the card count and signal the end of the anim.
-            setTimeout(() => {this.setState({playingAnimation: false, cardCount: newCount})});
+            setTimeout(() => {this.setState({playingAnimation: false, cardCount: newCount});}, totalDelay);
         }
     }
 
     getCards() {
         let cards = [MAX_CARDS];
         let topOffset = 9;
-        let topDistance = 2.5;
+        let topDistance = 2;
         for (let i = 0; i < MAX_CARDS; i++) {
             let top = topOffset - (topDistance * i);
             if (this.cardStates[i] === FINAL_HIDE) { // Move the hidden card up so it transition in later.
@@ -99,6 +101,9 @@ class Deck extends Component {
     render() {
         return(
             <div id={"deck-container"} style={{position:"relative"}}>
+                <p id={"deck-card-count"}>
+                    {this.numCards}
+                </p>
                 <img id={"deck-base"}
                      src={(this.props.deckType === "DRAW" ? DrawDeck : DiscardDeck)}
                      alt={"The " + this.props.deckType.toLowerCase() + " deck. (" + this.props.cardCount + " policies)"}/>

@@ -9,6 +9,16 @@
     height: auto;
 }
 
+#deck-card-count {
+    font-size: 3.5vmin;
+    position: absolute;
+    color: var(--textColorWhite);
+    left: 30%;
+    top: 58%;
+    text-align: center;
+    width: 40%;
+}
+
 #deck-policy {
     position: absolute;
     width: 69%;
