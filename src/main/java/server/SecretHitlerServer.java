@@ -18,10 +18,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class SecretHitlerServer {
 
-
     ////// Static Fields
     // <editor-fold desc="Static Fields">
-    private static boolean DEBUG = false;
+    private static boolean DEBUG = true;
     public static final int DEFAULT_PORT_NUMBER = 4040;
 
     // Passed to server
@@ -41,6 +40,7 @@ public class SecretHitlerServer {
     public static final String PACKET_GAME_STATE = "game";
     public static final String PACKET_LOBBY = "lobby";
     public static final String PACKET_OK = "ok"; // general response packet sent after any successful command.
+    public static final String PACKET_PONG = "pong";  // response to pings.
 
     public static final String PARAM_INVESTIGATION = "investigation";
     public static final String FASCIST = "FASCIST";
@@ -105,6 +105,7 @@ public class SecretHitlerServer {
 
         serverApp.get("/check-login", SecretHitlerServer::checkLogin); // Checks if a login is valid.
         serverApp.get("/new-lobby", SecretHitlerServer::createNewLobby); // Creates and returns the code for a new lobby
+        serverApp.get("/ping", SecretHitlerServer::ping);
 
         serverApp.ws("/game", wsHandler -> {
             wsHandler.onConnect(SecretHitlerServer::onWebsocketConnect);
@@ -147,6 +148,16 @@ public class SecretHitlerServer {
 
     /////// Get Requests
     //<editor-fold desc="Get Requests">
+
+    /**
+     * Pings the server (intended to wake the inactive server)
+     * @param ctx the context of the login request
+     * @effects Returns the message "OK" with status code 200.
+     */
+    public static void ping(Context ctx) {
+        ctx.status(200);
+        ctx.result("OK");
+    }
 
     /**
      * Determines whether a login is valid.
@@ -340,10 +351,16 @@ public class SecretHitlerServer {
             lobby.resetTimeout();
 
             boolean updateUsers = true; // this flag can be disabled by certain commands.
+            boolean sendOKMessage = true;
             try {
                 switch (message.getString(PARAM_COMMAND)) {
                     case COMMAND_PING:
+                        sendOKMessage = false;
                         updateUsers = false;
+                        System.out.println("SUCCESS");
+                        JSONObject msg = new JSONObject();
+                        msg.put(PARAM_PACKET_TYPE, PACKET_PONG);
+                        ctx.send(msg.toString());
                         break;
 
                     case COMMAND_START_GAME: // Starts the game.
@@ -423,12 +440,14 @@ public class SecretHitlerServer {
 
                     default: //This is an invalid command.
                         throw new RuntimeException("FAILED (unrecognized command " + message.get(PARAM_COMMAND) + ")");
-                }
+                }  // End switch
 
-                System.out.println("SUCCESS");
-                JSONObject msg = new JSONObject();
-                msg.put(PARAM_PACKET_TYPE, PACKET_OK);
-                ctx.send(msg.toString());
+                if (sendOKMessage) {
+                    System.out.println("SUCCESS");
+                    JSONObject msg = new JSONObject();
+                    msg.put(PARAM_PACKET_TYPE, PACKET_OK);
+                    ctx.send(msg.toString());
+                }
 
             } catch (NullPointerException e) {
                 System.out.println("FAILED (" + e.toString() + ")");

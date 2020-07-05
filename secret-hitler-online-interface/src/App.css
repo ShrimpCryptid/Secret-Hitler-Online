@@ -214,3 +214,8 @@ textarea {
     0% {left:0; opacity: 1;}
     100% {left: -100%; opacity: 0; visibility: hidden}
 }
+
+
+#victory-header {
+    width: 100%;
+}

@@ -62,7 +62,14 @@ import {
     STATE_LIBERAL_VICTORY_EXECUTION,
     STATE_LIBERAL_VICTORY_POLICY,
     PARAM_PEEK,
-    PARAM_INVESTIGATION, HITLER, PARAM_DRAW_DECK, PARAM_DISCARD_DECK, WEBSOCKET_HEADER, DEBUG
+    PARAM_INVESTIGATION,
+    HITLER,
+    PARAM_DRAW_DECK,
+    PARAM_DISCARD_DECK,
+    WEBSOCKET_HEADER,
+    DEBUG,
+    PACKET_PONG,
+    PING_INTERVAL, COMMAND_PING, SERVER_PING
 } from "./GlobalDefinitions";
 
 import PlayerDisplay, {
@@ -88,20 +95,57 @@ import InvestigationAlert from "./custom-alert/InvestigationAlert";
 import Deck from "./board/Deck";
 import PlayerPolicyStatus from "./util/PlayerPolicyStatus";
 
+import VictoryFascistHeader from "./assets/victory-fascist-header.png";
+import VictoryFascistFooter from "./assets/victory-fascist-footer.png";
+import VictoryLiberalHeader from "./assets/victory-liberal-header.png";
+import VictoryLiberalFooter from "./assets/victory-liberal-footer.png";
+
 const EVENT_BAR_FADE_OUT_DURATION = 500;
 const CUSTOM_ALERT_FADE_DURATION = 1000;
 
-const DEFAULT_GAME_STATE = {"liberal-policies":0,"fascist-policies":0,"discard-size":0,"draw-size":17,
-        "players":{}, "in-game":true, "player-order":[], "state":STATE_SETUP, "president":"", "chancellor":"", "election-tracker":0};
-const TEST_GAME_STATE = {"liberal-policies":0,"fascist-policies":0,"discard-size":0,"draw-size":17,
-    "players":{"P1":{"alive":true,"id":"FASCIST","investigated":false},"P2":{"alive":true,"id":"HITLER","investigated":false},"P3":{"alive":true,"id":"LIBERAL","investigated":true},"P4":{"alive":true,"id":"LIBERAL","investigated":false},"P5":{"alive":true,"id":"LIBERAL","investigated":false},"P6":{"alive":false,"id":"FASCIST","investigated":false},"P7":{"alive":true,"id":"LIBERAL","investigated":false}},
-    "in-game":true, "player-order":["P4","P2","P6","P1","P7","P3","P5"], "state":STATE_SETUP,"last-president": "P7", "last-chancellor": "P3", "president":"P4", "chancellor":"P5", "election-tracker":0,
-    "user-votes":{"P4": true, "P2": false, "P1": false, "P7": true, "P3": false, "P5": true}};
+const DEFAULT_GAME_STATE = {
+    "liberal-policies": 0,
+    "fascist-policies": 0,
+    "discard-size": 0,
+    "draw-size": 17,
+    "players": {},
+    "in-game": true,
+    "player-order": [],
+    "state": STATE_SETUP,
+    "president": "",
+    "chancellor": "",
+    "election-tracker": 0
+};
+const TEST_GAME_STATE = {
+    "liberal-policies": 0,
+    "fascist-policies": 0,
+    "discard-size": 0,
+    "draw-size": 17,
+    "players": {
+        "P1": {"alive": true, "id": "FASCIST", "investigated": false},
+        "P2": {"alive": true, "id": "HITLER", "investigated": false},
+        "P3": {"alive": true, "id": "LIBERAL", "investigated": true},
+        "P4": {"alive": true, "id": "LIBERAL", "investigated": false},
+        "P5": {"alive": true, "id": "LIBERAL", "investigated": false},
+        "P6": {"alive": false, "id": "FASCIST", "investigated": false},
+        "P7": {"alive": true, "id": "LIBERAL", "investigated": false}
+    },
+    "in-game": true,
+    "player-order": ["P4", "P2", "P6", "P1", "P7", "P3", "P5"],
+    "state": STATE_SETUP,
+    "last-president": "P7",
+    "last-chancellor": "P3",
+    "president": "P4",
+    "chancellor": "P5",
+    "election-tracker": 0,
+    "user-votes": {"P4": true, "P2": false, "P1": false, "P7": true, "P3": false, "P5": true}
+};
 
 class App extends Component {
 
     websocket = undefined;
     failedConnections = 0;
+    pinginterval = undefined;
     reconnectOnConnectionClosed = true;
     snackbarMessages = 0;
     animationQueue = [];
@@ -113,19 +157,19 @@ class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            page:PAGE.LOGIN,
+            page: PAGE.LOGIN,
 
-            joinName:"",
-            joinLobby:"",
-            joinError:"",
-            createLobbyName:"",
-            createLobbyError:"",
-            name:"P1",
-            lobby:"AAAAAA",
+            joinName: "",
+            joinLobby: "",
+            joinError: "",
+            createLobbyName: "",
+            createLobbyError: "",
+            name: "P1",
+            lobby: "AAAAAA",
             lobbyFromURL: false,
 
-            usernames:[],
-            userCount:0,
+            usernames: [],
+            userCount: 0,
 
             gameState: DEFAULT_GAME_STATE,
             lastState: {}, /* Stores the last gameState[PARAM_STATE] value to check for changes. */
@@ -136,15 +180,15 @@ class App extends Component {
             drawDeckSize: 17,
             discardDeckSize: 0,
 
-            snackbarMessage:"",
+            snackbarMessage: "",
 
             showAlert: false,
-            alertContent: <div />,
+            alertContent: <div/>,
 
             showEventBar: false,
             eventBarMessage: "",
 
-            statusBarText:"---",
+            statusBarText: "---",
             allAnimationsFinished: true,
         };
 
@@ -160,13 +204,16 @@ class App extends Component {
         this.onClickStartGame = this.onClickStartGame.bind(this);
         this.sendWSCommand = this.sendWSCommand.bind(this);
         this.playAnimationTest = this.playAnimationTest.bind(this);
-        this.testAlert = this.testAlert.bind(this);
         this.showSnackBar = this.showSnackBar.bind(this);
         this.onAnimationFinish = this.onAnimationFinish.bind(this);
         this.onGameStateChanged = this.onGameStateChanged.bind(this);
         this.hideAlertAndFinish = this.hideAlertAndFinish.bind(this);
         this.addAnimationToQueue = this.addAnimationToQueue.bind(this);
         this.clearAnimationQueue = this.clearAnimationQueue.bind(this);
+
+        // Ping the server to wake it up if it's not currently being used
+        // This reduces the delay users experience
+        fetch(SERVER_ADDRESS_HTTP + SERVER_PING);
     }
 
     /////////// Server Communication
@@ -192,7 +239,7 @@ class App extends Component {
             action: "User attempted to provide login credentials to the server.",
         });
         return await fetch(SERVER_ADDRESS_HTTP + CHECK_LOGIN + "?name=" + encodeURIComponent(name)
-                            + "&lobby=" + encodeURIComponent(lobby));
+            + "&lobby=" + encodeURIComponent(lobby));
     }
 
     /**
@@ -223,19 +270,24 @@ class App extends Component {
                 lobby: lobby,
                 usernames: [],
                 userCount: 0,
-                joinName:"",
-                joinLobby:"",
-                joinError:"",
-                createLobbyName:"",
-                createLobbyError:""
+                joinName: "",
+                joinLobby: "",
+                joinError: "",
+                createLobbyName: "",
+                createLobbyError: ""
             });
             ws.onmessage = msg => this.onWebSocketMessage(msg);
             ws.onclose = () => this.onWebSocketClose();
+            // Ping the web server at a set interval.
+            this.pinginterval = setInterval(() => {
+                this.sendWSCommand(COMMAND_PING, {})
+            }, PING_INTERVAL);
             return true;
         } else {
             return false;
         }
     }
+
 
     /**
      * Called when the websocket closes.
@@ -245,10 +297,15 @@ class App extends Component {
      *          login screen with a relevant error message.
      */
     onWebSocketClose() {
+        // Clear the server ping interval each time the socket is closed.
+        if (this.pinginterval) {
+            clearInterval(this.pinginterval);
+        }
+
         if (this.reconnectOnConnectionClosed && this.failedConnections < MAX_FAILED_CONNECTIONS) {
             if (this.failedConnections >= 1) {  // Only show the error bar if the first attempt has failed.
                 this.showSnackBar("Lost connection to the server: retrying...");
-                ReactGA.event( {
+                ReactGA.event({
                     category: "Lost Server Connection",
                     action: "User lost connection to the server. (>1 attempt)"
                 });
@@ -256,12 +313,14 @@ class App extends Component {
             this.failedConnections += 1;
             this.tryOpenWebSocket(this.state.name, this.state.lobby);
         } else if (this.reconnectOnConnectionClosed) {
+            if (DEBUG) {console.log("Disconnecting from lobby.")}
             this.setState({
-                joinName: decodeURIComponent(this.state.name),
-                joinLobby: decodeURIComponent(this.state.lobby),
-                joinError: "Disconnected from the lobby."
+                joinName: this.state.name,
+                joinLobby: this.state.lobby,
+                joinError: "Disconnected from the lobby.",
+                page: PAGE.LOGIN,
             });
-            ReactGA.event( {
+            ReactGA.event({
                 category: "Lost Server Connection (Terminal)",
                 action: "User was unable to reconnect to the server. (max attempts reached)"
             });
@@ -280,6 +339,7 @@ class App extends Component {
         }
     }
 
+
     async onWebSocketMessage(msg) {
         if (DEBUG) {
             console.log(msg.data);
@@ -290,8 +350,8 @@ class App extends Component {
         switch (message[PARAM_PACKET_TYPE]) {
             case PACKET_LOBBY:
                 this.setState({
-                    userCount:message[PARAM_USER_COUNT],
-                    usernames:message[PARAM_USERNAMES],
+                    userCount: message[PARAM_USER_COUNT],
+                    usernames: message[PARAM_USERNAMES],
                     page: PAGE.LOBBY
                 });
                 break;
@@ -314,8 +374,9 @@ class App extends Component {
             case PACKET_INVESTIGATION:
 
                 break;
+            case PACKET_PONG:
             default:
-                // Unrecognized.
+            // No action
         }
     };
 
@@ -364,7 +425,7 @@ class App extends Component {
      */
     updateJoinName = (text) => {
         this.setState({
-            joinName:text
+            joinName: text
         });
     };
 
@@ -374,7 +435,7 @@ class App extends Component {
      */
     updateJoinLobby = (text) => {
         this.setState({
-            joinLobby:text
+            joinLobby: text
         });
     };
 
@@ -384,7 +445,7 @@ class App extends Component {
      */
     updateCreateLobbyName = (text) => {
         this.setState({
-            createLobbyName:text
+            createLobbyName: text
         });
     };
 
@@ -400,7 +461,7 @@ class App extends Component {
      * Attempts to connect to the lobby via websocket.
      */
     onClickJoin = () => {
-        this.setState({joinError:"Connecting..."});
+        this.setState({joinError: "Connecting..."});
         this.tryLogin(this.state.joinName, this.state.joinLobby)
             .then(response => {
                 if (!response.ok) {
@@ -408,45 +469,45 @@ class App extends Component {
                         console.log("Response is not ok");
                     }
                     if (response.status === 404) {
-                        this.setState({joinError:"The lobby could not be found."});
-                        ReactGA.event( {
+                        this.setState({joinError: "The lobby could not be found."});
+                        ReactGA.event({
                             category: "Login Failed",
                             action: "Lobby not found - User unable to connect."
                         });
                     } else if (response.status === 403) {
-                        this.setState({joinError:"There is already a user with the name '" + this.state.joinName + "' in the lobby."});
-                        ReactGA.event( {
+                        this.setState({joinError: "There is already a user with the name '" + this.state.joinName + "' in the lobby."});
+                        ReactGA.event({
                             category: "Login Failed",
                             action: "Duplicate name - User unable to connect."
                         });
                     } else if (response.status === 488) {
-                        this.setState({joinError:"The lobby is currently in a game."});
-                        ReactGA.event( {
+                        this.setState({joinError: "The lobby is currently in a game."});
+                        ReactGA.event({
                             category: "Login Failed",
                             action: "Ongoing game - User unable to connect."
                         });
                     } else if (response.status === 489) {
-                        this.setState({joinError:"The lobby is currently full."})
-                        ReactGA.event( {
+                        this.setState({joinError: "The lobby is currently full."})
+                        ReactGA.event({
                             category: "Login Failed",
                             action: "Lobby full - User unable to connect."
                         });
                     } else {
-                        this.setState({joinError:"There was an error connecting to the server. Please try again."});
-                        ReactGA.event( {
+                        this.setState({joinError: "There was an error connecting to the server. Please try again."});
+                        ReactGA.event({
                             category: "Login Failed",
                             action: "Misc - User was unable to connect."
                         });
                     }
                 } else {
                     // Username and lobby were verified. Try to open websocket.
-                    if (!this.tryOpenWebSocket(this.state.joinName, this.state.joinLobby)){
-                        this.setState({joinError:"There was an error connecting to the server. Please try again."});
+                    if (!this.tryOpenWebSocket(this.state.joinName, this.state.joinLobby)) {
+                        this.setState({joinError: "There was an error connecting to the server. Please try again."});
                     }
                 }
             })
             .catch(() => {
-                this.setState({joinError:"There was an error contacting to the server. Please wait and try again."});
+                this.setState({joinError: "There was an error contacting to the server. Please wait and try again."});
             });
     };
 
@@ -454,12 +515,12 @@ class App extends Component {
      * Attempts to connect to the server and create a new lobby, and then opens a connection to the lobby.
      */
     onClickCreateLobby = () => {
-        this.setState({createLobbyError:"Connecting..."});
+        this.setState({createLobbyError: "Connecting..."});
         this.tryCreateLobby().then(response => {
             if (response.ok) {
                 response.text().then(lobbyCode => {
                     if (!this.tryOpenWebSocket(encodeURIComponent(this.state.createLobbyName), lobbyCode)) { // if the connection failed
-                        this.setState({createLobbyError:"There was an error connecting to the server. Please try again."});
+                        this.setState({createLobbyError: "There was an error connecting to the server. Please try again."});
                         ReactGA.event({
                             category: "Lobby Creation Failed",
                             action: "Failed to create a new lobby.",
@@ -472,31 +533,31 @@ class App extends Component {
                     }
                 });
             } else {
-                this.setState({createLobbyError:"There was an error connecting to the server. Please try again."});
+                this.setState({createLobbyError: "There was an error connecting to the server. Please try again."});
                 ReactGA.event({
                     category: "Lobby Creation Failed",
                     action: "Failed to create a new lobby.",
                 });
             }
         })
-        .catch(() => {
-            this.setState({createLobbyError:"There was an error connecting to the server. Please try again."});
-            ReactGA.event({
-                category: "Lobby Creation Failed",
-                action: "Failed to create a new lobby.",
+            .catch(() => {
+                this.setState({createLobbyError: "There was an error connecting to the server. Please try again."});
+                ReactGA.event({
+                    category: "Lobby Creation Failed",
+                    action: "Failed to create a new lobby.",
+                });
             });
-        });
     };
 
     onClickAbout = () => {
-        ReactGA.event( {
+        ReactGA.event({
             category: "Clicked About",
             action: "User clicked the link for the about page."
         });
     };
 
     onClickGameWebsite = () => {
-        ReactGA.event( {
+        ReactGA.event({
             category: "Clicked Game Website",
             action: "User clicked the link for the board game website."
         });
@@ -555,9 +616,11 @@ class App extends Component {
                 <br/>
                 <br/>
                 <p style={{margin: "10px 20pxpx", fontWeight: "400", fontSize: "calc(4px + 1.8vmin)"}}>
-                    Developed by ShrimpCryptid - <a href={"https://github.com/ShrimpCryptid/Secret-Hitler-Online/blob/master/README.md"} target={"_blank"} onClick={this.onClickAbout}>
-                        about this project
-                    </a>
+                    Developed by ShrimpCryptid - <a
+                    href={"https://github.com/ShrimpCryptid/Secret-Hitler-Online/blob/master/README.md"}
+                    target={"_blank"} onClick={this.onClickAbout}>
+                    about this project
+                </a>
                 </p>
 
                 <p style={{margin: "10px 20pxpx", fontWeight: "400", fontSize: "calc(4px + 1.8vmin)"}}>
@@ -565,15 +628,18 @@ class App extends Component {
                     <br/>
                     Game-breaking bugs may occur while playing.
                     <br/>
-                    You can report bugs on the <a href={"https://github.com/ShrimpCryptid/Secret-Hitler-Online/issues"} target={"_blank"} >Issues page.</a>
+                    You can report bugs on the <a href={"https://github.com/ShrimpCryptid/Secret-Hitler-Online/issues"}
+                                                  target={"_blank"}>Issues page.</a>
                 </p>
 
                 <p
                     style={{margin: "10px 20pxpx", fontWeight: "400", fontSize: "calc(4px + 1.8vmin)"}}
                 >
-                    Based on the original <a href={"https://secrethitler.com"} target={"_blank"} onClick={this.onClickGameWebsite}>Secret Hitler</a> board game by Goat, Wolf, & Cabbage (© 2016-2020).
+                    Based on the original <a href={"https://secrethitler.com"} target={"_blank"}
+                                             onClick={this.onClickGameWebsite}>Secret Hitler</a> board game by Goat,
+                    Wolf, & Cabbage (© 2016-2020).
                 </p>
-        </div>
+            </div>
         );
     }
 
@@ -594,13 +660,13 @@ class App extends Component {
         let i = 0;
         for (i; i < this.state.userCount; i++) {
             let name = this.state.usernames[i];
-            if(name === this.state.name) {
+            if (name === this.state.name) {
                 name += " (you)";
             }
             if (i === 0) {
                 name += " [★VIP]";
             }
-            out[i] = <p style={{marginBottom:"0px", marginTop:"2px"}}>{" - " + decodeURIComponent(name)}</p>;
+            out[i] = <p style={{marginBottom: "0px", marginTop: "2px"}}>{" - " + decodeURIComponent(name)}</p>;
         }
         return out;
     }
@@ -616,7 +682,7 @@ class App extends Component {
      * Contacts the server and requests to start the game.
      */
     onClickStartGame() {
-        ReactGA.event( {
+        ReactGA.event({
             category: "Starting Game",
             action: this.state.userCount + " players started game."
         });
@@ -642,11 +708,11 @@ class App extends Component {
         snackbar.className = "show";
         this.snackbarMessages++;
         setTimeout(() => {
-                this.snackbarMessages--;
-                if(this.snackbarMessages === 0) {
-                    snackbar.className = snackbar.className.replace("show", "");
-                }
-            }, 3000);
+            this.snackbarMessages--;
+            if (this.snackbarMessages === 0) {
+                snackbar.className = snackbar.className.replace("show", "");
+            }
+        }, 3000);
     }
 
     renderLobbyPage() {
@@ -658,17 +724,18 @@ class App extends Component {
                     SECRET-HITLER.ONLINE
                 </header>
 
-                <div style={{textAlign:"left", marginLeft:"20px", marginRight:"20px"}}>
+                <div style={{textAlign: "left", marginLeft: "20px", marginRight: "20px"}}>
 
-                    <div style={{display:"flex", flexDirection:"row"}}>
+                    <div style={{display: "flex", flexDirection: "row"}}>
                         <h2>LOBBY CODE: </h2>
-                        <h2 style={{marginLeft:"5px", color:"var(--textColorHighlight)"}}>{this.state.lobby}</h2>
+                        <h2 style={{marginLeft: "5px", color: "var(--textColorHighlight)"}}>{this.state.lobby}</h2>
                     </div>
 
 
-                    <p style={{marginBottom:"2px"}}>Copy and share this link to invite other players.</p>
-                    <div style={{textAlign:"left", display:"flex", flexDirection:"row", alignItems:"center"}}>
-                        <textarea id="linkText" readOnly={true} value={"secret-hitler.online/?lobby=" + this.state.lobby}/>
+                    <p style={{marginBottom: "2px"}}>Copy and share this link to invite other players.</p>
+                    <div style={{textAlign: "left", display: "flex", flexDirection: "row", alignItems: "center"}}>
+                        <textarea id="linkText" readOnly={true}
+                                  value={"https://secret-hitler.online/?lobby=" + this.state.lobby}/>
                         <button
                             onClick={this.onClickCopy}
                         >
@@ -677,20 +744,21 @@ class App extends Component {
                     </div>
 
 
-                    <div style={{display:"flex", flexDirection:"row", width:"90vw"}}>
-                        <div style={{textAlign:"left", width:"50vw"}}>
+                    <div style={{display: "flex", flexDirection: "row", width: "90vw"}}>
+                        <div style={{textAlign: "left", width: "50vw"}}>
                             <p>Players ({this.state.userCount}/10)</p>
                             {this.renderPlayerList()}
                         </div>
 
-                        <div style={{display:"flex", flexDirection:"column", alignItems:"right"}}>
+                        <div style={{display: "flex", flexDirection: "column", alignItems: "right"}}>
                             {!isVIP &&
-                                <p>Only the VIP can start the game.</p>
+                            <p>Only the VIP can start the game.</p>
                             }
                             <button
                                 onClick={this.onClickStartGame}
                                 disabled={!isVIP || !this.shouldStartGameBeEnabled()}
-                            >START GAME</button>
+                            >START GAME
+                            </button>
                             <button
                                 onClick={this.onClickLeaveLobby}
                             >
@@ -698,22 +766,25 @@ class App extends Component {
                             </button>
 
                             <p style={{margin: "10px 20pxpx", fontWeight: "400", fontSize: "calc(4px + 1.8vmin)"}}>
-                                <a href={"https://github.com/ShrimpCryptid/Secret-Hitler-Online/blob/master/README.md"} target={"_blank"} onClick={this.onClickAbout}>
-                                About this project
-                            </a>
+                                <a href={"https://github.com/ShrimpCryptid/Secret-Hitler-Online/blob/master/README.md"}
+                                   target={"_blank"} onClick={this.onClickAbout}>
+                                    About this project
+                                </a>
                             </p>
                             <br/>
                             <p style={{margin: "10px 20pxpx", fontWeight: "400", fontSize: "calc(4px + 1.8vmin)"}}>
                                 Note: Secret-Hitler.Online is in BETA.
-                                <br />
+                                <br/>
                                 Game-breaking bugs may occur while playing.
                                 <br/>
-                                You can report bugs on the <a href={"https://github.com/ShrimpCryptid/Secret-Hitler-Online/issues"} target={"_blank"} >Issues page.</a>
+                                You can report bugs on the <a
+                                href={"https://github.com/ShrimpCryptid/Secret-Hitler-Online/issues"} target={"_blank"}>Issues
+                                page.</a>
                             </p>
                         </div>
                     </div>
                 </div>
-                <div style={{textAlign:"center"}}>
+                <div style={{textAlign: "center"}}>
                     <div id="snackbar">{this.state.snackbarMessage}</div>
                 </div>
             </div>
@@ -773,7 +844,7 @@ class App extends Component {
                     this.queueAlert(
                         <ElectionTrackerAlert
                             trackerPosition={trackerPosition}
-                            closeAlert={this.hideAlertAndFinish} />
+                            closeAlert={this.hideAlertAndFinish}/>
                     );
                 }
             }
@@ -786,7 +857,7 @@ class App extends Component {
                 this.queueAlert((
                     <PolicyEnactedAlert
                         hideAlert={this.hideAlertAndFinish}
-                        policyType={liberalChanged ? LIBERAL : FASCIST} />
+                        policyType={liberalChanged ? LIBERAL : FASCIST}/>
                 ));
             }
 
@@ -798,7 +869,7 @@ class App extends Component {
                     fascistPolicies: newState[PARAM_FASCIST_POLICIES],
                     electionTracker: newState[PARAM_ELECTION_TRACKER],
                 });
-                setTimeout(()=>this.onAnimationFinish(), 500);
+                setTimeout(() => this.onAnimationFinish(), 500);
             });
         }
 
@@ -806,7 +877,7 @@ class App extends Component {
         if (newState[PARAM_STATE] !== this.state.gameState[PARAM_STATE]) { // state has changed
             switch (newState[PARAM_STATE]) {
                 case STATE_CHANCELLOR_NOMINATION:
-                    if(newState[PARAM_ELECTION_TRACKER] === 0
+                    if (newState[PARAM_ELECTION_TRACKER] === 0
                         && newState[PARAM_LIBERAL_POLICIES] === 0
                         && newState[PARAM_FASCIST_POLICIES] === 0) {
                         // If the game has just started (everything in default state), show the player's role.
@@ -815,7 +886,9 @@ class App extends Component {
                                 role={newState[PARAM_PLAYERS][this.state.name][PLAYER_IDENTITY]}
                                 gameState={newState}
                                 name={name}
-                                onClick={() => { this.hideAlertAndFinish(); }}
+                                onClick={() => {
+                                    this.hideAlertAndFinish();
+                                }}
                             />
                             , false);
                     }
@@ -823,7 +896,7 @@ class App extends Component {
                     this.queueEventUpdate("CHANCELLOR NOMINATION");
                     this.queueStatusMessage("Waiting for president to nominate a chancellor.");
 
-                    if(isPresident) {
+                    if (isPresident) {
                         //Show the chancellor nomination window.
                         this.queueAlert(
                             SelectNominationPrompt(name, newState, this.sendWSCommand)
@@ -871,7 +944,6 @@ class App extends Component {
                     break;
 
                 case STATE_LEGISLATIVE_CHANCELLOR:
-                    //TODO: Animate cards being added to discard deck.
                     this.queueStatusMessage("Waiting for the chancellor to choose a policy to enact.");
                     if (isChancellor) {
                         this.queueAlert(
@@ -894,7 +966,7 @@ class App extends Component {
                                 sendWSCommand={this.sendWSCommand}
                                 electionTracker={newState[PARAM_ELECTION_TRACKER]}
                             />
-                        , true)
+                            , true)
                     }
                     break;
 
@@ -948,8 +1020,8 @@ class App extends Component {
                                     <ButtonPrompt
                                         label={"SPECIAL ELECTION"}
                                         footerText={newState[PARAM_PRESIDENT] + " has chosen " + newState[PARAM_TARGET]
-                                            + " to be the next president."
-                                            + "\nThe normal presidential order will resume after the next round."}
+                                        + " to be the next president."
+                                        + "\nThe normal presidential order will resume after the next round."}
                                         buttonText={"OKAY"}
                                         buttonOnClick={this.hideAlertAndFinish}
                                     >
@@ -960,7 +1032,7 @@ class App extends Component {
                                             players={[newState[PARAM_TARGET]]}
                                         />
                                     </ButtonPrompt>
-                                , false);
+                                    , false);
                             }
                             break;
                         case STATE_PP_EXECUTION:
@@ -987,7 +1059,7 @@ class App extends Component {
                                             players={[newState[PARAM_TARGET]]}
                                         />
                                     </ButtonPrompt>
-                            , false);
+                                    , false);
                             }
                             break;
                         case STATE_PP_INVESTIGATE:
@@ -1014,7 +1086,7 @@ class App extends Component {
                                             players={[newState[PARAM_TARGET]]}
                                         />
                                     </ButtonPrompt>
-                                , true);
+                                    , true);
                             } else {
                                 // Is President
                                 let target = newState[PARAM_TARGET];
@@ -1057,7 +1129,7 @@ class App extends Component {
                         }
                     });
 
-                    let victoryMessage, headerText, headerClass;
+                    let victoryMessage, messageClass, headerImage, headerAlt;
                     let players = [];
                     let state = newState[PARAM_STATE];
                     let fascistVictoryPolicy = state === STATE_FASCIST_VICTORY_POLICY;
@@ -1084,8 +1156,9 @@ class App extends Component {
 
                     if (fascistVictoryElection || fascistVictoryPolicy) {
                         players = fascistPlayers.concat(liberalPlayers);
-                        headerClass = "left-align highlight";
-                        headerText = "FASCIST VICTORY";
+                        headerImage = VictoryFascistHeader;
+                        headerAlt = "Fascist Victory, written in red with a skull icon.";
+                        messageClass = "highlight";
                         if (fascistVictoryPolicy) {
                             victoryMessage = "Fascists successfully passed six policies!"
                         } else if (fascistVictoryElection) {
@@ -1093,8 +1166,9 @@ class App extends Component {
                         }
                     } else {
                         players = liberalPlayers.concat(fascistPlayers);
-                        headerClass = "left-align highlight-blue";
-                        headerText = "LIBERAL VICTORY";
+                        headerImage = VictoryLiberalHeader;
+                        headerAlt = "Liberal Victory, written in blue with a dove icon.";
+                        messageClass = "highlight-blue";
                         if (liberalVictoryPolicy) {
                             victoryMessage = "Liberals successfully passed five policies!";
                         } else if (liberalVictoryExecution) {
@@ -1104,16 +1178,24 @@ class App extends Component {
                     if (DEBUG) {
                         console.log("Player ordering: " + players);
                     }
-                    this.addAnimationToQueue( () => {
+                    this.addAnimationToQueue(() => {
                         this.setState({
                             alertContent: (
                                 <ButtonPrompt
                                     renderLabel={() => {
                                         return (
-                                            <h2 className={headerClass}>{headerText}</h2>
+                                            <>
+                                                <img
+                                                    src={headerImage}
+                                                    alt={headerAlt}
+                                                    id={"victory-header"}
+                                                />
+                                                <p style={{textAlign: "center"}} className={messageClass}>
+                                                    {victoryMessage}
+                                                </p>
+                                            </>
                                         );
                                     }}
-                                    headerText={victoryMessage}
                                     buttonText={"RETURN TO LOBBY"}
                                     buttonOnClick={() => {
                                         this.gameOver = false;
@@ -1142,14 +1224,16 @@ class App extends Component {
                                     />
                                 </ButtonPrompt>
                             ),
-                        showAlert: true});});
+                            showAlert: true
+                        });
+                    });
                     this.gameOver = true;
                     this.reconnectOnConnectionClosed = false;
                     this.websocket.close();
                     break;
 
                 default:
-                    // Do nothing
+                // Do nothing
             }
 
 
@@ -1210,14 +1294,19 @@ class App extends Component {
 
     showVotes(newState) {
         this.setState({statusBarText: "Tallying votes..."});
-        setTimeout(() => { this.setState({showVotes: true}) }, 1000);
+        setTimeout(() => {
+            this.setState({showVotes: true})
+        }, 1000);
         // Calculate final result:
 
         let noVotes = 0;
         let yesVotes = 0;
         Object.values(newState[PARAM_VOTES]).forEach((value) => {
-            if (value) { yesVotes++; }
-            else { noVotes++; }
+            if (value) {
+                yesVotes++;
+            } else {
+                noVotes++;
+            }
         });
         setTimeout(() => {
 
@@ -1228,7 +1317,9 @@ class App extends Component {
             }
         }, 2000);
         setTimeout(() => this.setState({showVotes: false, statusBarText: ""}), 6000);
-        setTimeout(() => {this.onAnimationFinish(); }, 6500);
+        setTimeout(() => {
+            this.onAnimationFinish();
+        }, 6500);
     }
 
     /**
@@ -1273,8 +1364,12 @@ class App extends Component {
                 showEventBar: true,
                 eventBarMessage: message
             });
-            setTimeout(() => {this.setState({showEventBar:false})}, duration);
-            setTimeout(() => {this.onAnimationFinish()}, duration + EVENT_BAR_FADE_OUT_DURATION);
+            setTimeout(() => {
+                this.setState({showEventBar: false})
+            }, duration);
+            setTimeout(() => {
+                this.onAnimationFinish()
+            }, duration + EVENT_BAR_FADE_OUT_DURATION);
         });
     }
 
@@ -1287,7 +1382,7 @@ class App extends Component {
      *          be closed when the server responds with an 'ok' to any command. (There will be a short delay before the
      *          animation queue advances if not waiting for a server response.)
      */
-    queueAlert(content, closeOnOK=true) {
+    queueAlert(content, closeOnOK = true) {
         this.addAnimationToQueue(() => {
             this.setState({
                 alertContent: content,
@@ -1296,7 +1391,7 @@ class App extends Component {
             if (closeOnOK) {
                 // Remove the exit delay if waiting for the server response, because otherwise the player will lag
                 // behind everyone else.
-                this.addServerOKListener(()=>this.hideAlertAndFinish(false));
+                this.addServerOKListener(() => this.hideAlertAndFinish(false));
             }
         });
     }
@@ -1330,73 +1425,11 @@ class App extends Component {
     }
 
     /**
-     * Shows a sample test alert.
-     */
-    testAlert() {
-        // Divide fascist and liberal players.
-        let fascistPlayers = [];
-        let liberalPlayers = [];
-        this.state.gameState[PARAM_PLAYER_ORDER].forEach(player => {
-            let role = this.state.gameState[PARAM_PLAYERS][player][PLAYER_IDENTITY];
-            if (role === FASCIST || role === HITLER) {
-                fascistPlayers.push(player);
-            } else {
-                liberalPlayers.push(player);
-            }
-        });
-
-        let victoryMessage, headerText, headerClass;
-        let players = [];
-        let state = this.state.gameState[PARAM_STATE];
-
-        players = players.concat(fascistPlayers, liberalPlayers);
-        console.log(players);
-        headerClass = "highlight";
-        headerText = "FASCIST VICTORY";
-
-        victoryMessage = "Fascists successfully passed six policies!";
-
-        if (DEBUG) {
-            console.log("Player ordering: " + players);
-        }
-        this.addAnimationToQueue( () => {
-            this.setState({
-                alertContent: (
-                    <ButtonPrompt
-                        renderLabel={() => {
-                            return (
-                                <h2 className={headerClass}>{headerText}</h2>
-                            );
-                        }}
-                        headerText={victoryMessage}
-                        buttonText={"RETURN TO LOBBY"}
-                        buttonOnClick={() => {
-                            this.gameOver = false;
-                            this.reconnectOnConnectionClosed = true;
-                            this.tryOpenWebSocket(this.state.name, this.state.lobby);
-                            this.hideAlertAndFinish();
-                        }}
-                    >
-                        <PlayerDisplay
-                            players={players}
-                            playerDisabledFilter={DISABLE_NONE}
-                            showRoles={true}
-                            showLabels={false}
-                            useAsButtons={false}
-                            user={this.state.name}
-                            gameState={this.state.gameState}
-                        />
-                    </ButtonPrompt>
-                ),
-                showAlert: true});});
-    }
-
-    /**
      * Renders the game page.
      */
     renderGamePage() {
         return (
-            <div className="App" style={{textAlign:"center"}}>
+            <div className="App" style={{textAlign: "center"}}>
                 <header className="App-header">
                     SECRET-HITLER.ONLINE
                 </header>
@@ -1419,20 +1452,25 @@ class App extends Component {
 
                 <StatusBar>{this.state.statusBarText}</StatusBar>
 
-                <div style={{display:"inline-block"}}>
-                    <div id={"Board Layout"} style={{alignItems:"center", display:"flex", flexDirection:"column", margin:"10px auto"}}>
+                <div style={{display: "inline-block"}}>
+                    <div id={"Board Layout"}
+                         style={{alignItems: "center", display: "flex", flexDirection: "column", margin: "10px auto"}}>
 
-                        <div style={{display:"flex", flexDirection:"row", marginTop: "15px"}}>
-                            <Deck cardCount={this.state.drawDeckSize} deckType={"DRAW"} />
+                        <div style={{display: "flex", flexDirection: "row", alignItems: "center", marginTop: "15px"}}>
+                            <Deck cardCount={this.state.drawDeckSize} deckType={"DRAW"}/>
 
-                            <div style={{margin:"auto auto"}}>
-                               <PlayerPolicyStatus numFascistPolicies={this.state.fascistPolicies}
-                                                     numLiberalPolicies={this.state.liberalPolicies}
-                                                     playerCount={this.state.gameState[PARAM_PLAYER_ORDER].length} />
+                            <div style={{margin: "auto auto"}}>
                                 <button
                                     disabled={this.state.gameState[PARAM_STATE] !== STATE_POST_LEGISLATIVE || this.state.name !== this.state.gameState[PARAM_PRESIDENT]}
-                                    onClick={() => {this.sendWSCommand(COMMAND_END_TERM);}}
-                                > END TERM </button>
+                                    onClick={() => {
+                                        this.sendWSCommand(COMMAND_END_TERM);
+                                    }}
+                                > END TERM
+                                </button>
+
+                                <PlayerPolicyStatus numFascistPolicies={this.state.fascistPolicies}
+                                                    numLiberalPolicies={this.state.liberalPolicies}
+                                                    playerCount={this.state.gameState[PARAM_PLAYER_ORDER].length}/>
                             </div>
 
                             <Deck cardCount={this.state.discardDeckSize} deckType={"DISCARD"}/>
@@ -1447,7 +1485,7 @@ class App extends Component {
                     </div>
                 </div>
 
-                <div style={{textAlign:"center"}}>
+                <div style={{textAlign: "center"}}>
                     <div id="snackbar">{this.state.snackbarMessage}</div>
                 </div>
             </div>
