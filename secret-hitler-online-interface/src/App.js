@@ -909,8 +909,8 @@ class App extends Component {
                     this.setState({statusBarText: ""});
                     this.queueEventUpdate("VOTING");
                     this.queueStatusMessage("Waiting for all players to vote.");
-                    // Check if the player is dead-- if so, do not show the voting prompt.
-                    if (newState[PARAM_PLAYERS][name][PLAYER_IS_ALIVE]) {
+                    // Check if the player is dead or has already voted-- if so, do not show the voting prompt.
+                    if (newState[PARAM_PLAYERS][name][PLAYER_IS_ALIVE] && !(name in newState[PARAM_VOTES])) {
                         this.queueAlert(
                             <VotingPrompt
                                 gameState={newState}

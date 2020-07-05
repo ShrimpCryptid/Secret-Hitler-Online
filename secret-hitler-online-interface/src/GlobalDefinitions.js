@@ -7,8 +7,8 @@ export const PAGE = {
     LOBBY: 'lobby',
     GAME: 'game'
 };
-export const DEBUG = true;
-const USING_DEBUG_SERVER = true;
+export const DEBUG = false;
+const USING_DEBUG_SERVER = false;
 
 export let SERVER_ADDRESS = "secret-hitler-web.herokuapp.com";
 export let SERVER_ADDRESS_HTTP = "https://" + SERVER_ADDRESS;

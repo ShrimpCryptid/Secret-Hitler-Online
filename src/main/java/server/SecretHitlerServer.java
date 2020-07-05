@@ -20,7 +20,7 @@ public class SecretHitlerServer {
 
     ////// Static Fields
     // <editor-fold desc="Static Fields">
-    private static boolean DEBUG = true;
+    private static boolean DEBUG = false;
     public static final int DEFAULT_PORT_NUMBER = 4040;
 
     // Passed to server
