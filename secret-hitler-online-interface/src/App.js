@@ -303,11 +303,11 @@ class App extends Component {
         }
 
         if (this.reconnectOnConnectionClosed && this.failedConnections < MAX_FAILED_CONNECTIONS) {
-            if (this.failedConnections >= 1) {  // Only show the error bar if the first attempt has failed.
+            if (this.failedConnections >= 2) {  // Only show the error bar if the first attempt has failed.
                 this.showSnackBar("Lost connection to the server: retrying...");
                 ReactGA.event({
                     category: "Lost Server Connection",
-                    action: "User lost connection to the server. (>1 attempt)"
+                    action: "User lost connection to the server. (>2 attempts)"
                 });
             }
             this.failedConnections += 1;
@@ -326,16 +326,14 @@ class App extends Component {
             });
             this.clearAnimationQueue();
         } else { // User purposefully closed the connection.
-            if (this.gameOver) {
-                // Do not reopen if the game is over, since disconnecting is intentional.
-            } else {
-                this.setState({
-                    page: PAGE.LOGIN,
-                    joinName: decodeURIComponent(this.state.name),
-                    joinError: ""
-                });
-                this.clearAnimationQueue();
-            }
+            // Always include lobby in case user wants to rejoin.
+            this.setState({
+                page: PAGE.LOGIN,
+                joinName: decodeURIComponent(this.state.name),
+                joinLobby: this.state.lobby,
+                joinError: ""
+            });
+            this.clearAnimationQueue();
         }
     }
 

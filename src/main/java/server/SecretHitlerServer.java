@@ -75,6 +75,8 @@ public class SecretHitlerServer {
 
     private static final String CODE_CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private static final int CODE_LENGTH = 4;
+
+    private static final float UPDATE_FREQUENCY_MIN = 1;
     //</editor-fold>
 
     ///// Private Fields
@@ -123,6 +125,27 @@ public class SecretHitlerServer {
         });
 
         // Add hook for termination that backs up the lobbies to the database.
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+                System.out.println("Attempting to back up lobby data.");
+                storeDatabaseBackup();
+            }
+        });
+
+        // Add timer for periodic updates.
+        int delay = 0;
+        int period = (int) (UPDATE_FREQUENCY_MIN * 60.0f * 1000.0f);
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                removeInactiveLobbies();
+                // If there are active lobbies, store a backup of the game.
+                if (!codeToLobby.isEmpty()) {
+                    storeDatabaseBackup();
+                }
+            }
+        }, delay, period);
     }
 
     /**
@@ -150,7 +173,8 @@ public class SecretHitlerServer {
             }
         }
         if (removedCount > 0) {
-            System.out.println(String.format("Removed %d lobbies: %s", removedCount, removedLobbyCodes));
+            System.out.println(String.format("Removed %d inactive lobbies: %s", removedCount, removedLobbyCodes));
+            System.out.println("Available lobbies: " + codeToLobby.keySet());
         }
     }
 
@@ -211,7 +235,6 @@ public class SecretHitlerServer {
             int numAttempts = rs.getInt("attempts");
             byte[] lobbyBytes = rs.getBytes("lobby_bytes");
             System.out.println("Loaded backup from " + timestamp + ".");
-            System.out.println(rs.getInt("attempts"));
             rs.close();
             stmt.close();
 
@@ -219,7 +242,6 @@ public class SecretHitlerServer {
             stmt = c.createStatement();
             stmt.executeUpdate("UPDATE backup SET attempts = '" + (numAttempts + 1) + "';");
             stmt.close();
-            c.commit();
             c.close();
 
             // Deserialize the data and convert to lobbies.
@@ -227,7 +249,7 @@ public class SecretHitlerServer {
             try {
                 ObjectInputStream objectStream = new ObjectInputStream(lobbyByteStream);
                 codeToLobby = (ConcurrentHashMap<String, Lobby>) objectStream.readObject();
-                System.out.print("Successfully parsed lobby data from the database.");
+                System.out.println("Successfully parsed lobby data from the database.");
             } catch (Exception e) {
                 System.out.println("Failed to parse lobby data from stored backup. ");
                 System.err.println( e.getClass().getName()+": "+ e.getMessage() );
@@ -261,18 +283,17 @@ public class SecretHitlerServer {
         Connection c = getDatabaseConnection();
         try {
             String queryStr = "INSERT INTO BACKUP (id, timestamp, attempts, lobby_bytes)" +
-                    "VALUES (0, ?, ?, ?)" +
-                    "ON CONFLICT (id) DO UPDATE" +
-                    "SET timestamp = excluded.timestamp," +
-                    "attempts = excluded.attempts," +
-                    "lobby_bytes = excluded.lobby_bytes;";
+                    "VALUES (0, ?, ?, ?) " +
+                    "ON CONFLICT (id) DO UPDATE " +
+                    "SET timestamp = excluded.timestamp, " +
+                    "attempts = excluded.attempts, " +
+                    "lobby_bytes = excluded.lobby_bytes; ";
             PreparedStatement pstmt = c.prepareStatement(queryStr);
             int i = 1;
             pstmt.setString(i++, timestamp);
             pstmt.setInt(i++, attempts);
             pstmt.setBytes(i++, lobbyData);
-            pstmt.executeQuery();
-            c.commit();
+            pstmt.executeUpdate();
             c.close();
         } catch (Exception e) {
             System.out.println("Failed to store the Lobby data in the database.");
@@ -482,9 +503,9 @@ public class SecretHitlerServer {
 
         String name = message.getString(PARAM_NAME);
         String lobbyCode = message.getString(PARAM_LOBBY);
-        System.out.print("Received a message from user '" + name + "' in lobby '" + lobbyCode + "' (" + ctx.message() + "): ");
 
         if (!codeToLobby.containsKey(lobbyCode)) {
+            System.out.print("Received a message from user '" + name + "' in lobby '" + lobbyCode + "' (" + ctx.message() + "): ");
             System.out.println("FAILED (Lobby requested does not exist)");
             ctx.session.close(404, "The lobby does not exist.");
             return;
@@ -495,12 +516,18 @@ public class SecretHitlerServer {
         synchronized (lobby) {
 
             if (!lobby.hasUser(ctx, name)) {
+                System.out.print("Received a message from user '" + name + "' in lobby '" + lobbyCode + "' (" + ctx.message() + "): ");
                 System.out.println("FAILED (Lobby does not have the user)");
                 ctx.session.close(403, "The user is not in the lobby " + lobbyCode + ".");
                 return;
             }
 
             lobby.resetTimeout();
+
+            // Don't print ping messages, since they clutter up the log.
+            if (!(message.has(PARAM_COMMAND) && message.getString(PARAM_COMMAND).equals(COMMAND_PING))) {
+                System.out.print("Received a message from user '" + name + "' in lobby '" + lobbyCode + "' (" + ctx.message() + "): ");
+            }
 
             boolean updateUsers = true; // this flag can be disabled by certain commands.
             boolean sendOKMessage = true;

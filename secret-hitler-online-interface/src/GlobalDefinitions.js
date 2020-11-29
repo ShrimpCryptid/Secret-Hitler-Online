@@ -7,8 +7,8 @@ export const PAGE = {
     LOBBY: 'lobby',
     GAME: 'game'
 };
-export const DEBUG = false;
-const USING_DEBUG_SERVER = false;
+export const DEBUG = true;
+const USING_DEBUG_SERVER = true;
 
 export let SERVER_ADDRESS = "www.secret-hitler-web.herokuapp.com";
 export let SERVER_ADDRESS_HTTP = "https://" + SERVER_ADDRESS;
@@ -25,10 +25,10 @@ export const CHECK_LOGIN = "/check-login";
 export const NEW_LOBBY = '/new-lobby';
 export const WEBSOCKET = '/game';
 export const SERVER_PING = "/ping";
-export const MAX_FAILED_CONNECTIONS = 3;
+export const MAX_FAILED_CONNECTIONS = 5;
 export const LOBBY_CODE_LENGTH = 4;
 export const SERVER_TIMEOUT = 4000;
-export const PING_INTERVAL = 60000;
+export const PING_INTERVAL = 50000;
 
 //////// Game Constants
 export const MIN_PLAYERS = 5;
