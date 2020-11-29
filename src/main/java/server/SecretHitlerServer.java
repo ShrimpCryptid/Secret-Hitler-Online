@@ -200,6 +200,7 @@ public class SecretHitlerServer {
                 databaseUri = new URI("");
             } else {
                 databaseUri = new URI(System.getenv(ENV_DATABASE_URL));
+                System.out.println(System.getenv(ENV_DATABASE_URL));
             }
             String username = databaseUri.getUserInfo().split(":")[0];
             String password = databaseUri.getUserInfo().split(":")[1];
@@ -212,7 +213,7 @@ public class SecretHitlerServer {
             return c;
         } catch (Exception e) {
             System.out.println("Failed to connect to database.");
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            System.err.println(e);
             return null;
         }
     }
