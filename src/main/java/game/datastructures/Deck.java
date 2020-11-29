@@ -1,5 +1,6 @@
 package game.datastructures;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -8,7 +9,7 @@ import java.util.List;
  * A deck holds an ordered list of Policies and can be shuffled, added to, or removed from.
  * The Deck can be represented by a list of policies, where index i = 0 is the top of the deck.
  */
-public class Deck {
+public class Deck implements Serializable {
 
     // The front of the list is the "top" of the deck.
     final private List<Policy> deck;

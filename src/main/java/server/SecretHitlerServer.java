@@ -10,18 +10,25 @@ import io.javalin.websocket.WsMessageContext;
 import org.json.JSONObject;
 import server.util.Lobby;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
+
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SecretHitlerServer {
 
     ////// Static Fields
     // <editor-fold desc="Static Fields">
-    private static boolean DEBUG = false;
+    private static boolean DEBUG = true;
     public static final int DEFAULT_PORT_NUMBER = 4040;
+
+    // Environmental Variable Names
+    private static final String ENV_DATABASE_URL = "JDBC_DATABASE_URL";
+    private static final String ENV_DATABASE_USERNAME = "JDBC_DATABASE_USERNAME";
+    private static final String ENV_DATABASE_PASSWORD = "JDBC_DATABASE_PASSWORD";
 
     // Passed to server
     public static final String PARAM_LOBBY = "lobby";
@@ -65,18 +72,15 @@ public class SecretHitlerServer {
 
     public static final String COMMAND_END_TERM = "end-term";
 
-
     private static final String CODE_CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private static final int CODE_LENGTH = 4;
-
     //</editor-fold>
 
     ///// Private Fields
     // <editor-fold desc="Private Fields">
 
-    final private static Map<WsContext, Lobby> userToLobby = new ConcurrentHashMap<>();
-    final private static Map<String, Lobby> codeToLobby = new ConcurrentHashMap<>();
-
+    transient private static ConcurrentHashMap<WsContext, Lobby> userToLobby = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<String, Lobby> codeToLobby = new ConcurrentHashMap<>();
 
     // </editor-fold>
 
@@ -113,6 +117,7 @@ public class SecretHitlerServer {
             wsHandler.onClose(SecretHitlerServer::onWebSocketClose);
         });
 
+        // On load, check the connected database to see if there's a stored state from the server.
 
     }
 
@@ -144,6 +149,32 @@ public class SecretHitlerServer {
             System.out.println(String.format("Removed %d lobbies: %s", removedCount, removedLobbyCodes));
         }
     }
+
+
+    /////// Database Handling
+    //<editor-fold desc="Database Handling">
+
+    public static Connection getDatabaseConnection() {
+        // Get credentials from database or (if debug flag is set) via manual input.
+        String url = System.getenv(ENV_DATABASE_URL);
+        String username = System.getenv(ENV_DATABASE_USERNAME);
+        String password = System.getenv(ENV_DATABASE_PASSWORD);
+
+        if (DEBUG) {
+            url = "";
+            username = "";
+            password = "";
+        }
+
+        System.out.println("Successfully connected to database.");
+        return null;
+    }
+
+    public static ConcurrentHashMap<String, Lobby> deserializeLobbies() {
+        return null;
+    }
+
+    //</editor-fold>
 
 
     /////// Get Requests

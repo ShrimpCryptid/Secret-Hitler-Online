@@ -9,6 +9,7 @@ import game.datastructures.board.FiveToSixPlayerBoard;
 import game.datastructures.board.NineToTenPlayerBoard;
 import game.datastructures.board.SevenToEightPlayerBoard;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -20,7 +21,7 @@ import java.util.*;
  *
  * Secret Hitler is licensed through Creative Commons.
  */
-public class SecretHitlerGame {
+public class SecretHitlerGame implements Serializable {
 
     /////////////////// Static Fields
     //<editor-fold desc="Static Fields">
@@ -81,7 +82,7 @@ public class SecretHitlerGame {
 
     private boolean didElectionTrackerAdvance = false;
 
-    private Map<String, Boolean> voteMap;
+    private HashMap<String, Boolean> voteMap;
 
     //</editor-fold>
 

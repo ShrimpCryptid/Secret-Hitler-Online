@@ -2,7 +2,9 @@ package game.datastructures.board;
 
 import game.datastructures.Policy;
 
-public abstract class Board {
+import java.io.Serializable;
+
+public abstract class Board implements Serializable {
 
     final int FASCIST_POLICIES_TO_WIN = 6;
     final int LIBERAL_POLICIES_TO_WIN = 5;

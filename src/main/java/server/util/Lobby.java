@@ -6,6 +6,8 @@ import io.javalin.websocket.WsContext;
 import org.json.JSONObject;
 import server.SecretHitlerServer;
 
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -17,12 +19,13 @@ import java.util.concurrent.ConcurrentSkipListSet;
  *
  * A user is defined as an active websocket connection.
  */
-public class Lobby {
+public class Lobby implements Serializable {
 
     private SecretHitlerGame game;
-    final private Map<WsContext, String> userToUsername;
-    final private Queue<String> activeUsernames;
-    final private Set<String> usersInGame;
+    // These two marked transient because they track currently active/connected users.
+    transient private ConcurrentHashMap<WsContext, String> userToUsername;
+    transient private ConcurrentLinkedQueue<String> activeUsernames;
+    final private ConcurrentSkipListSet<String> usersInGame;
 
     public static long TIMEOUT_DURATION_IN_MIN = 30;
     private long timeout;
@@ -210,6 +213,20 @@ public class Lobby {
             message.put("usernames", activeUsernames.toArray());
         }
         ctx.send(message.toString());
+    }
+
+    /**
+     * Called when an object is deserialized (see Serializable in Java docs).
+     * Initializes the userToUsername and activeUsernames, as they are transient objects and not saved during
+     * serialization of Lobby.
+     * @param in the Object Input Stream that is reading in the object.
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
+    private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        userToUsername = new ConcurrentHashMap<>();
+        activeUsernames = new ConcurrentLinkedQueue<>();
     }
 
     //</editor-fold>

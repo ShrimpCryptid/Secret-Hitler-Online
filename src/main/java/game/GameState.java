@@ -1,6 +1,8 @@
 package game;
 
-public enum GameState {
+import java.io.Serializable;
+
+public enum GameState implements Serializable {
     SETUP,                          // Game is being set up.
     CHANCELLOR_NOMINATION,          // President is nominating a chancellor.
     CHANCELLOR_VOTING,              // Voting on the chancellor is taking place.
