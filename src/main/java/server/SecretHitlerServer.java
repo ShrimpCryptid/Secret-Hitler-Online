@@ -504,8 +504,11 @@ public class SecretHitlerServer {
         String name = message.getString(PARAM_NAME);
         String lobbyCode = message.getString(PARAM_LOBBY);
 
+        String log_message = "Received a message from user '" + name + "' in lobby '" + lobbyCode + "' (" + ctx.message() + "): ";
+        int log_length = log_message.length();
+        System.out.print(log_message);
+
         if (!codeToLobby.containsKey(lobbyCode)) {
-            System.out.print("Received a message from user '" + name + "' in lobby '" + lobbyCode + "' (" + ctx.message() + "): ");
             System.out.println("FAILED (Lobby requested does not exist)");
             ctx.session.close(404, "The lobby does not exist.");
             return;
@@ -516,18 +519,12 @@ public class SecretHitlerServer {
         synchronized (lobby) {
 
             if (!lobby.hasUser(ctx, name)) {
-                System.out.print("Received a message from user '" + name + "' in lobby '" + lobbyCode + "' (" + ctx.message() + "): ");
                 System.out.println("FAILED (Lobby does not have the user)");
                 ctx.session.close(403, "The user is not in the lobby " + lobbyCode + ".");
                 return;
             }
 
             lobby.resetTimeout();
-
-            // Don't print ping messages, since they clutter up the log.
-            if (!(message.has(PARAM_COMMAND) && message.getString(PARAM_COMMAND).equals(COMMAND_PING))) {
-                System.out.print("Received a message from user '" + name + "' in lobby '" + lobbyCode + "' (" + ctx.message() + "): ");
-            }
 
             boolean updateUsers = true; // this flag can be disabled by certain commands.
             boolean sendOKMessage = true;
@@ -536,7 +533,9 @@ public class SecretHitlerServer {
                     case COMMAND_PING:
                         sendOKMessage = false;
                         updateUsers = false;
-                        System.out.println("SUCCESS");
+                        // Erase the previous line with spaces and \r
+                        System.out.print("\r" + (' ' * log_length));
+                        System.out.print("\r");
                         JSONObject msg = new JSONObject();
                         msg.put(PARAM_PACKET_TYPE, PACKET_PONG);
                         ctx.send(msg.toString());
