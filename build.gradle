@@ -33,6 +33,10 @@ dependencies {
     compile 'com.j2html:j2html:1.4.0'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.10.1'
 
+    // PostgresSQL driver
+    compile 'org.postgresql:postgresql:42.2.0'
+
+
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
 }

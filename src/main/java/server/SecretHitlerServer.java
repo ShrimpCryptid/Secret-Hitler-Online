@@ -10,12 +10,13 @@ import io.javalin.websocket.WsMessageContext;
 import org.json.JSONObject;
 import server.util.Lobby;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.io.*;
+import java.net.URI;
+import java.sql.*;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SecretHitlerServer {
@@ -98,7 +99,11 @@ public class SecretHitlerServer {
     }
 
     public static void main(String[] args) {
+        // On load, check the connected database to see if there's a stored state from the server.
+        loadDatabaseBackup();
+        removeInactiveLobbies(); // immediately clean in case of redundant lobbies.
 
+        // Only initialize Javalin communication after the database has been queried.
         Javalin serverApp = Javalin.create(config -> {
             if (DEBUG) {
                 config.enableCorsForAllOrigins();
@@ -117,8 +122,7 @@ public class SecretHitlerServer {
             wsHandler.onClose(SecretHitlerServer::onWebSocketClose);
         });
 
-        // On load, check the connected database to see if there's a stored state from the server.
-
+        // Add hook for termination that backs up the lobbies to the database.
     }
 
     /**
@@ -154,24 +158,141 @@ public class SecretHitlerServer {
     /////// Database Handling
     //<editor-fold desc="Database Handling">
 
-    public static Connection getDatabaseConnection() {
+    /**
+     * Attempts to get a connection to the PostGres database.
+     * @return null if no connection could be made.
+     *         otherwise, returns a {@code java.sql.Connection} object.
+     */
+    private static Connection getDatabaseConnection() {
         // Get credentials from database or (if debug flag is set) via manual input.
-        String url = System.getenv(ENV_DATABASE_URL);
-        String username = System.getenv(ENV_DATABASE_USERNAME);
-        String password = System.getenv(ENV_DATABASE_PASSWORD);
+        Connection c = null;
+        try {
+            URI databaseUri;
+            if (DEBUG) {
+                databaseUri = new URI("");
+            } else {
+                databaseUri = new URI(System.getenv(ENV_DATABASE_URL));
+            }
+            String username = databaseUri.getUserInfo().split(":")[0];
+            String password = databaseUri.getUserInfo().split(":")[1];
+            String dbUrl = "jdbc:postgresql://" + databaseUri.getHost() + ':' + databaseUri.getPort()
+                    + databaseUri.getPath() + "?ssl=true&sslmode=require";
 
-        if (DEBUG) {
-            url = "";
-            username = "";
-            password = "";
+            Class.forName("org.postgresql.Driver");
+            c = DriverManager.getConnection(dbUrl, username, password);
+            System.out.println("Successfully connected to database.");
+            return c;
+        } catch (Exception e) {
+            System.out.println("Failed to connect to database.");
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            return null;
         }
-
-        System.out.println("Successfully connected to database.");
-        return null;
     }
 
-    public static ConcurrentHashMap<String, Lobby> deserializeLobbies() {
-        return null;
+    /**
+     * Loads lobby data stored in the database (intended to be run on server wake).
+     * @effects {@code codeToLobby} is set to the stored database
+     */
+    private static void loadDatabaseBackup() {
+        // Get connection to the Postgres Database and select the backup data.
+        Connection c = getDatabaseConnection();
+        if (c == null) { return; }
+        Statement stmt = null;
+
+        try {
+            // Initialize table, just in case
+            initializeDatabase(c);
+
+            stmt = c.createStatement();
+            ResultSet rs = stmt.executeQuery("select * from backup;");
+            rs.next(); // Will fail if there are no entries in the table, which is fine.
+
+            String timestamp = rs.getString("timestamp");
+            int numAttempts = rs.getInt("attempts");
+            byte[] lobbyBytes = rs.getBytes("lobby_bytes");
+            System.out.println("Loaded backup from " + timestamp + ".");
+            System.out.println(rs.getInt("attempts"));
+            rs.close();
+            stmt.close();
+
+            // Update the number of attempts that have been made, for debugging.
+            stmt = c.createStatement();
+            stmt.executeUpdate("UPDATE backup SET attempts = '" + (numAttempts + 1) + "';");
+            stmt.close();
+            c.commit();
+            c.close();
+
+            // Deserialize the data and convert to lobbies.
+            ByteArrayInputStream lobbyByteStream = new ByteArrayInputStream(lobbyBytes);
+            try {
+                ObjectInputStream objectStream = new ObjectInputStream(lobbyByteStream);
+                codeToLobby = (ConcurrentHashMap<String, Lobby>) objectStream.readObject();
+                System.out.print("Successfully parsed lobby data from the database.");
+            } catch (Exception e) {
+                System.out.println("Failed to parse lobby data from stored backup. ");
+                System.err.println( e.getClass().getName()+": "+ e.getMessage() );
+            }
+
+        } catch (Exception e) {
+            System.out.println("Failed to retrieve lobby backups from the database.");
+            System.err.println( e.getClass().getName()+": "+ e.getMessage() );
+        }
+    }
+
+    private static void storeDatabaseBackup() {
+        ByteArrayOutputStream byteBuilder = new ByteArrayOutputStream();
+        try {
+            // Serialize the Lobby data.
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteBuilder);
+            objectOutputStream.writeObject(codeToLobby);
+            objectOutputStream.flush();
+            objectOutputStream.close();
+            byteBuilder.flush();
+        } catch (Exception e) {
+            System.out.println("Failed to serialize the Lobby data.");
+            System.err.println(e);
+            return;
+        }
+        byte[] lobbyData = byteBuilder.toByteArray();
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String timestamp =  formatter.format(new Timestamp(System.currentTimeMillis()));
+        int attempts = 0;
+
+        Connection c = getDatabaseConnection();
+        try {
+            String queryStr = "INSERT INTO BACKUP (id, timestamp, attempts, lobby_bytes)" +
+                    "VALUES (0, ?, ?, ?)" +
+                    "ON CONFLICT (id) DO UPDATE" +
+                    "SET timestamp = excluded.timestamp," +
+                    "attempts = excluded.attempts," +
+                    "lobby_bytes = excluded.lobby_bytes;";
+            PreparedStatement pstmt = c.prepareStatement(queryStr);
+            int i = 1;
+            pstmt.setString(i++, timestamp);
+            pstmt.setInt(i++, attempts);
+            pstmt.setBytes(i++, lobbyData);
+            pstmt.executeQuery();
+            c.commit();
+            c.close();
+        } catch (Exception e) {
+            System.out.println("Failed to store the Lobby data in the database.");
+            System.err.println(e);
+            return;
+        }
+        System.out.println("Successfully saved Lobby state to the database.");
+    }
+
+
+        /**
+         * Initializes the database by adding the BACKUP table.
+         * @param c the connection to the database.
+         * @effects the Postgres SQL datbase has a new
+         */
+    private static void initializeDatabase(Connection c) throws SQLException {
+        Statement stmt = c.createStatement();
+        stmt.executeUpdate("create table if not exists backup " +
+                "(id INT UNIQUE, timestamp TEXT, attempts INT, lobby_bytes BYTEA);");
+        stmt.close();
     }
 
     //</editor-fold>
