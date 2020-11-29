@@ -27,9 +27,7 @@ public class SecretHitlerServer {
     public static final int DEFAULT_PORT_NUMBER = 4040;
 
     // Environmental Variable Names
-    private static final String ENV_DATABASE_URL = "JDBC_DATABASE_URL";
-    private static final String ENV_DATABASE_USERNAME = "JDBC_DATABASE_USERNAME";
-    private static final String ENV_DATABASE_PASSWORD = "JDBC_DATABASE_PASSWORD";
+    private static final String ENV_DATABASE_URL = "DATABASE_URL";
 
     // Passed to server
     public static final String PARAM_LOBBY = "lobby";
