@@ -27,8 +27,10 @@ public class Lobby implements Serializable {
     transient private ConcurrentLinkedQueue<String> activeUsernames;
     final private ConcurrentSkipListSet<String> usersInGame;
 
-    public static long TIMEOUT_DURATION_IN_MIN = 30;
+    public static long LOBBY_TIMEOUT_DURATION_IN_MIN = 30;
+    public static float PLAYER_TIMEOUT_IN_SEC = 3;
     private long timeout;
+    transient private Timer timer = new Timer();
 
     /**
      * Constructs a new Lobby.
@@ -47,7 +49,7 @@ public class Lobby implements Serializable {
     synchronized public void resetTimeout() {
         // The timeout duration for the server. (currently 30 minutes)
             long MS_PER_MINUTE = 1000 * 60;
-            timeout = System.currentTimeMillis() + MS_PER_MINUTE * TIMEOUT_DURATION_IN_MIN;
+            timeout = System.currentTimeMillis() + MS_PER_MINUTE * LOBBY_TIMEOUT_DURATION_IN_MIN;
     }
 
     /**
@@ -92,7 +94,7 @@ public class Lobby implements Serializable {
      * @return true iff the username {@code name} is in this lobby.
      */
     synchronized public boolean hasUserWithName(String name) {
-        return activeUsernames.contains(name);
+        return userToUsername.values().contains(name);
     }
 
     /**
@@ -141,7 +143,9 @@ public class Lobby implements Serializable {
                 if (!isFull()) {
                     if (!hasUserWithName(name)) { // This is a new user with a new name, so we add them to the Lobby.
                         userToUsername.put(context, name);
-                        activeUsernames.add(name);
+                        if (!activeUsernames.contains(name)) {
+                            activeUsernames.add(name);
+                        }
                     } else {
                         throw new IllegalArgumentException("Cannot add duplicate names.");
                     }
@@ -163,8 +167,27 @@ public class Lobby implements Serializable {
         if (!hasUser(context)) {
             throw new IllegalArgumentException("Cannot remove a websocket that is not in the Lobby.");
         } else {
-            activeUsernames.remove(userToUsername.get(context));
+            // Delay removing players from the list by creating a timer.
+            int delay_in_ms = (int) (PLAYER_TIMEOUT_IN_SEC * 1000);
+            final String username = userToUsername.get(context);
+            timer.schedule(new RemoveUserTask(username), delay_in_ms);
             userToUsername.remove(context);
+        }
+    }
+
+    /**
+     * Small helper class for removing users from the active users queue.
+     */
+    class RemoveUserTask extends TimerTask {
+        private final String username;
+
+        RemoveUserTask(String username) { this.username = username; }
+
+        public void run() {
+            if (!userToUsername.values().contains(username) && activeUsernames.contains(username)) {
+                activeUsernames.remove(username);
+                updateAllUsers();
+            }
         }
     }
 
@@ -173,7 +196,7 @@ public class Lobby implements Serializable {
      * @return the number of active websocket connections currently in the lobby.
      */
     synchronized public int getUserCount() {
-        return userToUsername.size();
+        return activeUsernames.size();
     }
 
     /**
@@ -227,6 +250,7 @@ public class Lobby implements Serializable {
         in.defaultReadObject();
         userToUsername = new ConcurrentHashMap<>();
         activeUsernames = new ConcurrentLinkedQueue<>();
+        timer = new Timer();
     }
 
     //</editor-fold>

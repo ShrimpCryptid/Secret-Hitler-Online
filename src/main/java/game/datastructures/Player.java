@@ -2,11 +2,13 @@ package game.datastructures;
 
 import org.json.JSONObject;
 
+import java.io.Serializable;
+
 /**
  * Holds the data for an individual player.
  * A player has a username and identity associated with them.
  */
-public class Player {
+public class Player implements Serializable {
 
     final private String username;
     private Identity id;

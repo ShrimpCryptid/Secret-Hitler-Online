@@ -85,6 +85,8 @@ public class SecretHitlerServer {
     transient private static ConcurrentHashMap<WsContext, Lobby> userToLobby = new ConcurrentHashMap<>();
     private static ConcurrentHashMap<String, Lobby> codeToLobby = new ConcurrentHashMap<>();
 
+    transient private static boolean hasLobbyChanged;
+
     // </editor-fold>
 
     ////// Private Classes
@@ -141,8 +143,9 @@ public class SecretHitlerServer {
             public void run() {
                 removeInactiveLobbies();
                 // If there are active lobbies, store a backup of the game.
-                if (!codeToLobby.isEmpty()) {
+                if (!codeToLobby.isEmpty() && hasLobbyChanged) {
                     storeDatabaseBackup();
+                    hasLobbyChanged = false;
                 }
             }
         }, delay, period);
@@ -175,6 +178,7 @@ public class SecretHitlerServer {
         if (removedCount > 0) {
             System.out.println(String.format("Removed %d inactive lobbies: %s", removedCount, removedLobbyCodes));
             System.out.println("Available lobbies: " + codeToLobby.keySet());
+            hasLobbyChanged = true;
         }
     }
 
@@ -389,6 +393,7 @@ public class SecretHitlerServer {
      */
     public static void createNewLobby(Context ctx) {
         removeInactiveLobbies();
+        hasLobbyChanged = true;
 
         String newCode = generateCode();
         while(codeToLobby.containsKey(newCode)) {
@@ -471,6 +476,7 @@ public class SecretHitlerServer {
         lobby.addUser(ctx, name);
         userToLobby.put(ctx, lobby); // keep track of which lobby this connection is in.
         lobby.updateAllUsers();
+        hasLobbyChanged = true;
     }
 
 
@@ -638,6 +644,7 @@ public class SecretHitlerServer {
                 lobby.updateAllUsers();
             }
         }
+        hasLobbyChanged = true;
     }
 
     /**

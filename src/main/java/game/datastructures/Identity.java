@@ -1,6 +1,8 @@
 package game.datastructures;
 
-public enum Identity {
+import java.io.Serializable;
+
+public enum Identity implements Serializable {
     UNASSIGNED,
     HITLER,
     FASCIST,
