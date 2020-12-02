@@ -198,7 +198,6 @@ public class SecretHitlerServer {
                 databaseUri = new URI("");
             } else {
                 databaseUri = new URI(System.getenv(ENV_DATABASE_URL));
-                System.out.println(System.getenv(ENV_DATABASE_URL));
             }
             String username = databaseUri.getUserInfo().split(":")[0];
             String password = databaseUri.getUserInfo().split(":")[1];

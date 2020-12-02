@@ -303,11 +303,11 @@ class App extends Component {
         }
 
         if (this.reconnectOnConnectionClosed && this.failedConnections < MAX_FAILED_CONNECTIONS) {
-            if (this.failedConnections >= 2) {  // Only show the error bar if the first attempt has failed.
+            if (this.failedConnections >= 1) {  // Only show the error bar if the first attempt has failed.
                 this.showSnackBar("Lost connection to the server: retrying...");
                 ReactGA.event({
                     category: "Lost Server Connection",
-                    action: "User lost connection to the server. (>2 attempts)"
+                    action: "User lost connection to the server. (>1 attempts)"
                 });
             }
             this.failedConnections += 1;
