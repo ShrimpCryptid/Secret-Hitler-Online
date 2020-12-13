@@ -326,14 +326,17 @@ class App extends Component {
             });
             this.clearAnimationQueue();
         } else { // User purposefully closed the connection.
-            // Always include lobby in case user wants to rejoin.
-            this.setState({
-                page: PAGE.LOGIN,
-                joinName: decodeURIComponent(this.state.name),
-                joinLobby: this.state.lobby,
-                joinError: ""
-            });
-            this.clearAnimationQueue();
+            if (this.gameOver) {
+                // Do not reopen if the game is over, since disconnecting is intentional.
+            } else {
+                this.setState({
+                    page: PAGE.LOGIN,
+                    joinName: decodeURIComponent(this.state.name),
+                    joinLobby: this.state.lobby,
+                    joinError: ""
+                });
+                this.clearAnimationQueue();
+            }
         }
     }
 
