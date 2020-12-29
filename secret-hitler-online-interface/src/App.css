@@ -56,6 +56,14 @@ h6 { /*Notification and/or error text.*/
     margin: 3px;
 }
 
+#errormessage {
+    font-family: var(--textFont);
+    font-weight: 700;
+    font-size: calc(4px + 2vmin);
+    color: var(--textColorHighlight);
+    margin: 3px;
+}
+
 p {
     font-family: var(--textFont);
     font-weight: 700;
@@ -66,7 +74,7 @@ p {
 a {
     font-family: var(--textFont);
     font-size: calc(4px + 1.8vmin);
-    color: var(--textColorHighlight);
+    color: var(--buttonHoverFill);
 }
 
 .highlight {
@@ -120,6 +128,15 @@ button:disabled{
     cursor: not-allowed;
 }
 
+/* Override for pulsating buttons (for the end term button)*/
+#pulse-button {
+
+}
+
+#pulse-button:disabled {
+
+}
+
 input {
     font-family: var(--textFont);
     width: 40vmin;
@@ -169,7 +186,7 @@ textarea {
     transform: translateX(-50%);
 }
 
-/* Show the snackbar when clicking on a button (class added with JavaScript) */
+/* Show the snackbar*/
 #snackbar.show {
     visibility: visible; /* Show the snackbar */
     /* Add animation: Take 0.5 seconds to fade in and out the snackbar.

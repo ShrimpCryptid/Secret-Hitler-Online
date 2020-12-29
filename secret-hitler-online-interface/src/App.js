@@ -508,7 +508,7 @@ class App extends Component {
                 }
             })
             .catch(() => {
-                this.setState({joinError: "There was an error contacting to the server. Please wait and try again."});
+                this.setState({joinError: "There was an error contacting the server. Please wait and try again."});
             });
     };
 
@@ -588,7 +588,7 @@ class App extends Component {
                         value={this.state.joinName}
                         maxLength={12}
                     />
-                    <h6>{this.state.joinError}</h6>
+                    <p id={"errormessage"}>{this.state.joinError}</p>
                     <button
                         onClick={this.onClickJoin}
                         disabled={!this.shouldJoinButtonBeEnabled()}
@@ -605,7 +605,7 @@ class App extends Component {
                         value={this.state.createLobbyName}
                         maxLength={12}
                     />
-                    <h6>{this.state.createLobbyError}</h6>
+                    <p id={"errormessage"}>{this.state.createLobbyError}</p>
                     <button
                         onClick={this.onClickCreateLobby}
                         disabled={!this.shouldCreateLobbyButtonBeEnabled()}
@@ -625,8 +625,7 @@ class App extends Component {
                 </p>
 
                 <p style={{margin: "10px 20pxpx", fontWeight: "400", fontSize: "calc(4px + 1.8vmin)"}}>
-                    Note: Secret-Hitler.Online is in BETA.
-                    <br/>
+                    Note: Secret-Hitler.Online is in BETA.<br/>
                     Game-breaking bugs may occur while playing.
                     <br/>
                     You can report bugs on the <a href={"https://github.com/ShrimpCryptid/Secret-Hitler-Online/issues"}
@@ -638,7 +637,7 @@ class App extends Component {
                 >
                     Based on the original <a href={"https://secrethitler.com"} target={"_blank"}
                                              onClick={this.onClickGameWebsite}>Secret Hitler</a> board game by Goat,
-                    Wolf, & Cabbage (© 2016-2020).
+                    Wolf, & Cabbage (© 2016-2020).<br/>Licensed under <a href={"https://creativecommons.org/licenses/by-nc-sa/4.0/"} target={"_blank"}>CC BY-NC-SA 4.0.</a>
                 </p>
             </div>
         );
