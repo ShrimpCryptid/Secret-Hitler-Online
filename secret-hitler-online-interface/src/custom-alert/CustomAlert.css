@@ -36,6 +36,7 @@
     background-color: var(--alertFill);
     text-align: center;
     top: 10vh;
+    margin-bottom: 10px;
 }
 
 .left-align {

@@ -1,0 +1,34 @@
+#icon-container {
+    width: 100%;
+}
+
+#icon {
+    display: inline;
+    width: 18vmin;
+    border-radius: 8%/8%;
+    margin: 3px 3px;
+    padding: 5px 5px;
+
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none; /* From IE10 only */
+    user-select: none; /* Not valid CSS yet, as of July 2012 */
+    -webkit-user-drag: none; /* Prevents dragging of images/divs etc */
+    user-drag: none;
+}
+
+#icon.disabled {
+    filter: brightness(calc(var(--playerBrightnessFilter) + 20%));
+    pointer-events: none;
+}
+
+#icon-text {
+    min-font-size: 12;
+    font-size: calc(12px + 0.3vmin);
+}
+
+#premium-text-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}

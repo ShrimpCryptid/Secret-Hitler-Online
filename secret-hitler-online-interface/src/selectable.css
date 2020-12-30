@@ -18,3 +18,15 @@
     background-color: var(--selectionPressed);
 }
 
+/* Handle disabled selectable objects-- disable highlighting. */
+.selectable.disabled {
+    background-color: var(--selectionNone);
+}
+
+.selectable.disabled:hover {
+    background-color: var(--selectionNone);
+}
+
+.selectable.disabled:active {
+    background-color: var(--selectionNone);
+}

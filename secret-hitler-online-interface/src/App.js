@@ -99,6 +99,7 @@ import VictoryFascistHeader from "./assets/victory-fascist-header.png";
 import VictoryFascistFooter from "./assets/victory-fascist-footer.png";
 import VictoryLiberalHeader from "./assets/victory-liberal-header.png";
 import VictoryLiberalFooter from "./assets/victory-liberal-footer.png";
+import IconSelection from "./custom-alert/IconSelection";
 
 const EVENT_BAR_FADE_OUT_DURATION = 500;
 const CUSTOM_ALERT_FADE_DURATION = 1000;
@@ -122,13 +123,13 @@ const TEST_GAME_STATE = {
     "discard-size": 0,
     "draw-size": 17,
     "players": {
-        "P1": {"alive": true, "id": "FASCIST", "investigated": false},
-        "P2": {"alive": true, "id": "HITLER", "investigated": false},
-        "P3": {"alive": true, "id": "LIBERAL", "investigated": true},
-        "P4": {"alive": true, "id": "LIBERAL", "investigated": false},
-        "P5": {"alive": true, "id": "LIBERAL", "investigated": false},
-        "P6": {"alive": false, "id": "FASCIST", "investigated": false},
-        "P7": {"alive": true, "id": "LIBERAL", "investigated": false}
+        "P1": {"alive": true, "id": "FASCIST", "investigated": false, "icon": "p1"},
+        "P2": {"alive": true, "id": "HITLER", "investigated": false, "icon": "p4"},
+        "P3": {"alive": true, "id": "LIBERAL", "investigated": true, "icon": "p18"},
+        "P4": {"alive": true, "id": "LIBERAL", "investigated": false, "icon": "p7"},
+        "P5": {"alive": true, "id": "LIBERAL", "investigated": false, "icon": "p2"},
+        "P6": {"alive": false, "id": "FASCIST", "investigated": false, "icon": "p5"},
+        "P7": {"alive": true, "id": "LIBERAL", "investigated": false, "icon": "p11"}
     },
     "in-game": true,
     "player-order": ["P4", "P2", "P6", "P1", "P7", "P3", "P5"],
@@ -355,6 +356,7 @@ class App extends Component {
                     usernames: message[PARAM_USERNAMES],
                     page: PAGE.LOBBY
                 });
+                // TODO: If user doesn't have an icon set, show the dialog.
                 break;
 
             case PACKET_GAME_STATE:
@@ -1414,6 +1416,7 @@ class App extends Component {
     // </editor-fold>
 
     playAnimationTest() {
+        /*
         if (this.state.discardDeckSize === 15) {
             this.setState({
                 discardDeckSize: 14
@@ -1422,8 +1425,11 @@ class App extends Component {
             this.setState({
                 discardDeckSize: 15
             });
-        }
-
+        }*/
+        this.queueAlert(<IconSelection gameState={this.state.gameState}
+                                       onConfirm={this.hideAlertAndFinish}
+                                       user={"P1"}
+                                       sendWSCommand={this.sendWSCommand} />);
     }
 
     /**
@@ -1453,6 +1459,8 @@ class App extends Component {
                 </div>
 
                 <StatusBar>{this.state.statusBarText}</StatusBar>
+
+                <button onClick={()=>this.playAnimationTest()}>Test Animation</button>
 
                 <div style={{display: "inline-block"}}>
                     <div id={"Board Layout"}

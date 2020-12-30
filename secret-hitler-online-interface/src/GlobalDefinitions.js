@@ -50,11 +50,13 @@ export const PACKET_PONG = "pong";
 export const PARAM_COMMAND = "command";
 export const PARAM_NAME = "name";
 export const PARAM_LOBBY = "lobby";
+export const PARAM_ICON = "icon"; // id of the selected portrait.
 export const PARAM_VOTE = "vote";
 export const PARAM_VETO = "veto"; // the veto decision (yes/no)
 export const PARAM_CHOICE = "choice"; // the index of the chosen policy.
 
 export const COMMAND_PING = "ping";
+export const COMMAND_SELECT_ICON = "select-icon";
 export const COMMAND_START_GAME = "start-game";
 export const COMMAND_GET_STATE = "get-state";
 export const COMMAND_NOMINATE_CHANCELLOR = "nominate-chancellor";
@@ -107,6 +109,7 @@ export const PARAM_PLAYER_ORDER = "player-order";
 export const PARAM_PLAYERS = "players";
 export const PLAYER_IDENTITY = "id";
 export const PLAYER_IS_ALIVE = "alive";
+export const PLAYER_ICON = "icon";
 export const PLAYER_INVESTIGATED = "investigated";
 export const PARAM_PRESIDENT = "president";
 export const PARAM_CHANCELLOR = "chancellor";
@@ -121,7 +124,6 @@ export const PARAM_DRAW_DECK = "draw-size";
 export const PARAM_DISCARD_DECK = "discard-size";
 export const PARAM_PRESIDENT_CHOICES = "president-choices";
 export const PARAM_CHANCELLOR_CHOICES = "chancellor-choices";
-
 export const PARAM_TARGET = "target-user";
 
 // </editor-fold>
