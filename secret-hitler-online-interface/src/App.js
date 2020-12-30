@@ -619,6 +619,7 @@ class App extends Component {
                 <p style={{margin: "10px 20pxpx", fontWeight: "400", fontSize: "calc(4px + 1.8vmin)"}}>
                     Developed by ShrimpCryptid - <a
                     href={"https://github.com/ShrimpCryptid/Secret-Hitler-Online/blob/master/README.md"}
+                    rel="noopener"
                     target={"_blank"} onClick={this.onClickAbout}>
                     about this project
                 </a>
@@ -629,15 +630,16 @@ class App extends Component {
                     Game-breaking bugs may occur while playing.
                     <br/>
                     You can report bugs on the <a href={"https://github.com/ShrimpCryptid/Secret-Hitler-Online/issues"}
+                                                  rel="noopener"
                                                   target={"_blank"}>Issues page.</a>
                 </p>
 
                 <p
                     style={{margin: "10px 20pxpx", fontWeight: "400", fontSize: "calc(4px + 1.8vmin)"}}
                 >
-                    Based on the original <a href={"https://secrethitler.com"} target={"_blank"}
+                    Based on the original <a href={"https://secrethitler.com"} target={"_blank"} rel="noopener"
                                              onClick={this.onClickGameWebsite}>Secret Hitler</a> board game by Goat,
-                    Wolf, & Cabbage (© 2016-2020).<br/>Licensed under <a href={"https://creativecommons.org/licenses/by-nc-sa/4.0/"} target={"_blank"}>CC BY-NC-SA 4.0.</a>
+                    Wolf, & Cabbage (© 2016-2020).<br/>Licensed under <a href={"https://creativecommons.org/licenses/by-nc-sa/4.0/"} rel="noopener" target={"_blank"}>CC BY-NC-SA 4.0.</a>
                 </p>
             </div>
         );
@@ -767,7 +769,7 @@ class App extends Component {
 
                             <p style={{margin: "10px 20pxpx", fontWeight: "400", fontSize: "calc(4px + 1.8vmin)"}}>
                                 <a href={"https://github.com/ShrimpCryptid/Secret-Hitler-Online/blob/master/README.md"}
-                                   target={"_blank"} onClick={this.onClickAbout}>
+                                   target={"_blank"} rel="noopener" onClick={this.onClickAbout}>
                                     About this project
                                 </a>
                             </p>
@@ -778,7 +780,7 @@ class App extends Component {
                                 Game-breaking bugs may occur while playing.
                                 <br/>
                                 You can report bugs on the <a
-                                href={"https://github.com/ShrimpCryptid/Secret-Hitler-Online/issues"} target={"_blank"}>Issues
+                                href={"https://github.com/ShrimpCryptid/Secret-Hitler-Online/issues"} rel="noopener" target={"_blank"}>Issues
                                 page.</a>
                             </p>
                         </div>

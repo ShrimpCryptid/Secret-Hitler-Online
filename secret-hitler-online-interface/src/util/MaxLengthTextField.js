@@ -48,12 +48,11 @@ class MaxLengthTextField extends Component {
     render() {
         return (
             <div style={{flexDirection:"column", margin:"10px"}}>
-                <div style={{display:"flex", width:"calc(10px + 40vmin)", flexDirection:"row", marginLeft:"auto", marginRight:"auto"}}>
-                    <p style={{margin:"2px"}}>{this.props.label}</p>
-                    <p style={{margin:"2px", marginLeft:"auto"}}>{this.charactersLeft()}</p>
-                </div>
-                <label style={{fontSize: "0px"}}>
-                    {this.props.label + " (up to " + this.props.maxLength + " characters)"}
+                <label>
+                    <div style={{display:"flex", width:"calc(10px + 40vmin)", flexDirection:"row", marginLeft:"auto", marginRight:"auto"}}>
+                        <p style={{margin:"2px"}}>{this.props.label}</p>
+                        <p style={{margin:"2px", marginLeft:"auto"}}>{this.charactersLeft()}</p>
+                    </div>
                     <input  className="MaxLengthTextField"
                             value={this.props.value}
                             onChange={this.handleChange}
