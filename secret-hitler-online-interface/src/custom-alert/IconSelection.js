@@ -2,13 +2,12 @@ import React, {Component} from "react";
 import "../selectable.css";
 import "./IconSelection.css";
 
-import portraits, {defaultPortraits, premiumPortraits} from "../assets";
+import portraits, {unlockedPortraits, lockedPortraits} from "../assets";
 import {portraitsAltText} from "../assets";
 
 import {
     COMMAND_SELECT_ICON,
     PARAM_ICON,
-    PLAYER_ICON,
     SERVER_TIMEOUT,
     PARAM_PLAYERS,
     PARAM_PLAYER_ORDER
@@ -22,8 +21,10 @@ class IconSelection extends Component {
 
     constructor(props) {
         super(props);
+
+        // Check if the player should be
+
         this.state = {
-            selection: undefined,
             waitingForServer: false,
             unlockPremium: false
         };
@@ -38,36 +39,38 @@ class IconSelection extends Component {
      * @effects Attempts to send the server a command with the player's vote, and locks access to the button
      *          for {@code SERVER_TIMEOUT} ms.
      */
-    onButtonClick(id) {
+    onButtonClick() {
         // Lock the button so that it can't be pressed multiple times.
-        this.timeoutID = setTimeout(() => {this.setState({waitingForServer: false})}, SERVER_TIMEOUT);
-        this.setState({waitingForServer: true});
+        // this.timeoutID = setTimeout(() => {this.setState({waitingForServer: false})}, SERVER_TIMEOUT);
+        // this.setState({waitingForServer: true});
 
-        // Contact the server using provided method.
-        let data = {};
-        data[PARAM_ICON] = id; // portrait id.
-        this.props.sendWSCommand(COMMAND_SELECT_ICON, data);
+        // Check that user has a profile picture assigned according to the game state
+        if (this.props.gameState[PARAM_ICON][this.props.user] !== null) {
+            this.props.onConfirm();
+        }
     }
 
     componentWillUnmount() {
         clearTimeout(this.timeoutID)
     }
 
+
     isIconInUse(iconID) {
         let playerOrder = this.props.gameState[PARAM_PLAYER_ORDER];
         for (let i = 0; i < playerOrder.length; i++) {
             let player = playerOrder[i];
-            if (this.props.gameState[PARAM_PLAYERS][player][PARAM_ICON] === iconID) {
+            if (this.props.gameState[PARAM_ICON][player] === iconID) {
                 return true;
             }
         }
         return false;
     }
 
+
     onClickIcon(iconID) {
         // Verify that player is able to select this icon.
-        let currPortrait = this.props.gameState[PARAM_PLAYERS][this.props.user][PLAYER_ICON];
-        let isPremium = premiumPortraits.indexOf(iconID) !== -1;
+        let currPortrait = this.props.gameState[PARAM_ICON][this.props.user];
+        let isPremium = lockedPortraits.indexOf(iconID) !== -1;
         // Also does not allow selection if user has already selected this icon
         let unselectable = ((isPremium && !this.state.unlockPremium) || (this.isIconInUse(iconID)));
 
@@ -77,7 +80,6 @@ class IconSelection extends Component {
             let data = {};
             data[PARAM_ICON] = iconID;
             this.props.sendWSCommand(COMMAND_SELECT_ICON, data);
-            console.log("Sending command for icon " + iconID);
         }
     }
 
@@ -88,16 +90,16 @@ class IconSelection extends Component {
     getIconButtonHML(premium) {
         let portraitNames;
         if (premium) {
-            portraitNames = premiumPortraits;
+            portraitNames = lockedPortraits;
         } else {
-            portraitNames = defaultPortraits;
+            portraitNames = unlockedPortraits;
         }
 
         let iconHTML = [];
         // Update selections based on game state given by the server (this prevents duplicate player icons).
 
-        //let currPortrait = this.props.gameState[PARAM_PLAYERS][this.props.user][PLAYER_ICON];
-        let currPortrait = "p1";
+        let currPortrait = this.props.gameState[PARAM_ICON][this.props.user];
+        //let currPortrait = "p1";
 
         portraitNames.forEach(portraitID => {
             // Check if valid portrait name
@@ -157,7 +159,7 @@ class IconSelection extends Component {
                         </>
                     );
                 }}
-                buttonDisabled={this.state.selection === undefined || this.state.waitingForServer}
+                buttonDisabled={(this.props.gameState[PARAM_ICON][this.props.user] !== null) || this.state.waitingForServer}
                 buttonOnClick={this.onButtonClick}
             >
             </ButtonPrompt>

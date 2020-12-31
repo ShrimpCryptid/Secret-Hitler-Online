@@ -1,25 +1,27 @@
-import p1 from "./player-portrait-1.svg";
-import p2 from "./player-portrait-2.svg";
-import p3 from "./player-portrait-3.svg";
-import p4 from "./player-portrait-4.svg";
-import p5 from "./player-portrait-5.svg";
-import p6 from "./player-portrait-6.svg";
-import p7 from "./player-portrait-7.svg";
-import p8 from "./player-portrait-8.svg";
-import p9 from "./player-portrait-9.svg";
-import p10 from "./player-portrait-10.svg";
-import p11 from "./player-portrait-11.svg";
-import p12 from "./player-portrait-12.svg";
-import p13 from "./player-portrait-13.svg";
-import p14 from "./player-portrait-14.svg";
-import p15 from "./player-portrait-15.svg";
-import p16 from "./player-portrait-16.svg";
-import p17 from "./player-portrait-17.svg";
-import p18 from "./player-portrait-18.svg";
-import p19 from "./player-portrait-19.svg";
-import p20 from "./player-portrait-20.svg";
+import p1 from "./player-portraits/player-portrait-1.svg";
+import p2 from "./player-portraits/player-portrait-2.svg";
+import p3 from "./player-portraits/player-portrait-3.svg";
+import p4 from "./player-portraits/player-portrait-4.svg";
+import p5 from "./player-portraits/player-portrait-5.svg";
+import p6 from "./player-portraits/player-portrait-6.svg";
+import p7 from "./player-portraits/player-portrait-7.svg";
+import p8 from "./player-portraits/player-portrait-8.svg";
+import p9 from "./player-portraits/player-portrait-9.svg";
+import p10 from "./player-portraits/player-portrait-10.svg";
+import p11 from "./player-portraits/player-portrait-11.svg";
+import p12 from "./player-portraits/player-portrait-12.svg";
+import p13 from "./player-portraits/player-portrait-13.svg";
+import p14 from "./player-portraits/player-portrait-14.svg";
+import p15 from "./player-portraits/player-portrait-15.svg";
+import p16 from "./player-portraits/player-portrait-16.svg";
+import p17 from "./player-portraits/player-portrait-17.svg";
+import p18 from "./player-portraits/player-portrait-18.svg";
+import p19 from "./player-portraits/player-portrait-19.svg";
+import p20 from "./player-portraits/player-portrait-20.svg";
+import p_default from "./player-portraits/player-portrait-default.svg";
 
 const portraits = {
+    p_default,
     p1,
     p2,
     p3,
@@ -43,7 +45,9 @@ const portraits = {
 };
 export default portraits;
 
-export const defaultPortraits = [
+export const defaultPortrait = "p_default";
+
+export const unlockedPortraits = [
     "p1",
     "p2",
     "p3",
@@ -55,7 +59,7 @@ export const defaultPortraits = [
     "p9",
     "p10"
 ];
-export const premiumPortraits = [
+export const lockedPortraits = [
     "p11",
     "p12",
     "p13",
@@ -69,6 +73,7 @@ export const premiumPortraits = [
 ];
 
 export const portraitsAltText = {
+    "p_default": "No icon selected.",
     "p1": "A stranger in neat office attire with a dark tie.",
     "p2": "A stranger with an elegant bun hiding behind a large fan.",
     "p3": "A stranger with stylish white hair in a trendy sweater.",

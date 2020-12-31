@@ -7,6 +7,7 @@ import io.javalin.websocket.WsCloseContext;
 import io.javalin.websocket.WsConnectContext;
 import io.javalin.websocket.WsContext;
 import io.javalin.websocket.WsMessageContext;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.json.JSONObject;
 import server.util.Lobby;
 
@@ -16,7 +17,6 @@ import java.sql.*;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SecretHitlerServer {
@@ -37,9 +37,9 @@ public class SecretHitlerServer {
     public static final String PARAM_VOTE = "vote";
     public static final String PARAM_VETO = "veto";
     public static final String PARAM_CHOICE = "choice"; // the index of the chosen policy.
+    public static final String PARAM_ICON = "icon";
 
     // Passed to client
-
     // The type of the packet tells the client how to parse the contents.
     public static final String PARAM_PACKET_TYPE = "type";
     public static final String PACKET_INVESTIGATION = "investigation";
@@ -56,7 +56,7 @@ public class SecretHitlerServer {
     public static final String COMMAND_PING = "ping";
     public static final String COMMAND_START_GAME = "start-game";
     public static final String COMMAND_GET_STATE = "get-state";
-
+    public static final String COMMAND_SELECT_ICON = "select-icon";
     public static final String COMMAND_NOMINATE_CHANCELLOR = "nominate-chancellor";
     public static final String COMMAND_REGISTER_VOTE = "register-vote";
     public static final String COMMAND_REGISTER_PRESIDENT_CHOICE = "register-president-choice";
@@ -447,8 +447,12 @@ public class SecretHitlerServer {
             return;
         }
 
+        // Sanitize user input
         String code = ctx.queryParam(PARAM_LOBBY);
         String name = ctx.queryParam(PARAM_NAME);
+        code = StringEscapeUtils.escapeHtml4(code);
+        name = StringEscapeUtils.escapeHtml4(name);
+
         System.out.print("Attempting to connect user '" + name + "' to lobby '" + code + "': ");
         if (!codeToLobby.containsKey(code)) { // the lobby does not exist.
             System.out.println("FAILED (The lobby does not exist)");
@@ -505,8 +509,11 @@ public class SecretHitlerServer {
             return;
         }
 
+        // Get and sanitize inputs
         String name = message.getString(PARAM_NAME);
         String lobbyCode = message.getString(PARAM_LOBBY);
+        lobbyCode = StringEscapeUtils.escapeHtml4(lobbyCode);
+        name = StringEscapeUtils.escapeHtml4(name);
 
         String log_message = "Received a message from user '" + name + "' in lobby '" + lobbyCode + "' (" + ctx.message() + "): ";
         int log_length = log_message.length();
@@ -618,6 +625,11 @@ public class SecretHitlerServer {
                     case COMMAND_END_TERM:
                         verifyIsPresident(name, lobby);
                         lobby.game().endPresidentialTerm();
+                        break;
+
+                    case COMMAND_SELECT_ICON:
+                        String iconId = message.getString(PARAM_ICON);
+                        lobby.trySetUserIcon(iconId, ctx);
                         break;
 
                     default: //This is an invalid command.

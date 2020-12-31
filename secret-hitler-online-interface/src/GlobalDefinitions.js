@@ -109,7 +109,6 @@ export const PARAM_PLAYER_ORDER = "player-order";
 export const PARAM_PLAYERS = "players";
 export const PLAYER_IDENTITY = "id";
 export const PLAYER_IS_ALIVE = "alive";
-export const PLAYER_ICON = "icon";
 export const PLAYER_INVESTIGATED = "investigated";
 export const PARAM_PRESIDENT = "president";
 export const PARAM_CHANCELLOR = "chancellor";

@@ -26,11 +26,16 @@ public class Lobby implements Serializable {
     transient private ConcurrentHashMap<WsContext, String> userToUsername;
     transient private ConcurrentLinkedQueue<String> activeUsernames;
     final private ConcurrentSkipListSet<String> usersInGame;
+    final private ConcurrentHashMap<String, String> usernameToIcon;
+    // Used to reassign users to previously chosen images if they disconnect
+    final private ConcurrentHashMap<String, String> usernameToPreferredIcon;
 
     public static long LOBBY_TIMEOUT_DURATION_IN_MIN = 30;
     public static float PLAYER_TIMEOUT_IN_SEC = 3;
     private long timeout;
     transient private Timer timer = new Timer();
+
+    static String DEFAULT_ICON = "p_default";
 
     /**
      * Constructs a new Lobby.
@@ -39,6 +44,8 @@ public class Lobby implements Serializable {
         userToUsername = new ConcurrentHashMap<>();
         activeUsernames = new ConcurrentLinkedQueue<>();
         usersInGame = new ConcurrentSkipListSet<>();
+        usernameToIcon = new ConcurrentHashMap<>();
+        usernameToPreferredIcon = new ConcurrentHashMap<>();
         resetTimeout();
     }
 
@@ -136,6 +143,13 @@ public class Lobby implements Serializable {
                 if(canAddUserDuringGame(name)) { // This username is in the game but is not currently connected.
                     // allow the user to be connected.
                     userToUsername.put(context, name);
+
+                    usernameToIcon.put(name, DEFAULT_ICON); // load default icon
+                    // Try setting the player's icon using their previous choice
+                    if (usernameToPreferredIcon.containsKey(name)) {
+                        String iconID = usernameToPreferredIcon.get(name);
+                        trySetUserIcon(iconID, context);
+                    }
                 } else {
                     throw new IllegalArgumentException("Cannot add a new player to a lobby currently in a game.");
                 }
@@ -146,6 +160,8 @@ public class Lobby implements Serializable {
                         if (!activeUsernames.contains(name)) {
                             activeUsernames.add(name);
                         }
+                        // Set icon to default
+                        usernameToIcon.put(name, DEFAULT_ICON);
                     } else {
                         throw new IllegalArgumentException("Cannot add duplicate names.");
                     }
@@ -186,6 +202,7 @@ public class Lobby implements Serializable {
         public void run() {
             if (!userToUsername.values().contains(username) && activeUsernames.contains(username)) {
                 activeUsernames.remove(username);
+                usernameToIcon.remove(username);
                 updateAllUsers();
             }
         }
@@ -225,7 +242,6 @@ public class Lobby implements Serializable {
      */
     synchronized public void updateUser(WsContext ctx) {
         JSONObject message;
-
         if (isInGame()) {
             message = GameToJSONConverter.convert(game); // sends the game state
             message.put(SecretHitlerServer.PARAM_PACKET_TYPE, SecretHitlerServer.PACKET_GAME_STATE);
@@ -235,6 +251,10 @@ public class Lobby implements Serializable {
             message.put("user-count", getUserCount());
             message.put("usernames", activeUsernames.toArray());
         }
+        // Add user icons to the update message
+        JSONObject icons = new JSONObject(usernameToIcon);
+        message.put("icon", icons);
+
         ctx.send(message.toString());
     }
 
@@ -253,6 +273,34 @@ public class Lobby implements Serializable {
         timer = new Timer();
     }
 
+    /**
+     * Attempts to set the player's icon to the given iconID and returns whether it was set.
+     * @param iconID the ID of the new icon to give the player.
+     * @param user the user to change the icon of.
+     * @effects If no other user has the given {@code iconID}, sets the icon of the {@code user}
+     *          to {@code iconID}. (exception is for the default value.)
+     * @throws IllegalArgumentException if {@code user} is not in the game.
+     */
+    synchronized public void trySetUserIcon(String iconID, WsContext user) {
+        // Verify that the user exists.
+        if (!hasUser(user)) {
+            throw new IllegalArgumentException("User is not in this lobby.");
+        }
+
+        String username = userToUsername.get(user);
+        // Verify that no user has the same icon
+        if (!iconID.equals(DEFAULT_ICON)) {  // all icons other than the default cannot be shared.
+            for (String name : userToUsername.values()) {
+                if (usernameToIcon.containsKey(name) && usernameToIcon.get(name).equals(iconID)) {
+                    return;
+                }
+            }
+        }
+
+        usernameToIcon.put(username, iconID);
+        usernameToPreferredIcon.put(username, iconID);
+    }
+
     //</editor-fold>
 
     ////// Game Management
@@ -269,7 +317,8 @@ public class Lobby implements Serializable {
     /**
      * Starts a new SecretHitlerGame with the connected users as players.
      * @throws RuntimeException if there are an insufficient number of players to start a game, if there are too
-     *         many in the lobby, or if the lobby is in a game ({@code isInGame() == true}).
+     *         many in the lobby, or if the lobby is in a game ({@code isInGame() == true}). Also throws exception if
+     *         not all players have selected an icon.
      * @modifies this
      * @effects creates and stores a new SecretHitlerGame.
      *          The usernames of all active users are added to the game in a randomized order.
@@ -282,6 +331,14 @@ public class Lobby implements Serializable {
         } else if (isInGame()) {
             throw new RuntimeException("Cannot start a new game while a game is in progress.");
         }
+
+        // Check that all players have (non-default) icons set.
+        for (String username : userToUsername.values()) {
+            if (usernameToIcon.get(username).equals(DEFAULT_ICON)) {
+                throw new RuntimeException("Not all players have selected icons.");
+            }
+        }
+
         usersInGame.clear();
         usersInGame.addAll(userToUsername.values());
         List<String> playerNames = new ArrayList<>(userToUsername.values());

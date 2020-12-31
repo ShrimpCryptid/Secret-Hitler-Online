@@ -35,7 +35,9 @@ dependencies {
 
     // PostgresSQL driver
     compile 'org.postgresql:postgresql:42.2.0'
-
+    
+    // Apache Commons Lang
+    compile 'org.apache.commons:commons-lang3:3.0'
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
