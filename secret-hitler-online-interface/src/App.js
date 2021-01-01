@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import ReactGA from 'react-ga';
 import './App.css';
+import './Lobby.css';
 import './fonts.css';
 import MaxLengthTextField from "./util/MaxLengthTextField";
 import CustomAlert from "./custom-alert/CustomAlert";
@@ -103,6 +104,7 @@ import IconSelection from "./custom-alert/IconSelection";
 import HelmetMetaData from "./util/HelmetMetaData";
 import {defaultPortrait} from "./assets";
 import PropTypes from "prop-types";
+import Player from "./player/Player";
 
 const EVENT_BAR_FADE_OUT_DURATION = 500;
 const CUSTOM_ALERT_FADE_DURATION = 1000;
@@ -225,6 +227,9 @@ class App extends Component {
         this.addAnimationToQueue = this.addAnimationToQueue.bind(this);
         this.clearAnimationQueue = this.clearAnimationQueue.bind(this);
         this.queueAlert = this.queueAlert.bind(this);
+        this.showChangeIconAlert = this.showChangeIconAlert.bind(this);
+        this.updateChangeIconAlert = this.updateChangeIconAlert.bind(this);
+        this.onClickChangeIcon = this.onClickChangeIcon.bind(this);
 
         // Ping the server to wake it up if it's not currently being used
         // This reduces the delay users experience when starting lobbies
@@ -371,27 +376,10 @@ class App extends Component {
                     icons: message[PARAM_ICON],
                     page: PAGE.LOBBY
                 });
-                // TODO: If user doesn't have an icon set, show the dialog.
-                this.setState({alertContent: <IconSelection
-                        onConfirm={() => {this.clearAnimationQueue(); this.hideAlertAndFinish();}}
-                        sendWSCommand={this.sendWSCommand}
-                        playerToIcon={this.state.icons}
-                        players={this.state.usernames}
-                        user={this.state.name}
-                        onClickTweet={()=> {ReactGA.event({category: "Sharing", action: "User shared tweet"})}}
-                    />}
-                );
                 if (message[PARAM_ICON][this.state.name] === defaultPortrait) {
-                    this.queueAlert(<IconSelection
-                            onConfirm={() => {this.clearAnimationQueue(); this.hideAlertAndFinish();}}
-                            sendWSCommand={this.sendWSCommand}
-                            playerToIcon={this.state.icons}
-                            players={this.state.usernames}
-                            user={this.state.name}
-                            onClickTweet={()=> {ReactGA.event({category: "Sharing", action: "User shared tweet"})}}
-                        />
-                    , false); // false here prevents dialog from closing when server confirms selection
+                    this.showChangeIconAlert();
                 }
+                this.updateChangeIconAlert();
                 break;
 
             case PACKET_GAME_STATE:
@@ -699,22 +687,54 @@ class App extends Component {
         let i = 0;
         for (i; i < this.state.userCount; i++) {
             let name = this.state.usernames[i];
-            if (name === this.state.name) {
-                name += " (you)";
-            }
+            let displayName = name;
             if (i === 0) {
-                name += " [★VIP]";
+                displayName += " [★VIP]";
             }
-            out[i] = <p style={{marginBottom: "0px", marginTop: "2px"}}>{" - " + decodeURIComponent(name)}</p>;
+            out[i] = <Player
+                    name={decodeURIComponent(displayName)}
+                    showRole={false}
+                    icon={this.state.icons[name]}
+                    isBusy={this.state.icons[name] === defaultPortrait}
+                    highlight={name === this.state.name}
+                />;
+                //<p style={{marginBottom: "0px", marginTop: "2px"}}>{" - " + decodeURIComponent(name)}</p>;
         }
         return out;
+    }
+
+    onClickChangeIcon() {
+        this.showChangeIconAlert();
+    }
+
+    updateChangeIconAlert() {
+        this.setState({alertContent: <IconSelection
+                onConfirm={() => {this.clearAnimationQueue(); this.hideAlertAndFinish();}}
+                sendWSCommand={this.sendWSCommand}
+                playerToIcon={this.state.icons}
+                players={this.state.usernames}
+                user={this.state.name}
+                onClickTweet={()=> {ReactGA.event({category: "Sharing", action: "User shared tweet"})}}
+            />}
+        );
+    }
+
+    showChangeIconAlert() {
+        this.queueAlert(<div/>, false); // false here prevents dialog from closing when server confirms selection
+        this.updateChangeIconAlert();
     }
 
     /**
      * Determines whether the 'Start Game' button in the lobby should be enabled.
      */
     shouldStartGameBeEnabled() {
-        return (this.state.userCount >= MIN_PLAYERS) && (this.state.userCount <= MAX_PLAYERS)
+        // Verify that all players have icons
+        for (let i = 0; i < this.state.usernames.length; i++) {
+            if (this.state.icons[this.state.usernames[i]] === defaultPortrait) {
+                return false;
+            }
+        }
+        return (this.state.userCount >= MIN_PLAYERS) && (this.state.userCount <= MAX_PLAYERS);
     }
 
     /**
@@ -757,6 +777,7 @@ class App extends Component {
     renderLobbyPage() {
         // The first player in the lobby is counted as the VIP.
         let isVIP = (this.state.usernames.length > 0 && this.state.usernames[0] === this.state.name);
+        let canStartGame;
         return (
             <div className="App">
                 <header className="App-header">
@@ -787,15 +808,20 @@ class App extends Component {
                     </div>
 
 
-                    <div style={{display: "flex", flexDirection: "row", width: "90vw"}}>
-                        <div style={{textAlign: "left", width: "50vw"}}>
-                            <p>Players ({this.state.userCount}/10)</p>
-                            {this.renderPlayerList()}
+                    <div id={"lobby-lower-container"}>
+                        <div id={"lobby-player-area-container"}>
+                            <div id={"lobby-player-text-choose-container"}>
+                                <p id={"lobby-player-count-text"}>Players ({this.state.userCount}/10)</p>
+                                <button id={"lobby-change-icon-button"} onClick={this.onClickChangeIcon}>CHANGE ICON</button>
+                            </div>
+                            <div id={"lobby-player-container"}>
+                                {this.renderPlayerList()}
+                            </div>
                         </div>
 
-                        <div style={{display: "flex", flexDirection: "column", alignItems: "right"}}>
+                        <div id={"lobby-button-container"}>
                             {!isVIP &&
-                            <p>Only the VIP can start the game.</p>
+                            <p id={"lobby-vip-text"}>Only the VIP can start the game.</p>
                             }
                             <button
                                 onClick={this.onClickStartGame}
@@ -807,19 +833,17 @@ class App extends Component {
                             >
                                 LEAVE LOBBY
                             </button>
-
-                            <p style={{margin: "10px 20pxpx", fontWeight: "400", fontSize: "calc(4px + 1.8vmin)"}}>
+                        </div>
+                        <div id={"lobby-text-container"}>
+                            <p id={"lobby-about-text"}>
                                 <a href={"https://github.com/ShrimpCryptid/Secret-Hitler-Online/blob/master/README.md"}
                                    target={"_blank"} rel="noopener" onClick={this.onClickAbout}>
                                     About this project
                                 </a>
                             </p>
                             <br/>
-                            <p style={{margin: "10px 20pxpx", fontWeight: "400", fontSize: "calc(4px + 1.8vmin)"}}>
-                                Note: Secret-Hitler.Online is in BETA.
-                                <br/>
-                                Game-breaking bugs may occur while playing.
-                                <br/>
+                            <p id={"lobby-warning-text"}>
+                                Note: Secret-Hitler.Online is in BETA. Game-breaking bugs may occur while playing.
                                 You can report bugs on the <a
                                 href={"https://github.com/ShrimpCryptid/Secret-Hitler-Online/issues"} rel="noopener" target={"_blank"}>Issues
                                 page.</a>
@@ -1500,8 +1524,6 @@ class App extends Component {
                 </div>
 
                 <StatusBar>{this.state.statusBarText}</StatusBar>
-
-                <button onClick={()=>this.playAnimationTest()}>Test Animation</button>
 
                 <div style={{display: "inline-block"}}>
                     <div id={"Board Layout"}

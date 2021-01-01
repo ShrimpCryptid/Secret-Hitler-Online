@@ -89,8 +89,6 @@ class IconSelection extends Component {
         // Update selections based on game state given by the server (this prevents duplicate player icons).
 
         let currPortrait = this.props.playerToIcon[this.props.user];
-        console.log(currPortrait);
-        //let currPortrait = "p1";
 
         portraitNames.forEach(portraitID => {
             // Check if valid portrait name
@@ -134,13 +132,11 @@ class IconSelection extends Component {
     }
 
     addTwitterHooks() {
-        console.log("Loaded twitter widget.");
         window.twttr.events.bind('tweet', this.onClickUnlock);
     }
 
 
     render() {
-        console.log("Re-rendering IconSelection");
         let headerPortraits;
         let footerContent;
         if (this.state.showLockedPrompt) {

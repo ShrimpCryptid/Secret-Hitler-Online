@@ -15,6 +15,7 @@ import IconBusy from "../assets/player-icon-busy.png";
 
 import YesVote from "../assets/player-icon-ja.png";
 import NoVote from "../assets/player-icon-nein.png";
+import portraits, {portraitsAltText} from "../assets";
 
 const LIBERAL = "LIBERAL";
 const FASCIST = "FASCIST";
@@ -148,6 +149,11 @@ class Player extends Component {
                  onClick = {this.props.onClick}
                  disabled = {this.props.disabled}
             >
+                <img id={"player-icon"}
+                     alt={portraitsAltText[this.props.icon]}
+                     src={portraits[this.props.icon]}
+                     className={this.getClassName()}
+                />
 
                 <img id="player-image"
                      src={PlayerBase}
@@ -216,7 +222,8 @@ Player.defaultProps = {
     onClick: () => {},
     highlight: false,
     showVote: false,
-    vote: false
+    vote: false,
+    icon: "p_default",
 };
 
 Player.propTypes = {
@@ -231,7 +238,8 @@ Player.propTypes = {
     onClick: PropTypes.func,
     highlight: PropTypes.bool,
     showVote: PropTypes.bool,
-    vote: PropTypes.bool
+    vote: PropTypes.bool,
+    icon: PropTypes.string,
 };
 
 export default Player;

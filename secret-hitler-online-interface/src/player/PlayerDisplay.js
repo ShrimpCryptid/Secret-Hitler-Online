@@ -23,9 +23,10 @@ import {
     STATE_CHANCELLOR_VOTING,
     PARAM_VOTES,
     PARAM_PLAYER_ORDER,
-    PLAYER_INVESTIGATED, PARAM_LAST_CHANCELLOR, PARAM_LAST_PRESIDENT
+    PLAYER_INVESTIGATED, PARAM_LAST_CHANCELLOR, PARAM_LAST_PRESIDENT, PARAM_ICON
 } from "../GlobalDefinitions";
 import './PlayerDisplay.css';
+import portraits from "../assets";
 
 /**
  * Displays a row of player icons and handles displaying busy status, votes, and roles where applicable.
@@ -198,6 +199,7 @@ class PlayerDisplay extends Component {
                         onClick = {onClick}
                         showVote={this.showPlayerVote[i + start]}
                         vote={this.props.gameState[PARAM_VOTES][playerName]}
+                        icon={this.props.gameState[PARAM_ICON][playerName]}
                     />
                 </div>
             )

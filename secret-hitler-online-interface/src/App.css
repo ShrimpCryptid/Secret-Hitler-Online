@@ -74,7 +74,7 @@ p {
 
 a {
     font-family: var(--textFont);
-    font-size: calc(4px + 1.8vmin);
+    font-size: calc(4px + 2vmin);
     color: var(--buttonHoverFill);
 }
 

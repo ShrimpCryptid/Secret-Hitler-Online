@@ -7,7 +7,7 @@ import {
     LIBERAL,
     PARAM_CHANCELLOR,
     PARAM_ELECTION_TRACKER,
-    PARAM_FASCIST_POLICIES,
+    PARAM_FASCIST_POLICIES, PARAM_ICON,
     PARAM_PLAYER_ORDER,
     PARAM_PLAYERS,
     PARAM_PRESIDENT,
@@ -101,6 +101,7 @@ class VotingPrompt extends Component {
                                     showRole={shouldShowChancellorRole}
                                     role={chancellorRole}
                                     style={{marginRight: "10px"}}
+                                    icon={this.props.gameState[PARAM_ICON][chancellorName]}
                                 />
 
                                 <p className="left-align">

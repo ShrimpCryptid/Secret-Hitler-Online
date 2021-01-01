@@ -18,10 +18,22 @@
     background-color: var(--selectionHover);
 }
 
+#player-icon {
+    position: absolute;
+    width: 82%;
+    left: 9%;
+    top: 6.3%;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
 #player-image {
     width: 20vmin;
     max-width: 16vh;
     height: auto;
+    image-rendering: crisp-edges;
     display: block;
 }
 
