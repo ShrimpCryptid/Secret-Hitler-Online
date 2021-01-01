@@ -162,6 +162,11 @@ public class Lobby implements Serializable {
                         }
                         // Set icon to default
                         usernameToIcon.put(name, DEFAULT_ICON);
+                        // Attempt to retrieve previous icon (if it exists)
+                        if (usernameToPreferredIcon.containsKey(name)) {
+                            String iconID = usernameToPreferredIcon.get(name);
+                            trySetUserIcon(iconID, context);
+                        }
                     } else {
                         throw new IllegalArgumentException("Cannot add duplicate names.");
                     }

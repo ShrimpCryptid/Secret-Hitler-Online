@@ -1,53 +1,42 @@
 import React, {Component} from "react";
 import "../selectable.css";
 import "./IconSelection.css";
-
-import portraits, {unlockedPortraits, lockedPortraits} from "../assets";
+import Cookies from 'js-cookie';
+import {TwitterShareButton} from 'react-twitter-embed';
+import portraits, {unlockedPortraits, lockedPortraits, defaultPortrait, twitterIcon} from "../assets";
 import {portraitsAltText} from "../assets";
 
 import {
     COMMAND_SELECT_ICON,
     PARAM_ICON,
-    SERVER_TIMEOUT,
-    PARAM_PLAYERS,
     PARAM_PLAYER_ORDER
 } from "../GlobalDefinitions";
 import PropTypes from "prop-types";
 import ButtonPrompt from "./ButtonPrompt";
 
-class IconSelection extends Component {
+export const UNLOCK_ICONS_COOKIE_NAME = "_unlock_icons";
 
-    timeoutID;
+class IconSelection extends Component {
 
     constructor(props) {
         super(props);
 
-        // Check if the player should be
+        // Check if the locked icons prompt should be shown. (using cookies!)
+        let hasUserUnlockedIcons = false;
+        if (Cookies.get(UNLOCK_ICONS_COOKIE_NAME)) {
+            hasUserUnlockedIcons = true;
+        }
 
         this.state = {
-            waitingForServer: false,
-            unlockPremium: false
+            unlockLockedIcons: hasUserUnlockedIcons,
+            showLockedPrompt: !hasUserUnlockedIcons
         };
-        this.onButtonClick = this.onButtonClick.bind(this);
+
+        this.onConfirmButtonClick = this.onConfirmButtonClick.bind(this);
         this.getIconButtonHML = this.getIconButtonHML.bind(this);
         this.isIconInUse = this.isIconInUse.bind(this);
         this.onClickUnlock = this.onClickUnlock.bind(this);
-    }
-
-    /**
-     * Called when any icon is clicked.
-     * @effects Attempts to send the server a command with the player's vote, and locks access to the button
-     *          for {@code SERVER_TIMEOUT} ms.
-     */
-    onButtonClick() {
-        // Lock the button so that it can't be pressed multiple times.
-        // this.timeoutID = setTimeout(() => {this.setState({waitingForServer: false})}, SERVER_TIMEOUT);
-        // this.setState({waitingForServer: true});
-
-        // Check that user has a profile picture assigned according to the game state
-        if (this.props.gameState[PARAM_ICON][this.props.user] !== null) {
-            this.props.onConfirm();
-        }
+        this.addTwitterHooks = this.addTwitterHooks.bind(this);
     }
 
     componentWillUnmount() {
@@ -56,10 +45,10 @@ class IconSelection extends Component {
 
 
     isIconInUse(iconID) {
-        let playerOrder = this.props.gameState[PARAM_PLAYER_ORDER];
+        let playerOrder = this.props.players;
         for (let i = 0; i < playerOrder.length; i++) {
             let player = playerOrder[i];
-            if (this.props.gameState[PARAM_ICON][player] === iconID) {
+            if (this.props.playerToIcon[player] === iconID) {
                 return true;
             }
         }
@@ -69,10 +58,10 @@ class IconSelection extends Component {
 
     onClickIcon(iconID) {
         // Verify that player is able to select this icon.
-        let currPortrait = this.props.gameState[PARAM_ICON][this.props.user];
+        let currPortrait = this.props.playerToIcon[this.props.user];
         let isPremium = lockedPortraits.indexOf(iconID) !== -1;
         // Also does not allow selection if user has already selected this icon
-        let unselectable = ((isPremium && !this.state.unlockPremium) || (this.isIconInUse(iconID)));
+        let unselectable = ((isPremium && !this.state.unlockLockedIcons) || (this.isIconInUse(iconID)));
 
         if (!unselectable) { // This is a valid choice according to our current game state
             // Register the selection with the server.
@@ -83,35 +72,39 @@ class IconSelection extends Component {
         }
     }
 
-    onClickUnlock() {
-        this.setState({unlockPremium: true})
+    /**
+     * Called when any icon is clicked.
+     * @effects Attempts to send the server a command with the player's vote, and locks access to the button
+     *          for {@code SERVER_TIMEOUT} ms.
+     */
+    onConfirmButtonClick() {
+        // Check that user has a profile picture assigned according to the game state
+        if (this.props.playerToIcon[this.props.user] !== defaultPortrait) {
+            this.props.onConfirm();
+        }
     }
 
-    getIconButtonHML(premium) {
-        let portraitNames;
-        if (premium) {
-            portraitNames = lockedPortraits;
-        } else {
-            portraitNames = unlockedPortraits;
-        }
-
+    getIconButtonHML(portraitNames) {
         let iconHTML = [];
         // Update selections based on game state given by the server (this prevents duplicate player icons).
 
-        let currPortrait = this.props.gameState[PARAM_ICON][this.props.user];
+        let currPortrait = this.props.playerToIcon[this.props.user];
+        console.log(currPortrait);
         //let currPortrait = "p1";
 
         portraitNames.forEach(portraitID => {
             // Check if valid portrait name
             if (portraits.hasOwnProperty(portraitID)) {
-                // Disable premium icons or icons currently selected by other players.
-                let isDisabled = (premium && !this.state.unlockPremium) || (this.isIconInUse(portraitID) && portraitID !== currPortrait);
+                // Disable locked icons or icons currently selected by other players.
+                let isIconAvailable  = !this.isIconInUse(portraitID) || portraitID === currPortrait;
+                let isIconUnlocked = lockedPortraits.indexOf(portraitID) === -1 || this.state.unlockLockedIcons;
+                let isEnabled = isIconUnlocked && isIconAvailable;
                 let isSelected = currPortrait === portraitID;
                 iconHTML.push(
                     <img id={"icon"}
                          className={"selectable"
                                         + (isSelected ? " selected" : "")
-                                        + (isDisabled ? " disabled" : "")} // Determines if this should be selected
+                                        + (!isEnabled ? " disabled" : "")} // Determines if selected / selectable
                          alt={portraitsAltText[portraitID]}
                          src={portraits[portraitID]}
                          draggable={false}
@@ -130,7 +123,66 @@ class IconSelection extends Component {
         );
     }
 
+    onClickUnlock() {
+        // Unlock the icons
+        this.setState({unlockLockedIcons: true});
+        // Set cookie signaling that this action has occurred, which gives the player a different
+        // icon selection screen on the next load.
+        Cookies.set(UNLOCK_ICONS_COOKIE_NAME, "true", {expires: 365});
+        // Callback for analytics logging
+        this.props.onClickTweet();
+    }
+
+    addTwitterHooks() {
+        console.log("Loaded twitter widget.");
+        window.twttr.events.bind('tweet', this.onClickUnlock);
+    }
+
+
     render() {
+        console.log("Re-rendering IconSelection");
+        let headerPortraits;
+        let footerContent;
+        if (this.state.showLockedPrompt) {
+            headerPortraits = unlockedPortraits;
+            footerContent = () => {
+                return (
+                    <>
+                        <h2 style={{textAlign: "left"}}>EXTRA ICONS:</h2>
+                        <div id={"locked-icon-text-container"}>
+                            <p id={"icon-text"} style={{textAlign: "left"}}>Unlock these {lockedPortraits.length} extra icons by sharing this
+                                website! I'd really like for more people to enjoy this game, so this would be a big help.</p>
+                            <TwitterShareButton
+                                url={"https://secret-hitler.online!"}
+                                options={{text: "I'm playing #SecretHitlerOnline at", size:"large"}}
+                                onLoad={this.addTwitterHooks}
+                                placeholder={(<p id={"icon-text"} style={{color:"var(--textColorLiberal)"}}>Loading...</p>)}
+                            />
+                        </div>
+                        {this.getIconButtonHML(lockedPortraits)}
+                    </>
+                );
+            };  // end footer content
+        } else {
+            headerPortraits = unlockedPortraits.concat(lockedPortraits);
+            footerContent = () => {
+                return (
+                <>
+                    <div id={"locked-icon-text-container"}>
+                        <p>(You unlocked {lockedPortraits.length} extra icons by sharing Secret Hitler Online! Thank you! 💖)</p>
+                        <TwitterShareButton
+                            url={"https://secret-hitler.online!"}
+                            options={{text: "I'm playing #SecretHitlerOnline at", size:"large"}}
+                            onLoad={this.addTwitterHooks}
+                            placeholder={(<p id={"icon-text"} style={{color:"var(--textColorLiberal)"}}>Loading...</p>)}
+                        />
+                    </div>
+                </>);
+            };  // end footer content
+        }
+
+
+
         return (
             <ButtonPrompt
                 label={"PLAYER LOOK"}
@@ -138,29 +190,13 @@ class IconSelection extends Component {
                     return(
                         <>
                             <p>Choose a look, then press confirm.</p>
-                            {this.getIconButtonHML(false)}
+                            {this.getIconButtonHML(headerPortraits)}
                         </>
                     );
                 } }
-                renderFooter={ () => {
-                    return (
-                        <>
-                            <h2 style={{textAlign:"left"}}>Extras:</h2>
-                            <div id={"premium-text-container"}>
-                                <p id={"icon-text"} style={{textAlign:"left"}}>Unlock these extra icons by sharing this website with your friends or online! I really
-                                    want more people to enjoy this game, so this would be a big help.<br/><br/>
-                                    (Note: I have literally no way to enforce this, so please use the honor system!)</p>
-                                <button style={{height:"100%"}} onClick={this.onClickUnlock}>DONE!</button>
-                            </div>
-                            <textarea id="linkText" readOnly={true} onClick={()=>document.getElementById("linkText").select()}
-                                      value={"https://secret-hitler.online"}/>
-                            <br/> <br/>
-                            {this.getIconButtonHML(true)}
-                        </>
-                    );
-                }}
-                buttonDisabled={(this.props.gameState[PARAM_ICON][this.props.user] !== null) || this.state.waitingForServer}
-                buttonOnClick={this.onButtonClick}
+                renderFooter={footerContent}
+                buttonDisabled={(this.props.playerToIcon[this.props.user] === defaultPortrait)}
+                buttonOnClick={this.onConfirmButtonClick}
             >
             </ButtonPrompt>
         )
@@ -169,14 +205,18 @@ class IconSelection extends Component {
 }
 
 IconSelection.defaultProps = {
-    gameState: {"chancellor": "default"}
+    onClickTweet: () => {},
+    onClickFBShare: () => {},
 };
 
 IconSelection.propTypes = {
-    gameState: PropTypes.object.isRequired,
+    playerToIcon: PropTypes.object.isRequired,
+    players: PropTypes.array.isRequired,
     sendWSCommand: PropTypes.func.isRequired,
     user: PropTypes.string.isRequired,
     onConfirm: PropTypes.func.isRequired,
+    onClickTweet: PropTypes.func,
+    onClickFBShare: PropTypes.func,
 };
 
 export default IconSelection;

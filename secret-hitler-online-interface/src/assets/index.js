@@ -19,6 +19,7 @@ import p18 from "./player-portraits/player-portrait-18.svg";
 import p19 from "./player-portraits/player-portrait-19.svg";
 import p20 from "./player-portraits/player-portrait-20.svg";
 import p_default from "./player-portraits/player-portrait-default.svg";
+import twitter_icon from "./twitter-icon.svg";
 
 const portraits = {
     p_default,
@@ -95,3 +96,5 @@ export const portraitsAltText = {
     "p19": "A cat.",
     "p20": "An unsettling stranger shadowed in darkness.",
 };
+
+export const twitterIcon = twitter_icon;

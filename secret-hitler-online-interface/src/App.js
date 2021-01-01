@@ -69,7 +69,7 @@ import {
     WEBSOCKET_HEADER,
     DEBUG,
     PACKET_PONG,
-    PING_INTERVAL, COMMAND_PING, SERVER_PING
+    PING_INTERVAL, COMMAND_PING, SERVER_PING, PARAM_ICON
 } from "./GlobalDefinitions";
 
 import PlayerDisplay, {
@@ -100,6 +100,9 @@ import VictoryFascistFooter from "./assets/victory-fascist-footer.png";
 import VictoryLiberalHeader from "./assets/victory-liberal-header.png";
 import VictoryLiberalFooter from "./assets/victory-liberal-footer.png";
 import IconSelection from "./custom-alert/IconSelection";
+import HelmetMetaData from "./util/HelmetMetaData";
+import {defaultPortrait} from "./assets";
+import PropTypes from "prop-types";
 
 const EVENT_BAR_FADE_OUT_DURATION = 500;
 const CUSTOM_ALERT_FADE_DURATION = 1000;
@@ -141,11 +144,11 @@ const TEST_GAME_STATE = {
     "election-tracker": 0,
     "user-votes": {"P4": true, "P2": false, "P1": false, "P7": true, "P3": false, "P5": true},
     "icon": {
-        "P1": "p3",
+        "P1": "p5",
         "P2": "p9",
         "P3": "p8",
         "P4": "p15",
-        "P5": null,
+        "P5": "p_default",
         "P6": "p4",
         "P7": "p2"
     }
@@ -180,6 +183,7 @@ class App extends Component {
 
             usernames: [],
             userCount: 0,
+            icons: {},
 
             gameState: DEFAULT_GAME_STATE,
             lastState: {}, /* Stores the last gameState[PARAM_STATE] value to check for changes. */
@@ -220,9 +224,10 @@ class App extends Component {
         this.hideAlertAndFinish = this.hideAlertAndFinish.bind(this);
         this.addAnimationToQueue = this.addAnimationToQueue.bind(this);
         this.clearAnimationQueue = this.clearAnimationQueue.bind(this);
+        this.queueAlert = this.queueAlert.bind(this);
 
         // Ping the server to wake it up if it's not currently being used
-        // This reduces the delay users experience
+        // This reduces the delay users experience when starting lobbies
         fetch(SERVER_ADDRESS_HTTP + SERVER_PING);
     }
 
@@ -363,9 +368,30 @@ class App extends Component {
                 this.setState({
                     userCount: message[PARAM_USER_COUNT],
                     usernames: message[PARAM_USERNAMES],
+                    icons: message[PARAM_ICON],
                     page: PAGE.LOBBY
                 });
                 // TODO: If user doesn't have an icon set, show the dialog.
+                this.setState({alertContent: <IconSelection
+                        onConfirm={() => {this.clearAnimationQueue(); this.hideAlertAndFinish();}}
+                        sendWSCommand={this.sendWSCommand}
+                        playerToIcon={this.state.icons}
+                        players={this.state.usernames}
+                        user={this.state.name}
+                        onClickTweet={()=> {ReactGA.event({category: "Sharing", action: "User shared tweet"})}}
+                    />}
+                );
+                if (message[PARAM_ICON][this.state.name] === defaultPortrait) {
+                    this.queueAlert(<IconSelection
+                            onConfirm={() => {this.clearAnimationQueue(); this.hideAlertAndFinish();}}
+                            sendWSCommand={this.sendWSCommand}
+                            playerToIcon={this.state.icons}
+                            players={this.state.usernames}
+                            user={this.state.name}
+                            onClickTweet={()=> {ReactGA.event({category: "Sharing", action: "User shared tweet"})}}
+                        />
+                    , false); // false here prevents dialog from closing when server confirms selection
+                }
                 break;
 
             case PACKET_GAME_STATE:
@@ -736,6 +762,10 @@ class App extends Component {
                 <header className="App-header">
                     SECRET-HITLER.ONLINE
                 </header>
+
+                <CustomAlert show={this.state.showAlert}>
+                    {this.state.alertContent}
+                </CustomAlert>
 
                 <div style={{textAlign: "left", marginLeft: "20px", marginRight: "20px"}}>
 
@@ -1358,8 +1388,10 @@ class App extends Component {
         if (delayExit) {
             setTimeout(() => {
                 this.onAnimationFinish();
+                this.setState({alertContent: <div/>}); // reset the alert box contents
             }, CUSTOM_ALERT_FADE_DURATION);
         } else {
+            this.setState({alertContent:<div/>});
             this.onAnimationFinish();
         }
     }
@@ -1525,16 +1557,24 @@ class App extends Component {
             this.setState({joinLobby: lobby.toUpperCase().substr(0, 4), lobbyFromURL: true});
         }
 
+        let page_render;
         switch (this.state.page) {
-            case PAGE.LOGIN:
-                return this.renderLoginPage();
             case PAGE.LOBBY:
-                return this.renderLobbyPage();
+                page_render = this.renderLobbyPage();
+                break;
             case PAGE.GAME:
-                return this.renderGamePage();
+                page_render = this.renderGamePage();
+                break;
+            case PAGE.LOGIN:  // login is default
             default:
-                return this.renderLoginPage;
+                page_render = this.renderLoginPage();
         }
+        return (
+            <>
+                <HelmetMetaData/>
+                {page_render}
+            </>
+        )
     }
 }
 

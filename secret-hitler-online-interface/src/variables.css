@@ -17,6 +17,10 @@
     --buttonDisabledFill: #928079;
     --buttonDisabledShadowFill: #766058;
 
+    --buttonAltFill: var(--textColorLiberal);
+    --buttonAltHoverFill: #7abcca;
+    --buttonAltShadowFill: #386F8B;
+
     --alertFill: #141414;
     --alertOverlayOpacity: 0.8;
 

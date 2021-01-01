@@ -71,7 +71,7 @@ public class SecretHitlerServer {
 
     public static final String COMMAND_END_TERM = "end-term";
 
-    private static final String CODE_CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    private static final String CODE_CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUWXYZ"; // v character can look ambiguous
     private static final int CODE_LENGTH = 4;
 
     private static final float UPDATE_FREQUENCY_MIN = 1;
