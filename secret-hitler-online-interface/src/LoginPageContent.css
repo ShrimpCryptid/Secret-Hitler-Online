@@ -1,9 +1,42 @@
 @import './variables.css';
 
+#login-page-carousel-container {
+    background-color: var(--backgroundDark);
+    padding-top: 20px;
+}
+
 #login-page-description-container {
+    display: inline-flex;
+    flex-direction: row;
     align-items: center;
     align-content: center;
+}
+
+#login-page-gif-container {
     display: inline-block;
+    align-items: center;
+    vertical-align: middle;
+    justify-content: center;
+    background-color: #69645e;
+    width: 100%;
+    margin: 10px 0;
+}
+
+#login-page-gif {
+    width: 60vmin;
+    margin: 10px;
+}
+
+#login-page-description-container {
+    display: flex;
+    flex: auto;
+    width: 100%;
+    align-items: center;
+    align-content: center;
+}
+
+#login-page-description-text-header {
+    text-align: center;
 }
 
 #login-page-description-text {
@@ -11,4 +44,11 @@
     font-weight: 400;
     line-height: 1.5;
     text-align: left;
+    margin: 10px;
+}
+
+#login-page-description-text-container {
+    align-content: center;
+    align-items: center;
+    display: inline-block;
 }

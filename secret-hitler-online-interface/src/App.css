@@ -18,13 +18,13 @@ header { /*This is the bar that appears at the top of the game.*/
     flex-direction: column;
     align-items: center;
     padding-top: calc(1vh);
-    font-size: calc(6px + 4vmin); /*This means 10px plus 2% of the window's smallest dimension.*/
+    font-size: calc(12px + 4vmin); /*This means 10px plus 2% of the window's smallest dimension.*/
     font-family: var(--headerFont);
     color: var(--headerTextColor);
 }
 
 h1 { /*Big sweeping labels/headers*/
-    font-size: calc(6px + 7vmin); /*This means 10px plus 2% of the window's smallest dimension.*/
+    font-size: calc(12px + 3.5vmin); /*This means 10px plus 2% of the window's smallest dimension.*/
     font-family: var(--headerFont);
     color: var(--headerTextColor);
     font-weight: normal;
@@ -32,7 +32,7 @@ h1 { /*Big sweeping labels/headers*/
 }
 
 h2 { /*Large labels.*/
-    font-size: calc(6px + 4vmin); /*This means 10px plus 2% of the window's smallest dimension.*/
+    font-size: calc(12px + 2vmin); /*This means 10px plus 2% of the window's smallest dimension.*/
     font-family: var(--headerFont);
     color: var(--headerTextColor);
     font-weight: normal;
@@ -59,7 +59,7 @@ h6 { /*Notification and/or error text.*/
 #errormessage {
     font-family: var(--textFont);
     font-weight: 700;
-    font-size: calc(4px + 2vmin);
+    font-size: calc(12px + 1vmin);
     color: var(--textColorHighlight);
     margin: 3px;
 }
@@ -67,14 +67,14 @@ h6 { /*Notification and/or error text.*/
 p {
     font-family: var(--textFont);
     font-weight: 700;
-    font-size: calc(4px + 2vmin);
+    font-size: calc(12px + 1vmin);
     min-font-size: 12px;
     color: var(--textColorOnDark);
 }
 
 a {
     font-family: var(--textFont);
-    font-size: calc(4px + 2vmin);
+    font-size: calc(12px + 1vmin);
     color: var(--buttonHoverFill);
 }
 

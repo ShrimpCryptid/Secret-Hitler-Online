@@ -10,6 +10,7 @@
     "js-cookie": "^2.2.1",
     "query-string": "^6.12.1",
     "react": "^16.13.1",
+    "react-alice-carousel": "^2.3.0",
     "react-dom": "^16.13.1",
     "react-ga": "^2.7.0",
     "react-helmet": "^6.1.0",
