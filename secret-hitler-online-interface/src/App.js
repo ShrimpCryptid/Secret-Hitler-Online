@@ -105,6 +105,7 @@ import HelmetMetaData from "./util/HelmetMetaData";
 import {defaultPortrait} from "./assets";
 import PropTypes from "prop-types";
 import Player from "./player/Player";
+import LoginPageContent from "./LoginPageContent";
 
 const EVENT_BAR_FADE_OUT_DURATION = 500;
 const CUSTOM_ALERT_FADE_DURATION = 1000;
@@ -575,19 +576,6 @@ class App extends Component {
             });
     };
 
-    onClickAbout = () => {
-        ReactGA.event({
-            category: "Clicked About",
-            action: "User clicked the link for the about page."
-        });
-    };
-
-    onClickGameWebsite = () => {
-        ReactGA.event({
-            category: "Clicked Game Website",
-            action: "User clicked the link for the board game website."
-        });
-    };
 
     renderLoginPage() {
         return (
@@ -638,34 +626,8 @@ class App extends Component {
                         CREATE LOBBY
                     </button>
                 </div>
-
                 <br/>
-                <br/>
-                <p style={{margin: "10px 20pxpx", fontWeight: "400", fontSize: "calc(4px + 1.8vmin)"}}>
-                    Developed by ShrimpCryptid - <a
-                    href={"https://github.com/ShrimpCryptid/Secret-Hitler-Online/blob/master/README.md"}
-                    rel="noopener"
-                    target={"_blank"} onClick={this.onClickAbout}>
-                    about this project
-                </a>
-                </p>
-
-                <p style={{margin: "10px 20pxpx", fontWeight: "400", fontSize: "calc(4px + 1.8vmin)"}}>
-                    Note: Secret-Hitler.Online is in BETA.<br/>
-                    Game-breaking bugs may occur while playing.
-                    <br/>
-                    You can report bugs on the <a href={"https://github.com/ShrimpCryptid/Secret-Hitler-Online/issues"}
-                                                  rel="noopener"
-                                                  target={"_blank"}>Issues page.</a>
-                </p>
-
-                <p
-                    style={{margin: "10px 20pxpx", fontWeight: "400", fontSize: "calc(4px + 1.8vmin)"}}
-                >
-                    Based on the original <a href={"https://secrethitler.com"} target={"_blank"} rel="noopener"
-                                             onClick={this.onClickGameWebsite}>Secret Hitler</a> board game by Goat,
-                    Wolf, & Cabbage (© 2016-2020).<br/>Licensed under <a href={"https://creativecommons.org/licenses/by-nc-sa/4.0/"} rel="noopener" target={"_blank"}>CC BY-NC-SA 4.0.</a>
-                </p>
+                <LoginPageContent />
             </div>
         );
     }
@@ -692,7 +654,7 @@ class App extends Component {
                 displayName += " [★VIP]";
             }
             out[i] = <Player
-                    name={decodeURIComponent(displayName)}
+                    name={displayName}
                     showRole={false}
                     icon={this.state.icons[name]}
                     isBusy={this.state.icons[name] === defaultPortrait}
@@ -843,7 +805,6 @@ class App extends Component {
                             </p>
                             <br/>
                             <p id={"lobby-warning-text"}>
-                                Note: Secret-Hitler.Online is in BETA. Game-breaking bugs may occur while playing.
                                 You can report bugs on the <a
                                 href={"https://github.com/ShrimpCryptid/Secret-Hitler-Online/issues"} rel="noopener" target={"_blank"}>Issues
                                 page.</a>

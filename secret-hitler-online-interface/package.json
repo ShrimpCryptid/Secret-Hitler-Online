@@ -17,10 +17,8 @@
     "react-router-config": "^5.1.1",
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.4.1",
-    "react-sharingbuttons": "^1.0.0",
     "react-textfit": "^1.1.0",
     "react-twitter-embed": "^3.0.3",
-    "react-twitter-widgets": "^1.9.5",
     "typescript": "^3.8.3"
   },
   "scripts": {

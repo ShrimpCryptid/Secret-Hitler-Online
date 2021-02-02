@@ -1,0 +1,14 @@
+@import './variables.css';
+
+#login-page-description-container {
+    align-items: center;
+    align-content: center;
+    display: inline-block;
+}
+
+#login-page-description-text {
+    width: 80vmin;
+    font-weight: 400;
+    line-height: 1.5;
+    text-align: left;
+}
