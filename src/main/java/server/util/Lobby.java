@@ -33,6 +33,7 @@ public class Lobby implements Serializable {
     public static long LOBBY_TIMEOUT_DURATION_IN_MIN = 30;
     public static float PLAYER_TIMEOUT_IN_SEC = 3;
     private long timeout;
+    private static int MAX_TIMER_SCHEDULING_ATTEMPTS = 2;
     transient private Timer timer = new Timer();
 
     static String DEFAULT_ICON = "p_default";
@@ -188,10 +189,26 @@ public class Lobby implements Serializable {
         if (!hasUser(context)) {
             throw new IllegalArgumentException("Cannot remove a websocket that is not in the Lobby.");
         } else {
-            // Delay removing players from the list by creating a timer.
+            // Delay removing players from the list by adding it to a timer.
             int delay_in_ms = (int) (PLAYER_TIMEOUT_IN_SEC * 1000);
             final String username = userToUsername.get(context);
-            timer.schedule(new RemoveUserTask(username), delay_in_ms);
+
+            int timerSchedulingAttempts = 0;
+            while (timerSchedulingAttempts < MAX_TIMER_SCHEDULING_ATTEMPTS) {
+                try {
+                    timer.schedule(new RemoveUserTask(username), delay_in_ms);
+                    break; // exit loop if successful
+                } catch (IllegalStateException e) {
+                    // Timer hit an error state and must be reset.
+                    timer.cancel();
+                    timer = new Timer();
+                    timerSchedulingAttempts++;
+                }
+            }
+            if (timerSchedulingAttempts == MAX_TIMER_SCHEDULING_ATTEMPTS) {
+                System.out.println("Failed to schedule removal of the user '" + username + "'.");
+            }
+
             userToUsername.remove(context);
         }
     }
@@ -207,7 +224,10 @@ public class Lobby implements Serializable {
         public void run() {
             if (!userToUsername.values().contains(username) && activeUsernames.contains(username)) {
                 activeUsernames.remove(username);
-                usernameToIcon.remove(username);
+
+                if (usernameToIcon.containsKey(username)) {
+                    usernameToIcon.remove(username);  // possible for users to disconnect before choosing icon
+                }
                 updateAllUsers();
             }
         }
