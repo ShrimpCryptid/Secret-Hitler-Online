@@ -1,24 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
-   xmlns:osb="http://www.openswatchbook.org/uri/2009/osb"
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
+   inkscape:version="1.1 (c68e22c387, 2021-05-23)"
    id="svg8"
    version="1.1"
    viewBox="0 0 37.041668 37.041844"
    height="1.4583403in"
    width="1.4583334in"
-   sodipodi:docname="player-portrait-5.svg"
+   sodipodi:docname="player-portrait-13.svg"
    inkscape:export-filename="C:\Users\gabyb\OneDrive - UW\Documents\DIY Files\Secret Hitler SVG\export\player-portrait-1.png"
    inkscape:export-xdpi="300"
-   inkscape:export-ydpi="300">
+   inkscape:export-ydpi="300"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <defs
      id="defs2">
     <linearGradient
@@ -47,8 +46,7 @@
     </linearGradient>
     <linearGradient
        id="9"
-       osb:paint="solid"
-       gradientTransform="matrix(0,0,0,0,212.18681,210.65618)">
+       gradientTransform="matrix(0,0,0,0,269.35325,250.27404)">
       <stop
          style="stop-color:#d3cdc3;stop-opacity:1;"
          offset="0"
@@ -290,15 +288,16 @@
      inkscape:document-rotation="0"
      inkscape:current-layer="layer1"
      inkscape:document-units="mm"
-     inkscape:cy="84.694832"
-     inkscape:cx="38.472565"
+     inkscape:cy="65.887538"
+     inkscape:cx="73.208375"
      inkscape:zoom="3.824699"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0"
      borderopacity="1"
      bordercolor="#b7b7b7"
      pagecolor="#404040"
-     id="base" />
+     id="base"
+     inkscape:pagecheckerboard="0" />
   <metadata
      id="metadata5">
     <rdf:RDF>
@@ -307,7 +306,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -511,22 +510,15 @@
        cx="165.15569"
        cy="154.98479"
        r="2.7387421" />
-    <circle
-       style="fill:url(#9);stroke:none;stroke-width:0;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stop-color:#000000"
+    <path
        id="path1270"
-       cx="164.63292"
-       cy="151.42351"
-       r="2.336684" />
+       style="fill:#d3cdc3;stroke:none;stroke-width:0;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stop-color:#000000;fill-opacity:1"
+       d="M 89.621094 17.570312 A 8.8315615 8.8315615 0 0 0 80.791016 26.402344 A 8.8315615 8.8315615 0 0 0 81.302734 29.349609 A 4.6839181 4.6839181 0 0 0 79.914062 32.673828 A 4.6839181 4.6839181 0 0 0 84.597656 37.359375 A 4.6839181 4.6839181 0 0 0 88.5625 35.164062 A 8.8315615 8.8315615 0 0 0 89.621094 35.234375 A 8.8315615 8.8315615 0 0 0 98.453125 26.402344 A 8.8315615 8.8315615 0 0 0 89.621094 17.570312 z "
+       transform="matrix(0.26458333,0,0,0.26458333,140.92043,144.43784)" />
     <path
        id="circle1178"
        style="fill:#615b4c;fill-opacity:1;stroke:none;stroke-width:0;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stop-color:#000000"
        d="m 169.23391,149.52339 a 2.3366838,2.3366838 0 0 0 -2.90416,1.57709 l -0.66339,2.24013 a 2.3366838,2.3366838 0 0 0 2.90402,-1.57659 z" />
-    <circle
-       style="fill:url(#9);stroke:none;stroke-width:0;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stop-color:#000000"
-       id="circle1188"
-       cx="163.30377"
-       cy="153.08298"
-       r="1.2392867" />
     <rect
        style="fill:url(#linearGradient2724);stroke:none;stroke-width:0;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stop-color:#000000"
        id="rect1272"

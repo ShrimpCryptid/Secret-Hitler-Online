@@ -1,24 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
-   xmlns:osb="http://www.openswatchbook.org/uri/2009/osb"
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
+   inkscape:version="1.1 (c68e22c387, 2021-05-23)"
    id="svg8"
    version="1.1"
    viewBox="0 0 37.041668 37.230698"
    height="1.4657755in"
    width="1.4583334in"
-   sodipodi:docname="player-portrait-10.svg"
+   sodipodi:docname="player-portrait-11.svg"
    inkscape:export-filename="C:\Users\gabyb\OneDrive - UW\Documents\DIY Files\Secret Hitler SVG\export\player-portrait-1.png"
    inkscape:export-xdpi="300"
-   inkscape:export-ydpi="300">
+   inkscape:export-ydpi="300"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <defs
      id="defs2">
     <linearGradient
@@ -47,7 +46,6 @@
     </linearGradient>
     <linearGradient
        id="9"
-       osb:paint="solid"
        gradientTransform="matrix(0,0,0,0,-2.9240253,229.70118)">
       <stop
          style="stop-color:#d3cdc3;stop-opacity:1;"
@@ -270,15 +268,16 @@
      inkscape:document-rotation="0"
      inkscape:current-layer="layer1"
      inkscape:document-units="mm"
-     inkscape:cy="98.726792"
-     inkscape:cx="39.371268"
-     inkscape:zoom="2.7044706"
+     inkscape:cy="83.19558"
+     inkscape:cx="55.093962"
+     inkscape:zoom="5.4089412"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0"
      borderopacity="1"
      bordercolor="#b7b7b7"
      pagecolor="#404040"
-     id="base" />
+     id="base"
+     inkscape:pagecheckerboard="0" />
   <metadata
      id="metadata5">
     <rdf:RDF>
@@ -287,7 +286,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -435,7 +434,7 @@
        x="172.35667"
        y="168.03447" />
     <rect
-       style="fill:url(#9);stroke-width:0.543999;stroke-linecap:round;stroke-linejoin:bevel;stop-color:#000000"
+       style="fill:#d3cdc3;stroke-width:0.543999;stroke-linecap:round;stroke-linejoin:bevel;stop-color:#000000;fill-opacity:1"
        id="rect1342"
        width="4.0910254"
        height="1.7863605"
@@ -443,7 +442,7 @@
        y="241.5957"
        transform="rotate(-45)" />
     <rect
-       style="fill:url(#9);stroke-width:0.543999;stroke-linecap:round;stroke-linejoin:bevel;stop-color:#000000"
+       style="fill:#d3cdc3;stroke-width:0.543999;stroke-linecap:round;stroke-linejoin:bevel;stop-color:#000000;fill-opacity:1"
        id="rect1344"
        width="4.0910254"
        height="1.7863605"

@@ -1,24 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
-   xmlns:osb="http://www.openswatchbook.org/uri/2009/osb"
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
+   inkscape:version="1.1 (c68e22c387, 2021-05-23)"
    id="svg8"
    version="1.1"
    viewBox="0 0 37.041668 37.041838"
    height="1.45834in"
    width="1.4583334in"
-   sodipodi:docname="player-portrait-4.svg"
+   sodipodi:docname="player-portrait-3.svg"
    inkscape:export-filename="C:\Users\gabyb\OneDrive - UW\Documents\DIY Files\Secret Hitler SVG\export\player-portrait-1.png"
    inkscape:export-xdpi="300"
-   inkscape:export-ydpi="300">
+   inkscape:export-ydpi="300"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <defs
      id="defs2">
     <linearGradient
@@ -47,7 +46,6 @@
     </linearGradient>
     <linearGradient
        id="9"
-       osb:paint="solid"
        gradientTransform="matrix(0,0,0,0,196.93852,132.08988)">
       <stop
          style="stop-color:#d3cdc3;stop-opacity:1;"
@@ -189,15 +187,16 @@
      inkscape:document-rotation="0"
      inkscape:current-layer="layer1"
      inkscape:document-units="mm"
-     inkscape:cy="75.423359"
-     inkscape:cx="33.080896"
+     inkscape:cy="75.430659"
+     inkscape:cx="24.404037"
      inkscape:zoom="2.7044706"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0"
      borderopacity="1"
      bordercolor="#b7b7b7"
      pagecolor="#404040"
-     id="base" />
+     id="base"
+     inkscape:pagecheckerboard="0" />
   <metadata
      id="metadata5">
     <rdf:RDF>
@@ -206,7 +205,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -279,7 +278,7 @@
        rx="2.0397928"
        ry="1.4861348" />
     <circle
-       style="fill:url(#9);stroke-width:0.543999;stroke-linecap:round;stroke-linejoin:bevel;stop-color:#000000"
+       style="fill:#d3cdc3;stroke-width:0.543999;stroke-linecap:round;stroke-linejoin:bevel;stop-color:#000000;fill-opacity:1"
        id="path1521"
        cx="138.81682"
        cy="127.0873"
@@ -297,11 +296,11 @@
        ry="1.2625998" />
     <path
        id="path1253"
-       style="fill:url(#9);stroke-width:0.543999;stroke-linecap:round;stroke-linejoin:bevel;stop-color:#000000"
+       style="fill:#d3cdc3;stroke-width:0.543999;stroke-linecap:round;stroke-linejoin:bevel;stop-color:#000000;fill-opacity:1"
        d="m 122.45609,124.02337 c -0.20201,2.00195 0.89495,3.99994 2.92039,5.3192 l 0.006,0.004 c 0.0209,0.0136 0.0419,0.0272 0.0629,0.0406 0.93544,0.58641 2.13035,1.01505 3.06847,1.22113 0.0823,0.0166 0.16488,0.0323 0.2477,0.0468 0.58825,0.10749 1.16533,0.14609 1.74779,0.14883 0.008,3e-5 0.0163,5e-5 0.0244,-1.9e-4 0.95663,-0.004 1.96843,-0.17374 2.84152,-0.46279 1.7115,-0.5737 3.05895,-1.63753 3.78107,-2.9852 -1.12188,-1.54098 -3.44163,-2.27363 -4.73013,-2.32624 l -2.34352,-0.23661 z"
        sodipodi:nodetypes="ccccccccccccc" />
     <path
-       style="fill:url(#9);stroke-width:0.543999;stroke-linecap:round;stroke-linejoin:bevel;stop-color:#000000"
+       style="fill:#d3cdc3;stroke-width:0.543999;stroke-linecap:round;stroke-linejoin:bevel;stop-color:#000000;fill-opacity:1"
        id="path1256"
        sodipodi:type="arc"
        sodipodi:cx="79.286034"

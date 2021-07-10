@@ -1,15 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
-   xmlns:osb="http://www.openswatchbook.org/uri/2009/osb"
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
+   inkscape:version="1.1 (c68e22c387, 2021-05-23)"
    id="svg8"
    version="1.1"
    viewBox="0 0 37.041668 37.041814"
@@ -18,7 +9,15 @@
    sodipodi:docname="player-portrait-6.svg"
    inkscape:export-filename="C:\Users\gabyb\OneDrive - UW\Documents\DIY Files\Secret Hitler SVG\export\player-portrait-1.png"
    inkscape:export-xdpi="300"
-   inkscape:export-ydpi="300">
+   inkscape:export-ydpi="300"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <defs
      id="defs2">
     <linearGradient
@@ -47,7 +46,6 @@
     </linearGradient>
     <linearGradient
        id="9"
-       osb:paint="solid"
        gradientTransform="matrix(0,0,0,0,198.74054,196.80294)">
       <stop
          style="stop-color:#d3cdc3;stop-opacity:1;"
@@ -190,15 +188,16 @@
      inkscape:document-rotation="0"
      inkscape:current-layer="layer1"
      inkscape:document-units="mm"
-     inkscape:cy="79.133608"
-     inkscape:cx="73.437135"
+     inkscape:cy="79.22192"
+     inkscape:cx="67.456289"
      inkscape:zoom="3.824699"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0"
      borderopacity="1"
      bordercolor="#b7b7b7"
      pagecolor="#404040"
-     id="base" />
+     id="base"
+     inkscape:pagecheckerboard="0" />
   <metadata
      id="metadata5">
     <rdf:RDF>
@@ -207,7 +206,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -313,7 +312,7 @@
        style="opacity:1;vector-effect:none;fill:url(#linearGradient1548);fill-opacity:1;stroke:none;stroke-width:0.861999;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
        d="m 164.90312,165.56881 -1.09864,3.35949 v 9.18032 h 6.63732 v -8.76484 a 12.143461,12.143461 0 0 0 -3.27009,-2.75849 12.143461,12.143461 0 0 0 -2.26859,-1.01648 z m -7.5861,0.0522 a 12.14346,12.14346 0 0 0 -2.2686,1.01648 12.14346,12.14346 0 0 0 -3.27008,2.75849 v 8.71265 h 6.63732 v -9.12813 z" />
     <circle
-       style="fill:url(#9);stroke-width:0.543999;stroke-linecap:round;stroke-linejoin:bevel;stop-color:#000000"
+       style="fill:#d3cdc3;stroke-width:0.543999;stroke-linecap:round;stroke-linejoin:bevel;stop-color:#000000;fill-opacity:1"
        id="path1515"
        cx="167.40471"
        cy="171.97937"

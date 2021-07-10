@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
-   xmlns:osb="http://www.openswatchbook.org/uri/2009/osb"
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
+   inkscape:version="1.1 (c68e22c387, 2021-05-23)"
    id="svg8"
    version="1.1"
    viewBox="0 0 37.041668 37.041864"
@@ -17,7 +9,14 @@
    sodipodi:docname="player-portrait-20.svg"
    inkscape:export-filename="C:\Users\gabyb\OneDrive - UW\Documents\DIY Files\Secret Hitler SVG\export\player-portrait-1.png"
    inkscape:export-xdpi="300"
-   inkscape:export-ydpi="300">
+   inkscape:export-ydpi="300"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <defs
      id="defs2">
     <linearGradient
@@ -46,8 +45,8 @@
     </linearGradient>
     <linearGradient
        id="9"
-       osb:paint="solid"
-       gradientTransform="matrix(0,0,0,0,415.13206,238.92675)">
+       gradientTransform="matrix(0,0,0,0,415.13206,238.92675)"
+       inkscape:swatch="solid">
       <stop
          style="stop-color:#d3cdc3;stop-opacity:1;"
          offset="0"
@@ -305,8 +304,8 @@
     </linearGradient>
     <linearGradient
        id="7-88"
-       osb:paint="solid"
-       gradientTransform="matrix(0,0,0,0,63.047107,61.377035)">
+       gradientTransform="matrix(0,0,0,0,63.047107,61.377035)"
+       inkscape:swatch="solid">
       <stop
          style="stop-color:#b3a995;stop-opacity:1;"
          offset="0"
@@ -315,7 +314,7 @@
     <linearGradient
        id="4-3"
        gradientTransform="matrix(0,0,0,0,236.2165,33.040956)"
-       osb:paint="solid">
+       inkscape:swatch="solid">
       <stop
          style="stop-color:#7e7867;stop-opacity:1;"
          offset="0"
@@ -323,8 +322,8 @@
     </linearGradient>
     <linearGradient
        id="5"
-       osb:paint="solid"
-       gradientTransform="matrix(0,0,0,0,225.74942,200.32654)">
+       gradientTransform="matrix(0,0,0,0,225.74942,200.32654)"
+       inkscape:swatch="solid">
       <stop
          style="stop-color:#968c77;stop-opacity:1;"
          offset="0"
@@ -332,8 +331,8 @@
     </linearGradient>
     <linearGradient
        id="3-7"
-       osb:paint="solid"
-       gradientTransform="matrix(0,0,0,0,237.92991,182.93666)">
+       gradientTransform="matrix(0,0,0,0,237.92991,182.93666)"
+       inkscape:swatch="solid">
       <stop
          style="stop-color:#615b4c;stop-opacity:1;"
          offset="0"
@@ -341,8 +340,8 @@
     </linearGradient>
     <linearGradient
        id="6-04"
-       osb:paint="solid"
-       gradientTransform="matrix(2.9598334,0,0,4.6482783,-425.80194,-693.96608)">
+       gradientTransform="matrix(2.9598334,0,0,4.6482783,-425.80194,-693.96608)"
+       inkscape:swatch="solid">
       <stop
          style="stop-color:#a19a86;stop-opacity:1;"
          offset="0"
@@ -350,8 +349,8 @@
     </linearGradient>
     <linearGradient
        id="8-01"
-       osb:paint="solid"
-       gradientTransform="matrix(0,0,0,0,250.87078,109.4696)">
+       gradientTransform="matrix(0,0,0,0,250.87078,109.4696)"
+       inkscape:swatch="solid">
       <stop
          style="stop-color:#c9c2b5;stop-opacity:1;"
          offset="0"
@@ -359,8 +358,8 @@
     </linearGradient>
     <linearGradient
        id="1-8"
-       osb:paint="solid"
-       gradientTransform="matrix(0,0,0,0,279.221,181.59515)">
+       gradientTransform="matrix(0,0,0,0,279.221,181.59515)"
+       inkscape:swatch="solid">
       <stop
          style="stop-color:#413e35;stop-opacity:1;"
          offset="0"
@@ -368,8 +367,8 @@
     </linearGradient>
     <linearGradient
        id="2-6"
-       osb:paint="solid"
-       gradientTransform="matrix(0,0,0,0,242.51613,176.80625)">
+       gradientTransform="matrix(0,0,0,0,242.51613,176.80625)"
+       inkscape:swatch="solid">
       <stop
          style="stop-color:#4f4b41;stop-opacity:1;"
          offset="0"
@@ -384,15 +383,16 @@
      inkscape:document-rotation="0"
      inkscape:current-layer="layer1"
      inkscape:document-units="mm"
-     inkscape:cy="67.818229"
-     inkscape:cx="70.462823"
+     inkscape:cy="67.944174"
+     inkscape:cx="64.154459"
      inkscape:zoom="3.6942093"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0"
      borderopacity="1"
      bordercolor="#b7b7b7"
      pagecolor="#404040"
-     id="base" />
+     id="base"
+     inkscape:pagecheckerboard="0" />
   <metadata
      id="metadata5">
     <rdf:RDF>
@@ -401,7 +401,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -417,9 +417,9 @@
        height="37.041668"
        width="37.041668"
        id="rect1243"
-       style="opacity:1;vector-effect:none;fill:url(#3-7);fill-opacity:1;stroke:none;stroke-width:0.861999;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal" />
+       style="opacity:1;vector-effect:none;fill:#615b4c;fill-opacity:1;stroke:none;stroke-width:0.861999;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal" />
     <rect
-       style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:url(#1-8);fill-opacity:1;stroke:none;stroke-width:0.94374;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal;stop-color:#000000;stop-opacity:1"
+       style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:#413e35;fill-opacity:1;stroke:none;stroke-width:0.94374;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal;stop-color:#000000;stop-opacity:1"
        id="rect1245"
        width="14.546783"
        height="16.551514"
@@ -428,10 +428,10 @@
        ry="7.2733917" />
     <path
        id="path1247"
-       style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:url(#1-8);fill-opacity:1;stroke:none;stroke-width:0.94374;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal;stop-color:#000000;stop-opacity:1"
+       style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:#413e35;fill-opacity:1;stroke:none;stroke-width:0.94374;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal;stop-color:#000000;stop-opacity:1"
        d="m 213.26041,160.02724 a 12.143461,12.143461 0 0 0 -6.09989,1.62678 12.143461,12.143461 0 0 0 -6.07146,10.51667 v 1.44487 h 24.28689 v -1.44487 a 12.143461,12.143461 0 0 0 -6.07147,-10.51667 12.143461,12.143461 0 0 0 -6.04407,-1.62678 z" />
     <rect
-       style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:url(#1-8);fill-opacity:1;stroke:none;stroke-width:0.94374;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal;stop-color:#000000;stop-opacity:1"
+       style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:#413e35;fill-opacity:1;stroke:none;stroke-width:0.94374;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal;stop-color:#000000;stop-opacity:1"
        id="rect1249"
        width="5.4089947"
        height="7.765388"

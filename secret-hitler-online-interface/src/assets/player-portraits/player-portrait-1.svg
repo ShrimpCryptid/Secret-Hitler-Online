@@ -1,15 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
-   xmlns:osb="http://www.openswatchbook.org/uri/2009/osb"
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
+   inkscape:version="1.1 (c68e22c387, 2021-05-23)"
    id="svg8"
    version="1.1"
    viewBox="0 0 37.041668 37.04211"
@@ -18,7 +9,15 @@
    sodipodi:docname="player-portrait-1.svg"
    inkscape:export-filename="C:\Users\gabyb\OneDrive - UW\Documents\DIY Files\Secret Hitler SVG\export\player-portrait-1.png"
    inkscape:export-xdpi="300"
-   inkscape:export-ydpi="300">
+   inkscape:export-ydpi="300"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <defs
      id="defs2">
     <linearGradient
@@ -57,7 +56,6 @@
     </linearGradient>
     <linearGradient
        id="9"
-       osb:paint="solid"
        gradientTransform="matrix(0,0,0,0,-264.5452,-57.817744)">
       <stop
          style="stop-color:#d3cdc3;stop-opacity:1;"
@@ -68,7 +66,7 @@
        inkscape:collect="always"
        xlink:href="#6"
        id="linearGradient1598"
-       gradientTransform="matrix(0.93748565,0,0,1.066683,68.864594,71.673036)"
+       gradientTransform="matrix(3.5432529,0,0,4.0315578,-21.734113,-19.992884)"
        x1="18.131411"
        y1="10.910906"
        x2="33.648216"
@@ -123,15 +121,16 @@
      inkscape:document-rotation="0"
      inkscape:current-layer="layer1"
      inkscape:document-units="mm"
-     inkscape:cy="55.654862"
-     inkscape:cx="47.445403"
-     inkscape:zoom="7.649398"
+     inkscape:cy="34.202627"
+     inkscape:cx="72.934792"
+     inkscape:zoom="5.4089412"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0"
      borderopacity="1"
      bordercolor="#b7b7b7"
      pagecolor="#404040"
-     id="base" />
+     id="base"
+     inkscape:pagecheckerboard="0" />
   <metadata
      id="metadata5">
     <rdf:RDF>
@@ -140,7 +139,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -188,14 +187,11 @@
        sodipodi:end="4.73119"
        sodipodi:arc-type="slice"
        d="m 94.451632,96.57048 a 7.7894635,8.5657768 0 0 1 -8.062335,-2.732997 7.7894635,8.5657768 0 0 1 -1.070488,-9.202538 7.7894635,8.5657768 0 0 1 7.177135,-4.876691 l -0.146441,8.564263 z" />
-    <rect
-       style="font-variation-settings:normal;vector-effect:none;fill:url(#linearGradient1598);fill-opacity:1;stroke:none;stroke-width:0.94374;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal;stop-color:#000000"
+    <path
        id="rect1064"
-       width="14.546783"
-       height="16.551514"
-       x="85.862534"
-       y="83.311516"
-       ry="7.2733917" />
+       style="font-variation-settings:normal;vector-effect:none;fill:url(#linearGradient1598);fill-opacity:1;stroke:none;stroke-width:3.56689;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal;stop-color:#000000"
+       d="M 46.068359 37.912109 C 43.802639 41.912058 42.509766 46.541081 42.509766 51.484375 L 42.509766 59.0625 C 42.509766 74.291951 54.770549 86.552734 70 86.552734 C 85.229451 86.552734 97.490234 74.291951 97.490234 59.0625 L 97.490234 51.484375 C 97.490234 50.71718 97.457524 49.95797 97.396484 49.207031 A 48.897366 23.356004 0 0 1 88.425781 49.605469 A 48.897366 23.356004 0 0 1 46.068359 37.912109 z "
+       transform="matrix(0.26458333,0,0,0.26458333,74.615078,76.96282)" />
     <rect
        style="fill:url(#linearGradient1600);stroke-width:5.33388;stroke-opacity:0.019685;paint-order:markers fill stroke;stop-color:#000000"
        id="rect969"
@@ -205,7 +201,7 @@
        y="99.553047" />
     <path
        id="path1066"
-       style="font-variation-settings:normal;vector-effect:none;fill:url(#9);fill-opacity:1;stroke:none;stroke-width:0.94374;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal;stop-color:#000000"
+       style="font-variation-settings:normal;vector-effect:none;fill:#d3cdc3;fill-opacity:1;stroke:none;stroke-width:0.94374;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal;stop-color:#000000"
        d="m 93.163816,100.41636 a 12.143461,12.143461 0 0 0 -6.09989,1.62677 12.143461,12.143461 0 0 0 -6.07146,10.51667 v 1.44487 h 24.286894 v -1.44487 a 12.143461,12.143461 0 0 0 -6.071474,-10.51667 12.143461,12.143461 0 0 0 -6.04407,-1.62677 z" />
     <path
        id="rect1134"
@@ -263,10 +259,6 @@
          rx="0.88499999"
          ry="1.2625998" />
     </g>
-    <path
-       id="path1106"
-       style="font-variation-settings:normal;vector-effect:none;fill:#615b4c;fill-opacity:1;stroke:none;stroke-width:8.08774;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.019685;paint-order:markers fill stroke;stop-color:#000000"
-       d="m 93.132433,83.284972 c -2.730414,0 -5.101006,1.478802 -6.362818,3.681435 a 12.937428,6.1796095 0 0 0 11.241708,3.120988 12.937428,6.1796095 0 0 0 2.422517,-0.109378 C 100.11246,86.2177 96.978746,83.284972 93.132433,83.284972 Z" />
     <rect
        style="fill:url(#linearGradient1604);stroke-width:5.324;stroke-opacity:0.019685;paint-order:markers fill stroke;stop-color:#000000"
        id="rect965"

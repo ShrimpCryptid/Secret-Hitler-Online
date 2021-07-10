@@ -1,15 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
-   xmlns:osb="http://www.openswatchbook.org/uri/2009/osb"
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
+   inkscape:version="1.1 (c68e22c387, 2021-05-23)"
    id="svg8"
    version="1.1"
    viewBox="0 0 37.041668 37.041854"
@@ -18,7 +9,15 @@
    sodipodi:docname="player-portrait-15.svg"
    inkscape:export-filename="C:\Users\gabyb\OneDrive - UW\Documents\DIY Files\Secret Hitler SVG\export\player-portrait-1.png"
    inkscape:export-xdpi="300"
-   inkscape:export-ydpi="300">
+   inkscape:export-ydpi="300"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <defs
      id="defs2">
     <linearGradient
@@ -47,8 +46,8 @@
     </linearGradient>
     <linearGradient
        id="9"
-       osb:paint="solid"
-       gradientTransform="matrix(0,0,0,0,44.525403,198.06079)">
+       gradientTransform="matrix(0,0,0,0,44.525403,198.06079)"
+       inkscape:swatch="solid">
       <stop
          style="stop-color:#d3cdc3;stop-opacity:1;"
          offset="0"
@@ -302,12 +301,6 @@
        x2="91.85302"
        y2="32.815384" />
     <linearGradient
-       inkscape:collect="always"
-       xlink:href="#2-4"
-       id="linearGradient1393"
-       gradientTransform="matrix(0,0,0,0,97.178197,24.647238)"
-       gradientUnits="userSpaceOnUse" />
-    <linearGradient
        id="4-27"
        x1="186.42728"
        y1="121.74632"
@@ -400,12 +393,6 @@
        x2="100.10094"
        y2="205.75047"
        gradientUnits="userSpaceOnUse" />
-    <linearGradient
-       inkscape:collect="always"
-       xlink:href="#2-4"
-       id="linearGradient4838"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(0,0,0,0,97.178197,24.647238)" />
   </defs>
   <sodipodi:namedview
      units="in"
@@ -415,15 +402,16 @@
      inkscape:document-rotation="0"
      inkscape:current-layer="layer1"
      inkscape:document-units="mm"
-     inkscape:cy="119.66965"
-     inkscape:cx="87.177831"
-     inkscape:zoom="3.824699"
+     inkscape:cy="60.135451"
+     inkscape:cx="62.619307"
+     inkscape:zoom="7.649398"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0"
      borderopacity="1"
      bordercolor="#b7b7b7"
      pagecolor="#404040"
-     id="base" />
+     id="base"
+     inkscape:pagecheckerboard="0" />
   <metadata
      id="metadata5">
     <rdf:RDF>
@@ -432,7 +420,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -510,7 +498,7 @@
        rx="2.0397928"
        ry="1.4861348" />
     <ellipse
-       style="font-variation-settings:normal;vector-effect:none;fill:url(#linearGradient1393);fill-opacity:1;stroke:none;stroke-width:1.17629;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal;stop-color:#000000"
+       style="font-variation-settings:normal;vector-effect:none;fill:#4f4b41;fill-opacity:1;stroke:none;stroke-width:1.17629;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal;stop-color:#000000"
        id="ellipse1379"
        cx="150.17888"
        cy="146.81386"
@@ -540,7 +528,7 @@
        y="144.96237"
        ry="0.19709481" />
     <ellipse
-       style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:url(#linearGradient4838);fill-opacity:1;stroke:none;stroke-width:1.17629;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal;stop-color:#000000;stop-opacity:1"
+       style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:#4f4b41;fill-opacity:1;stroke:none;stroke-width:1.17629;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal;stop-color:#000000;stop-opacity:1"
        id="ellipse1383"
        cx="157.24806"
        cy="146.81386"
@@ -586,7 +574,7 @@
        y="157.92578"
        ry="0.70691091" />
     <rect
-       style="fill:url(#9);stroke-width:5.324;stroke-opacity:0.019685;paint-order:markers fill stroke;stop-color:#000000"
+       style="fill:#d3cdc3;stroke-width:5.324;stroke-opacity:0.019685;paint-order:markers fill stroke;stop-color:#000000;fill-opacity:1;stroke:url(#9)"
        id="rect1374"
        width="4.8053975"
        height="3.1442566"
@@ -594,7 +582,7 @@
        y="220.30707"
        transform="matrix(-0.70710678,0.70710678,0.70710678,0.70710678,0,0)" />
     <rect
-       style="fill:url(#9);stroke-width:5.324;stroke-opacity:0.019685;paint-order:markers fill stroke;stop-color:#000000"
+       style="fill:#d3cdc3;stroke-width:5.324;stroke-opacity:0.019685;paint-order:markers fill stroke;stop-color:#000000;fill-opacity:1;stroke:url(#9)"
        id="rect1372"
        width="4.8412023"
        height="3.1442566"
