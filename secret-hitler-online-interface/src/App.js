@@ -1372,8 +1372,8 @@ class App extends Component {
         this.setState({showAlert: false});
         if (delayExit) {
             setTimeout(() => {
-                this.onAnimationFinish();
                 this.setState({alertContent: <div/>}); // reset the alert box contents
+                this.onAnimationFinish();
             }, CUSTOM_ALERT_FADE_DURATION);
         } else {
             this.setState({alertContent:<div/>});
