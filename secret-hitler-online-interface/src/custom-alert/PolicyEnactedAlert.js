@@ -9,31 +9,36 @@ import FolderCoverBack from '../assets/policy-folder-cover-back.png';
 import FolderBack from '../assets/policy-folder-back.png';
 
 import './PolicyEnactedAlert.css';
-import {LIBERAL} from "../GlobalDefinitions";
+import {DEBUG, LIBERAL} from "../GlobalDefinitions";
 
 class PolicyEnactedAlert extends Component {
+
+    shiftAnimationTimeout;
+    flipAnimationTimeout;
 
     constructor(props) {
         super(props);
         this.state = {
             className: ""
         };
-        this.setAnimation = this.setAnimation.bind(this);
-        this.setAnimation();
-
     }
 
-    setAnimation() {
-        this.setState({className: ""});
-        setTimeout(()=> {this.setState({className: "show-policy-shift"})}, 500);
-        setTimeout(()=> {this.setState({className: "show-policy-flip show-policy-shift"})}, 1000);
+    componentDidMount() {
+        // Set up animations
+        this.shiftAnimationTimeout = setTimeout(()=> {this.setState({className: "show-policy-shift"})}, 500);
+        this.flipAnimationTimeout = setTimeout(()=> {this.setState({className: "show-policy-flip show-policy-shift"})}, 1000);
+    }
+
+    componentWillUnmount() {
+        clearTimeout(this.shiftAnimationTimeout);
+        clearTimeout(this.flipAnimationTimeout);
     }
 
     render() {
         return (
             <ButtonPrompt
                 renderLabel={() => {
-                    return <h2 className={"left-align"}>POLICY ENACTED</h2> // allows us to align it with center
+                    return <h2 className={"left-align"}>POLICY ENACTED</h2> // aligns text with center
                 }}
                 buttonText={"OKAY"}
                 buttonOnClick={this.props.hideAlert}
