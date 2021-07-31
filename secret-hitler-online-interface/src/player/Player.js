@@ -149,15 +149,15 @@ class Player extends Component {
                  onClick = {this.props.onClick}
                  disabled = {this.props.disabled}
             >
-                <img id={"player-icon"}
-                     alt={portraitsAltText[this.props.icon]}
-                     src={portraits[this.props.icon]}
-                     className={this.getClassName()}
-                />
-
                 <img id="player-image"
                      src={PlayerBase}
                      alt={this.getAltText()}
+                     className={this.getClassName()}
+                />
+
+                <img id={"player-icon"}
+                     alt={portraitsAltText[this.props.icon]}
+                     src={portraits[this.props.icon]}
                      className={this.getClassName()}
                 />
 

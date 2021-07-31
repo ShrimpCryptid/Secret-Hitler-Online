@@ -29,6 +29,10 @@
     user-select: none;
 }
 
+#player-icon.darken {
+    filter: brightness(calc(var(--playerBrightnessFilter) - 5%));
+}
+
 #player-image {
     width: 20vmin;
     max-width: 16vh;
