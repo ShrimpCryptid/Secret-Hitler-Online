@@ -342,7 +342,7 @@ public class SecretHitlerServer {
      *          {@code name}: the username of the user.
      *          {@code command}: the command
      * @effects Result status is one of the following:
-     *          <p>- 400: if the {@code lobby} or {@code name} parameters are missing.
+     *          <p>- 400: if the {@code lobby} or {@code name} parameters are missing (or blank).
      *          <p>- 404: if there is no lobby with the given code
      *          <p>- 403: the username is invalid (there is already another user with that name in the lobby.)
      *          <p>- 488: the lobby is currently in a game.
@@ -353,7 +353,7 @@ public class SecretHitlerServer {
     public static void checkLogin(Context ctx) {
         String lobbyCode = ctx.queryParam(PARAM_LOBBY);
         String name = ctx.queryParam(PARAM_NAME);
-        if (lobbyCode == null || name == null) {
+        if (lobbyCode == null || name == null || name.isEmpty() || name.isBlank()) {
             ctx.status(400);
             ctx.result("Lobby and name must be specified.");
         }
@@ -452,6 +452,11 @@ public class SecretHitlerServer {
         String name = ctx.queryParam(PARAM_NAME);
         code = StringEscapeUtils.escapeHtml4(code);
         name = StringEscapeUtils.escapeHtml4(name);
+
+        if (code == null || name == null || name.isEmpty() || name.isBlank()) {
+            System.out.println("FAILED (Lobby or name is empty/null)");
+            ctx.session.close(400, "Lobby and name must be specified.");
+        }
 
         System.out.print("Attempting to connect user '" + name + "' to lobby '" + code + "': ");
         if (!codeToLobby.containsKey(code)) { // the lobby does not exist.
