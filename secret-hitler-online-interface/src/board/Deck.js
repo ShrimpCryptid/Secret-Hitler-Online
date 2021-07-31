@@ -92,6 +92,7 @@ class Deck extends Component {
                     style={{top: top + "%"}}
                     className={this.cardStates[i]}
                     alt={"A policy in the " + this.props.deckType.toLowerCase() + " deck."}
+                    key={i}
                 />
             )
         }

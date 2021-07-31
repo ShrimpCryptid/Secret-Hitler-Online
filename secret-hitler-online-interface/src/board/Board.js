@@ -58,6 +58,7 @@ class Board extends Component {
                      style={{position: "absolute", left:"calc(" + offset + " + " + index.toString() + "*" + spacing +")"}}
                      alt={""}
                      className={className}
+                     key={index}
                 />
             );
         }
