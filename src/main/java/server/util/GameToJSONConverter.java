@@ -42,6 +42,7 @@ public class GameToJSONConverter {
      *                  game state LEGISLATIVE_PRESIDENT).
      *          {@code chancellor-choices}: The choices for the chancellor during the legislative session (only if in
      *                  game state LEGISLATIVE_CHANCELLOR).
+     *          {@code veto-occurred}: Set to true if a veto has already taken place on this legislative session.
      */
     public static JSONObject convert(SecretHitlerGame game) {
         if (game == null) {
@@ -91,6 +92,7 @@ public class GameToJSONConverter {
         out.put("fascist-policies", game.getNumFascistPolicies());
         out.put("liberal-policies", game.getNumLiberalPolicies());
         out.put("user-votes", game.getVotes());
+        out.put("veto-occurred", game.didVetoOccurThisTurn());
 
         if (game.getState() == GameState.LEGISLATIVE_PRESIDENT) {
             out.put("president-choices", convertPolicyListToStringArray(game.getPresidentLegislativeChoices()));

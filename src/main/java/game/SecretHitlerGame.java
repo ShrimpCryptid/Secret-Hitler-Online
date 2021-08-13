@@ -81,6 +81,7 @@ public class SecretHitlerGame implements Serializable {
     private List<Policy> legislativePolicies;
 
     private boolean didElectionTrackerAdvance = false;
+    private boolean didVetoOccurThisTurn = false;
 
     private HashMap<String, Boolean> voteMap;
 
@@ -112,6 +113,8 @@ public class SecretHitlerGame implements Serializable {
     public int getNumLiberalPolicies() { return board.getNumLiberalPolicies(); }
 
     public boolean didElectionTrackerAdvance() { return didElectionTrackerAdvance; }
+
+    public boolean didVetoOccurThisTurn() { return didVetoOccurThisTurn; }
 
     //</editor-fold>
 
@@ -610,6 +613,7 @@ public class SecretHitlerGame implements Serializable {
 
         board.enactPolicy(legislativePolicies.remove(index));
         discard.add(legislativePolicies.remove(0)); //Discard last remaining Policy
+        didVetoOccurThisTurn = false;  // Reset because we have moved past chancellor stage
         onEnactPolicy();
     }
 
@@ -623,6 +627,7 @@ public class SecretHitlerGame implements Serializable {
         if (getState() != GameState.LEGISLATIVE_CHANCELLOR) {
             throw new IllegalStateException("Cannot veto in state " + getState().toString());
         }
+        didVetoOccurThisTurn = true;
         state = GameState.LEGISLATIVE_PRESIDENT_VETO;
     }
 
@@ -643,6 +648,7 @@ public class SecretHitlerGame implements Serializable {
         }
         if (response) { // veto was approved, advance election tracker
             advanceElectionTracker();
+            didVetoOccurThisTurn = false;
         } else {        // veto was denied, return to chancellor selection
             this.lastState = this.state;
             state = GameState.LEGISLATIVE_CHANCELLOR;

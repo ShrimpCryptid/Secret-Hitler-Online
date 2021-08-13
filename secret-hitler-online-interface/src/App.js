@@ -70,7 +70,7 @@ import {
     WEBSOCKET_HEADER,
     DEBUG,
     PACKET_PONG,
-    PING_INTERVAL, COMMAND_PING, SERVER_PING, PARAM_ICON
+    PING_INTERVAL, COMMAND_PING, SERVER_PING, PARAM_ICON, PARAM_DID_VETO_OCCUR
 } from "./GlobalDefinitions";
 
 import PlayerDisplay, {
@@ -121,7 +121,8 @@ const DEFAULT_GAME_STATE = {
     "state": STATE_SETUP,
     "president": "",
     "chancellor": "",
-    "election-tracker": 0
+    "election-tracker": 0,
+    "veto-occurred": false
 };
 const TEST_GAME_STATE = {
     "liberal-policies": 0,
@@ -154,7 +155,8 @@ const TEST_GAME_STATE = {
         "P5": "p_default",
         "P6": "p4",
         "P7": "p2"
-    }
+    },
+    "veto-occurred": false
 };
 
 class App extends Component {
@@ -980,7 +982,8 @@ class App extends Component {
                                 showError={(message) => this.setState({snackbarMessage: message})}
                                 policyOptions={newState[PARAM_CHANCELLOR_CHOICES]}
                                 sendWSCommand={this.sendWSCommand}
-                                enableVeto={newState[PARAM_FASCIST_POLICIES] === 5}
+                                // Disable if veto has already happened
+                                enableVeto={newState[PARAM_FASCIST_POLICIES] === 5 && !newState[PARAM_DID_VETO_OCCUR]}
                             />
                         );
                     }
