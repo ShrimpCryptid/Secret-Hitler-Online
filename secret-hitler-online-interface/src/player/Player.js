@@ -143,6 +143,24 @@ class Player extends Component {
             this.setState({initialVoteState: false});
         }
 
+        let identity_components;
+        // Conditionally rendered so information is not visible in Inspector view
+        if (this.props.showRole) {
+            identity_components = <>
+                    <img id="player-identity-icon"
+                         className={this.getClassName()}
+                         src={this.getIcon()}
+                         alt={this.getAltText()}
+                    />
+
+                    <p id="player-identity-label"
+                       className={this.getRoleClass() + this.getClassName() + " force-update"}
+                    >
+                        {this.capitalizeFirstOnly(this.props.role)}
+                    </p>
+                </>
+        }
+
         return (
             <div id="player-container"
                 className={this.getHighlight() + this.getClassName() + this.getButtonClass()}
@@ -174,19 +192,7 @@ class Player extends Component {
                     alt={""}
                 />
 
-                <img id="player-identity-icon"
-                     className={this.getClassName()}
-                     src={this.getIcon()}
-                     hidden={!this.props.showRole}
-                     alt={this.getAltText()}
-                />
-
-                <p id="player-identity-label"
-                         className={this.getRoleClass() + this.getClassName() + " force-update"}
-                         hidden={!this.props.showRole}
-                >
-                    {this.capitalizeFirstOnly(this.props.role)}
-                </p>
+                {identity_components}
 
                 <Textfit id={"player-name"}
                          className={this.getClassName() + " force-update"}
