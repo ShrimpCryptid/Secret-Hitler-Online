@@ -799,14 +799,14 @@ class App extends Component {
                         <div id={"lobby-text-container"}>
                             <p id={"lobby-about-text"}>
                                 <a href={"https://github.com/ShrimpCryptid/Secret-Hitler-Online/blob/master/README.md"}
-                                   target={"_blank"} rel="noopener" onClick={this.onClickAbout}>
+                                   target={"_blank"} rel="noopener noreferrer" onClick={this.onClickAbout}>
                                     About this project
                                 </a>
                             </p>
                             <br/>
                             <p id={"lobby-warning-text"}>
                                 You can report bugs on the <a
-                                href={"https://github.com/ShrimpCryptid/Secret-Hitler-Online/issues"} rel="noopener" target={"_blank"}>Issues
+                                href={"https://github.com/ShrimpCryptid/Secret-Hitler-Online/issues"} rel="noopener noreferrer" target={"_blank"}>Issues
                                 page.</a>
                             </p>
                         </div>
