@@ -261,8 +261,8 @@ class App extends Component {
             category: "Login Attempt",
             action: "User attempted to provide login credentials to the server.",
         });
-        return await fetch(SERVER_ADDRESS_HTTP + CHECK_LOGIN + "?name=" + encodeURIComponent(name)
-            + "&lobby=" + encodeURIComponent(lobby));
+        return await fetch(SERVER_ADDRESS_HTTP + CHECK_LOGIN + "?name=" + encodeURI(name)
+            + "&lobby=" + encodeURI(lobby));
     }
 
     /**
@@ -278,7 +278,11 @@ class App extends Component {
             console.log("Opening connection with lobby: " + lobby);
             console.log("Failed connections: " + this.failedConnections);
         }
-        let ws = new WebSocket(WEBSOCKET_HEADER + SERVER_ADDRESS + WEBSOCKET + "?name=" + encodeURIComponent(name) + "&lobby=" + encodeURIComponent(lobby));
+        let url = WEBSOCKET_HEADER + SERVER_ADDRESS + WEBSOCKET + "?name=" + encodeURI(name) + "&lobby=" + encodeURI(lobby);
+        if (DEBUG) {
+            console.log("TryOpenWebsocket URL: " + url);
+        }
+        let ws = new WebSocket(url);
         if (ws.OPEN) {
             this.websocket = ws;
             this.reconnectOnConnectionClosed = true;
@@ -354,7 +358,7 @@ class App extends Component {
             } else {
                 this.setState({
                     page: PAGE.LOGIN,
-                    joinName: decodeURIComponent(this.state.name),
+                    joinName: this.state.name,
                     joinLobby: this.state.lobby,
                     joinError: ""
                 });
@@ -365,12 +369,12 @@ class App extends Component {
 
 
     async onWebSocketMessage(msg) {
-        if (DEBUG) {
-            console.log(msg.data);
-        }
         this.failedConnections = 0;
         let message = JSON.parse(msg.data);
-
+        // Decode message contents as communication is encoded
+        if (DEBUG) {
+            console.log(message);
+        }
         switch (message[PARAM_PACKET_TYPE]) {
             case PACKET_LOBBY:
                 this.setState({
@@ -421,8 +425,9 @@ class App extends Component {
      */
     sendWSCommand(command, params) {
         let data = {};
-        data["name"] = this.state.name;
-        data["lobby"] = this.state.lobby;
+        // Do not need to encode name + lobby because this is sent through websocket
+        data["name"] = (this.state.name);
+        data["lobby"] = (this.state.lobby);
         data[PARAM_COMMAND] = command;
 
         if (params !== undefined) {
@@ -548,7 +553,7 @@ class App extends Component {
         this.tryCreateLobby().then(response => {
             if (response.ok) {
                 response.text().then(lobbyCode => {
-                    if (!this.tryOpenWebSocket(encodeURIComponent(this.state.createLobbyName), lobbyCode)) { // if the connection failed
+                    if (!this.tryOpenWebSocket(this.state.createLobbyName, lobbyCode)) { // if the connection failed
                         this.setState({createLobbyError: "There was an error connecting to the server. Please try again."});
                         ReactGA.event({
                             category: "Lobby Creation Failed",
@@ -644,9 +649,6 @@ class App extends Component {
      * Written as "{@literal <p>} - {@code username} {@literal </p>}".
      */
     renderPlayerList() {
-        if (DEBUG) {
-            console.log("Lobby: " + this.state.lobby);
-        }
         let out = [];
         let i = 0;
         for (i; i < this.state.userCount; i++) {
@@ -662,7 +664,6 @@ class App extends Component {
                     isBusy={this.state.icons[name] === defaultPortrait}
                     highlight={name === this.state.name}
                 />;
-                //<p style={{marginBottom: "0px", marginTop: "2px"}}>{" - " + decodeURIComponent(name)}</p>;
         }
         return out;
     }
@@ -1340,7 +1341,6 @@ class App extends Component {
             }
         });
         setTimeout(() => {
-
             if (yesVotes > noVotes) {
                 this.setState({statusBarText: (yesVotes) + " - " + (noVotes) + ": Vote passed"})
             } else {

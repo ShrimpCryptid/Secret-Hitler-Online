@@ -7,7 +7,6 @@ import io.javalin.websocket.WsCloseContext;
 import io.javalin.websocket.WsConnectContext;
 import io.javalin.websocket.WsContext;
 import io.javalin.websocket.WsMessageContext;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.json.JSONObject;
 import server.util.Lobby;
 
@@ -450,8 +449,6 @@ public class SecretHitlerServer {
         // Sanitize user input
         String code = ctx.queryParam(PARAM_LOBBY);
         String name = ctx.queryParam(PARAM_NAME);
-        code = StringEscapeUtils.escapeHtml4(code);
-        name = StringEscapeUtils.escapeHtml4(name);
 
         if (code == null || name == null || name.isEmpty() || name.isBlank()) {
             System.out.println("FAILED (Lobby or name is empty/null)");
@@ -514,11 +511,8 @@ public class SecretHitlerServer {
             return;
         }
 
-        // Get and sanitize inputs
         String name = message.getString(PARAM_NAME);
         String lobbyCode = message.getString(PARAM_LOBBY);
-        lobbyCode = StringEscapeUtils.escapeHtml4(lobbyCode);
-        name = StringEscapeUtils.escapeHtml4(name);
 
         String log_message = "Received a message from user '" + name + "' in lobby '" + lobbyCode + "' (" + ctx.message() + "): ";
         int log_length = log_message.length();

@@ -201,7 +201,7 @@ class Player extends Component {
                          alignVertWithFlexbox={true}
                          throttle={1000}
                 >
-                    {decodeURIComponent(this.props.name)}
+                    {this.props.name}
                 </Textfit>
 
                 <p  id="player-disabled-label"
