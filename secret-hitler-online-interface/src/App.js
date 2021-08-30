@@ -106,58 +106,10 @@ import {defaultPortrait} from "./assets";
 import PropTypes from "prop-types";
 import Player from "./player/Player";
 import LoginPageContent from "./LoginPageContent";
-
+import * as DEFAULT_GAME_STATE from './services/gameStatus';
+import LoginPage from "./components/loginPage";
 const EVENT_BAR_FADE_OUT_DURATION = 500;
 const CUSTOM_ALERT_FADE_DURATION = 1000;
-
-const DEFAULT_GAME_STATE = {
-    "liberal-policies": 0,
-    "fascist-policies": 0,
-    "discard-size": 0,
-    "draw-size": 17,
-    "players": {},
-    "in-game": true,
-    "player-order": [],
-    "state": STATE_SETUP,
-    "president": "",
-    "chancellor": "",
-    "election-tracker": 0,
-    "veto-occurred": false
-};
-const TEST_GAME_STATE = {
-    "liberal-policies": 0,
-    "fascist-policies": 0,
-    "discard-size": 0,
-    "draw-size": 17,
-    "players": {
-        "P1": {"alive": true, "id": "FASCIST", "investigated": false},
-        "P2": {"alive": true, "id": "HITLER", "investigated": false},
-        "P3": {"alive": true, "id": "LIBERAL", "investigated": true},
-        "P4": {"alive": true, "id": "LIBERAL", "investigated": false},
-        "P5": {"alive": true, "id": "LIBERAL", "investigated": false},
-        "P6": {"alive": false, "id": "FASCIST", "investigated": false},
-        "P7": {"alive": true, "id": "LIBERAL", "investigated": false}
-    },
-    "in-game": true,
-    "player-order": ["P4", "P2", "P6", "P1", "P7", "P3", "P5"],
-    "state": STATE_SETUP,
-    "last-president": "P7",
-    "last-chancellor": "P3",
-    "president": "P4",
-    "chancellor": "P5",
-    "election-tracker": 0,
-    "user-votes": {"P4": true, "P2": false, "P1": false, "P7": true, "P3": false, "P5": true},
-    "icon": {
-        "P1": "p5",
-        "P2": "p9",
-        "P3": "p8",
-        "P4": "p15",
-        "P5": "p_default",
-        "P6": "p4",
-        "P7": "p2"
-    },
-    "veto-occurred": false
-};
 
 class App extends Component {
 
@@ -578,61 +530,6 @@ class App extends Component {
             });
     };
 
-
-    renderLoginPage() {
-        return (
-            <div className="App">
-                <header className="App-header">
-                    SECRET-HITLER.ONLINE
-                </header>
-                <br/>
-                <div style={{textAlign: "center"}}>
-                    <h2>JOIN A GAME</h2>
-                    <MaxLengthTextField
-                        label={"Lobby"}
-                        onChange={this.updateJoinLobby}
-                        value={this.state.joinLobby}
-                        maxLength={LOBBY_CODE_LENGTH}
-                        showCharCount={false}
-                        forceUpperCase={true}
-                    />
-
-                    <MaxLengthTextField
-                        label={"Your Name"}
-                        onChange={this.updateJoinName}
-                        value={this.state.joinName}
-                        maxLength={12}
-                    />
-                    <p id={"errormessage"}>{this.state.joinError}</p>
-                    <button
-                        onClick={this.onClickJoin}
-                        disabled={!this.shouldJoinButtonBeEnabled()}
-                    >
-                        JOIN
-                    </button>
-                </div>
-                <br/>
-                <div>
-                    <h2>CREATE A LOBBY</h2>
-                    <MaxLengthTextField
-                        label={"Your Name"}
-                        onChange={this.updateCreateLobbyName}
-                        value={this.state.createLobbyName}
-                        maxLength={12}
-                    />
-                    <p id={"errormessage"}>{this.state.createLobbyError}</p>
-                    <button
-                        onClick={this.onClickCreateLobby}
-                        disabled={!this.shouldCreateLobbyButtonBeEnabled()}
-                    >
-                        CREATE LOBBY
-                    </button>
-                </div>
-                <br/>
-                <LoginPageContent />
-            </div>
-        );
-    }
 
     //</editor-fold>
 
@@ -1553,7 +1450,20 @@ class App extends Component {
                 break;
             case PAGE.LOGIN:  // login is default
             default:
-                page_render = this.renderLoginPage();
+                page_render = LoginPage({
+                    createLobbyError: this.state.createLobbyError,
+                    createLobbyName: this.state.createLobbyName,
+                    joinError: this.state.joinError,
+                    joinLobby: this.state.joinLobby,
+                    joinName: this.state.joinName,
+                    onClickCreateLobby: this.onClickCreateLobby,
+                    onClickJoin: this.onClickJoin,
+                    onUpdateCreateLobbyName: this.updateCreateLobbyName,
+                    onUpdateJoinLobby: this.updateJoinLobby,
+                    onUpdateJoinName: this.updateJoinName,
+                    shouldCreateLobbyButtonBeEnabled: this.shouldCreateLobbyButtonBeEnabled,
+                    shouldJoinButtonBeEnabled: this.shouldJoinButtonBeEnabled
+                });
         }
         return (
             <>
