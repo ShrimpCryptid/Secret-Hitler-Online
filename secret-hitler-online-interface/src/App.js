@@ -7,7 +7,7 @@ import MaxLengthTextField from "./util/MaxLengthTextField";
 import CustomAlert from "./custom-alert/CustomAlert";
 import RoleAlert from "./custom-alert/RoleAlert";
 import EventBar from "./event-bar/EventBar";
-
+import gamePage from './components/gamePage';
 import {
     PAGE,
     MAX_FAILED_CONNECTIONS,
@@ -431,11 +431,12 @@ class App extends Component {
     };
 
     shouldJoinButtonBeEnabled() {
-        return (this.state.joinLobby.length === LOBBY_CODE_LENGTH) && (this.state.joinName.length !== 0)
+        return this?.state?.joinLobby?.length === LOBBY_CODE_LENGTH && 
+            this?.state?.joinName?.length !== 0;
     }
 
     shouldCreateLobbyButtonBeEnabled() {
-        return (this.state.createLobbyName.length !== 0);
+        return this?.state?.createLobbyName.length !== 0;
     }
 
     /**
@@ -1358,76 +1359,6 @@ class App extends Component {
                                        sendWSCommand={this.sendWSCommand} />);
     }
 
-    /**
-     * Renders the game page.
-     */
-    renderGamePage() {
-        return (
-            <div className="App" style={{textAlign: "center"}}>
-                <header className="App-header">
-                    SECRET-HITLER.ONLINE
-                </header>
-
-                <CustomAlert show={this.state.showAlert}>
-                    {this.state.alertContent}
-                </CustomAlert>
-
-                <EventBar show={this.state.showEventBar} message={this.state.eventBarMessage}/>
-
-                <div style={{backgroundColor: "var(--backgroundDark)"}}>
-                    <PlayerDisplay
-                        gameState={this.state.gameState}
-                        user={this.state.name}
-                        showVotes={this.state.showVotes}
-                        showBusy={this.state.allAnimationsFinished} // Only show busy when there isn't an active animation.
-                        playerDisabledFilter={DISABLE_EXECUTED_PLAYERS}
-                    />
-                </div>
-
-                <StatusBar>{this.state.statusBarText}</StatusBar>
-
-                <div style={{display: "inline-block"}}>
-                    <div id={"Board Layout"}
-                         style={{alignItems: "center", display: "flex", flexDirection: "column", margin: "10px auto"}}>
-
-                        <div style={{display: "flex", flexDirection: "row", alignItems: "center", marginTop: "15px"}}>
-                            <Deck cardCount={this.state.drawDeckSize} deckType={"DRAW"}/>
-
-                            <div style={{margin: "auto auto"}}>
-                                <button
-                                    disabled={this.state.gameState[PARAM_STATE] !== STATE_POST_LEGISLATIVE || this.state.name !== this.state.gameState[PARAM_PRESIDENT]}
-                                    onClick={() => {
-                                        this.sendWSCommand(COMMAND_END_TERM);
-                                    }}
-                                > END TERM
-                                </button>
-
-                                <PlayerPolicyStatus numFascistPolicies={this.state.fascistPolicies}
-                                                    numLiberalPolicies={this.state.liberalPolicies}
-                                                    playerCount={this.state.gameState[PARAM_PLAYER_ORDER].length}/>
-                            </div>
-
-                            <Deck cardCount={this.state.discardDeckSize} deckType={"DISCARD"}/>
-                        </div>
-
-                        <Board
-                            numPlayers={this.state.gameState[PARAM_PLAYER_ORDER].length}
-                            numFascistPolicies={this.state.fascistPolicies}
-                            numLiberalPolicies={this.state.liberalPolicies}
-                            electionTracker={this.state.electionTracker}
-                        />
-                    </div>
-                </div>
-
-                <div style={{textAlign: "center"}}>
-                    <div id="snackbar">{this.state.snackbarMessage}</div>
-                </div>
-            </div>
-        );
-    }
-
-    //</editor-fold>
-
     render() {
         // Check URL params. If joining from a lobby link, open the lobby with the given code.
         let url = window.location.search;
@@ -1446,7 +1377,19 @@ class App extends Component {
                 page_render = this.renderLobbyPage();
                 break;
             case PAGE.GAME:
-                page_render = this.renderGamePage();
+                page_render = gamePage({
+                    onEndTermClick: () => this.sendWSCommand(COMMAND_END_TERM),
+                    alertContent: this.state.alertContent,
+                    allAnimationsFinished: this.state.allAnimationsFinished,
+                    drawDeckSize: this.state.drawDeckSize,
+                    eventBarMessage: this.state.eventBarMessage,
+                    gameState: this.state.gameState,
+                    name: this.state.name,
+                    showAlert: this.state.name,
+                    showEventBar: this.state.showEventBar,
+                    showVotes: this.state.showVotes,
+                    statusBarText: this.state.statusBarText
+                })
                 break;
             case PAGE.LOGIN:  // login is default
             default:
