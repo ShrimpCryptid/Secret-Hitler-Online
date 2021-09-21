@@ -670,6 +670,15 @@ public class SecretHitlerGame implements Serializable {
             shuffleDiscardIntoDraw();
         }
 
+        if (didElectionTrackerAdvance()) {
+            // Ignore any presidential powers and skip to the post-legislative state.
+            state = GameState.POST_LEGISLATIVE;
+            // Reset the term limits (last chancellor and president)
+            lastChancellor = null;
+            lastPresident = null;
+            return;
+        }
+
         this.lastState = this.state;
         switch (board.getActivatedPower()) {
             case PEEK:

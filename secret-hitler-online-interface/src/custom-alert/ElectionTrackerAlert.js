@@ -31,6 +31,7 @@ class ElectionTrackerAlert extends Component {
                             </p>
                             <p className={"left-align highlight"}>
                                 When the tracker reaches 3, the top policy on the draw deck is instantly passed.
+                                No presidential powers trigger and all term limits will be reset.
                             </p>
                         </>);
                 }}
