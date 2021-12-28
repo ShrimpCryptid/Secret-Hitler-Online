@@ -816,6 +816,11 @@ public class SecretHitlerGame implements Serializable {
 
         target = username;
         nextPresident = getNextActivePlayer(currentPresident);
+
+        if (this.currentPresident.equals(target)) {
+            throw new IllegalArgumentException("President cannot elect themselves during a special election.");
+        }
+
         electedPresident = username;
         concludePresidentialActions();
     }

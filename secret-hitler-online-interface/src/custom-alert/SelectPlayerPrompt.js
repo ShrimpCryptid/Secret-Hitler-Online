@@ -167,7 +167,7 @@ export const SelectSpecialElectionPrompt = (user, gameState, sendWSCommand) => {
             sendWSCommand={sendWSCommand}
             commandType={COMMAND_REGISTER_SPECIAL_ELECTION}
             disabledFilter={DISABLE_EXECUTED_PLAYERS}
-            includeUser={true}
+            includeUser={false}
             label={"SPECIAL ELECTION"}
             headerText={"Choose any player to become the next president. Once their term is finished, the order continues as normal."}
         />
