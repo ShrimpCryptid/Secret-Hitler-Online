@@ -78,7 +78,7 @@ class Board extends Component {
                          style={{position:"absolute",
                                  top:"74%", left:"calc(34.2% + " + this.props.electionTracker+"*9.16%)",
                                  width:"3.2%"}}
-                         alt={""}
+                         alt={"Election tracker at position " + this.props.electionTracker + " out of 3."}
                     />
                     {this.placeRepeating(this.props.numLiberalPolicies, 5, PolicyLiberal, "policy", "18.2%", "13.54%")}
                 </div>

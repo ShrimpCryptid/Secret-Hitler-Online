@@ -97,13 +97,10 @@ import Deck from "./board/Deck";
 import PlayerPolicyStatus from "./util/PlayerPolicyStatus";
 
 import VictoryFascistHeader from "./assets/victory-fascist-header.png";
-import VictoryFascistFooter from "./assets/victory-fascist-footer.png";
 import VictoryLiberalHeader from "./assets/victory-liberal-header.png";
-import VictoryLiberalFooter from "./assets/victory-liberal-footer.png";
 import IconSelection from "./custom-alert/IconSelection";
 import HelmetMetaData from "./util/HelmetMetaData";
 import {defaultPortrait} from "./assets";
-import PropTypes from "prop-types";
 import Player from "./player/Player";
 import LoginPageContent from "./LoginPageContent";
 

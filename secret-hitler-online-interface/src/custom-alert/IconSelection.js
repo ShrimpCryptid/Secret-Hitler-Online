@@ -3,13 +3,12 @@ import "../selectable.css";
 import "./IconSelection.css";
 import Cookies from 'js-cookie';
 import {TwitterShareButton} from 'react-twitter-embed';
-import portraits, {unlockedPortraits, lockedPortraits, defaultPortrait, twitterIcon} from "../assets";
+import portraits, {unlockedPortraits, lockedPortraits, defaultPortrait} from "../assets";
 import {portraitsAltText} from "../assets";
 
 import {
     COMMAND_SELECT_ICON,
-    PARAM_ICON,
-    PARAM_PLAYER_ORDER
+    PARAM_ICON
 } from "../GlobalDefinitions";
 import PropTypes from "prop-types";
 import ButtonPrompt from "./ButtonPrompt";
@@ -58,7 +57,6 @@ class IconSelection extends Component {
 
     onClickIcon(iconID) {
         // Verify that player is able to select this icon.
-        let currPortrait = this.props.playerToIcon[this.props.user];
         let isPremium = lockedPortraits.indexOf(iconID) !== -1;
         // Also does not allow selection if user has already selected this icon
         let unselectable = ((isPremium && !this.state.unlockLockedIcons) || (this.isIconInUse(iconID)));

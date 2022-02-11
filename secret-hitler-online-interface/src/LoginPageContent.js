@@ -1,17 +1,11 @@
 import React, {Component} from "react";
-import PropTypes from "prop-types";
 import ReactGA from "react-ga";
 import "./LoginPageContent.css";
 import {gifPlacePolicy, gifShowPolicy, gifShowVotes} from "./assets";
-import AliceCarousel from 'react-alice-carousel';
 import "./util/CustomAliceCarousel.css";
 
 
 class LoginPageContent extends Component {
-
-    constructor(props) {
-        super(props);
-    }
 
     onClickAbout = () => {
         ReactGA.event({
@@ -56,23 +50,23 @@ class LoginPageContent extends Component {
                             <br/>
                             The project is open-source, and is licensed under <a
                                 href={"https://creativecommons.org/licenses/by-nc-sa/4.0/"}
-                                rel="noopener"
+                                rel="noreferrer"
                                 target={"_blank"}>
                                     CC BY-NC-SA 4.0
                             </a>.
                             You can read more about the project <a
                                 href={"https://github.com/ShrimpCryptid/Secret-Hitler-Online/blob/master/README.md"}
-                                rel="noopener"
+                                rel="noreferrer"
                                 target={"_blank"} onClick={this.onClickAbout}>
                                     here
                             </a>!
                             <br/><br/>
-                            Adapted from the original <a href={"https://secrethitler.com"} target={"_blank"} rel="noopener" onClick={this.onClickGameWebsite}>
+                            Adapted from the original <a href={"https://secrethitler.com"} target={"_blank"} rel="noreferrer" onClick={this.onClickGameWebsite}>
                                 Secret Hitler
                             </a> board game by Goat, Wolf, & Cabbage (© 2016-2020). Developed by ShrimpCryptid (© 2020-2021).
                             <br/><br/>
                             Found a bug or want to leave a comment? Report bugs on the <a href={"https://github.com/ShrimpCryptid/Secret-Hitler-Online/issues"}
-                                                                                             rel="noopener"
+                                                                                             rel="noreferrer"
                                                                                              target={"_blank"}>Issues page</a>.
                         </p>
                     </div>
