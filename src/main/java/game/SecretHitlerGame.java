@@ -498,7 +498,9 @@ public class SecretHitlerGame implements Serializable {
             while (!getPlayer(currentPresident).isAlive()) {
                 // Advance to the next president
                 int presIndex = indexOfPlayer(currentPresident);
-                currentPresident = getPlayerList().get(presIndex + 1).getUsername();
+                List<Player> playerList = getPlayerList();
+                int nextPresIndex = (presIndex + 1) % playerList.size();  // Loops to 0 if last president killed
+                currentPresident = playerList.get(nextPresIndex).getUsername();
             }
             nextPresident = null;
         } else { // advance the presidency
