@@ -10,7 +10,7 @@ export const PAGE = {
 export const DEBUG = false;
 const USING_DEBUG_SERVER = false;
 
-export let SERVER_ADDRESS = "secret-hitler-web.herokuapp.com";
+export let SERVER_ADDRESS = "secret-hitler-web.fly.dev";
 export let SERVER_ADDRESS_HTTP = "https://" + SERVER_ADDRESS;
 export let WEBSOCKET_HEADER = "wss://";
 

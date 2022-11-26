@@ -34,7 +34,7 @@ dependencies {
     compile 'com.fasterxml.jackson.core:jackson-databind:2.10.1'
 
     // PostgresSQL driver
-    compile 'org.postgresql:postgresql:42.2.0'
+    compile 'org.postgresql:postgresql:42.2.5'
     
     // Apache Commons Lang
     compile 'org.apache.commons:commons-lang3:3.0'
@@ -51,7 +51,8 @@ jar {
     manifest {
         attributes(
                 'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
-                'Main-Class': 'server.SecretHitlerServer'
+                'Main-Class': 'server.SecretHitlerServer',
+                'Implementation-Title': 'secret-hitler-online'
         )
     }
 }

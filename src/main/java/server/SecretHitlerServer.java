@@ -201,7 +201,7 @@ public class SecretHitlerServer {
             String username = databaseUri.getUserInfo().split(":")[0];
             String password = databaseUri.getUserInfo().split(":")[1];
             String dbUrl = "jdbc:postgresql://" + databaseUri.getHost() + ':' + databaseUri.getPort()
-                    + databaseUri.getPath() + "?ssl=true&sslmode=require";
+                    + databaseUri.getPath();
 
             Class.forName("org.postgresql.Driver");
             c = DriverManager.getConnection(dbUrl, username, password);
