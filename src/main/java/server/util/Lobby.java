@@ -30,7 +30,7 @@ public class Lobby implements Serializable {
     // Used to reassign users to previously chosen images if they disconnect
     final private ConcurrentHashMap<String, String> usernameToPreferredIcon;
 
-    public static long LOBBY_TIMEOUT_DURATION_IN_MIN = 30;
+    public static long LOBBY_TIMEOUT_DURATION_IN_MIN = 10;
     public static float PLAYER_TIMEOUT_IN_SEC = 3;
     private long timeout;
     private static int MAX_TIMER_SCHEDULING_ATTEMPTS = 2;
