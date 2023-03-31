@@ -8,7 +8,7 @@ Build the latest version
 
 Copy to target location
 ```
-mv build/libs/1.jar target/secret-hitler-online.jar --Force
+mv build/libs/secret-hitler-online.jar target/secret-hitler-online.jar --Force
 ```
 
 Deploy using fly cmdline
