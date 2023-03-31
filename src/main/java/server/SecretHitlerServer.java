@@ -246,10 +246,14 @@ public class SecretHitlerServer {
             c.close();
 
             // Deserialize the data and convert to lobbies.
-            ByteArrayInputStream lobbyByteStream = new ByteArrayInputStream(lobbyBytes);
-            try {
-                ObjectInputStream objectStream = new ObjectInputStream(lobbyByteStream);
+            // (Use try-with-resources to ensure streams are closed even if an error occurs.)
+            try (
+                ByteArrayInputStream lobbyByteStream = new ByteArrayInputStream(lobbyBytes);
+                ObjectInputStream objectStream = new ObjectInputStream(lobbyByteStream)
+            ) {
+                
                 codeToLobby = (ConcurrentHashMap<String, Lobby>) objectStream.readObject();
+                objectStream.close();
                 System.out.println("Successfully parsed lobby data from the database.");
             } catch (Exception e) {
                 System.out.println("Failed to parse lobby data from stored backup. ");
@@ -282,6 +286,7 @@ public class SecretHitlerServer {
         int attempts = 0;
 
         Connection c = getDatabaseConnection();
+        if (c == null) { return; }
         try {
             String queryStr = "INSERT INTO BACKUP (id, timestamp, attempts, lobby_bytes)" +
                     "VALUES (0, ?, ?, ?) " +
@@ -355,6 +360,7 @@ public class SecretHitlerServer {
         if (lobbyCode == null || name == null || name.isEmpty() || name.isBlank()) {
             ctx.status(400);
             ctx.result("Lobby and name must be specified.");
+            return;
         }
 
         if (!codeToLobby.containsKey(lobbyCode)) { // lobby does not exist
