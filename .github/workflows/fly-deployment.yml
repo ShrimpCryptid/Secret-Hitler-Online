@@ -21,7 +21,7 @@ jobs:
         uses: gradle/gradle-build-action@v2
       
       - name: Build JAR with Gradle
-        run: ./gradlew jar && mv build/libs/secret-hitler-online.jar target/secret-hitler-online.jar --force
+        run: ./gradlew jar && mkdir target && mv build/libs/secret-hitler-online.jar target/secret-hitler-online.jar --force
 
       - name: Setup Fly
         uses: superfly/flyctl-actions/setup-flyctl@master
