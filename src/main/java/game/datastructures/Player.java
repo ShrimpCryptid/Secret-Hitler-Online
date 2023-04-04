@@ -1,7 +1,5 @@
 package game.datastructures;
 
-import org.json.JSONObject;
-
 import java.io.Serializable;
 
 /**

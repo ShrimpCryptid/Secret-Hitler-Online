@@ -1,9 +1,23 @@
+# Build Directories
 build
-.gradle
-.idea
 out
+bin
+
+# Gradle stored files
+.gradle
+
+# VSCode Workspace Configuration
+.idea/
 *.iml
 *.ipr
 *.iws
 .DS_Store
-bin/
+.vscode/
+
+# Firebase Hosting Files
+**/.firebase
+**/.firebaserc
+**/firebase.json
+
+# Node
+**/node_modules/

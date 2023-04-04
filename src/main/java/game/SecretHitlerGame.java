@@ -537,8 +537,12 @@ public class SecretHitlerGame implements Serializable {
      * Sets the available policies and the game state.
      */
     private void startLegislativeSession() {
-        this.lastState = this.state;
-        state = GameState.LEGISLATIVE_PRESIDENT; // Legislative session begins.
+        // Action may be triggered more than once in failure states,
+        // so only update lastState once
+        if (this.state != this.lastState && this.state != GameState.LEGISLATIVE_PRESIDENT) {
+          this.lastState = this.state;
+          state = GameState.LEGISLATIVE_PRESIDENT; // Legislative session begins.
+        }
 
         legislativePolicies = new ArrayList<>();
         for (int i = 0; i < PRESIDENT_DRAW_SIZE; i++) {
@@ -556,8 +560,8 @@ public class SecretHitlerGame implements Serializable {
         if (state != GameState.LEGISLATIVE_PRESIDENT) {
             throw new IllegalStateException("Cannot get President legislative choices when not in legislative session.");
         } if (legislativePolicies.size() != PRESIDENT_DRAW_SIZE) {
-            throw new IllegalStateException("An incorrect number of legislative policies are available for the president ("
-                                            + legislativePolicies.size() + " instead of " + PRESIDENT_DRAW_SIZE);
+            // Try re-drawing policies
+            startLegislativeSession();
         }
         return new ArrayList<>(legislativePolicies); // makes a copy of the legislative policies
     }
