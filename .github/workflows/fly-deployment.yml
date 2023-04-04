@@ -25,7 +25,6 @@ jobs:
         run: ./gradlew jar && mkdir target && mv build/libs/secret-hitler-online.jar target/secret-hitler-online.jar --force
 
       - name: Setup Fly
-        working-directory: ./backend/
         uses: superfly/flyctl-actions/setup-flyctl@master
 
       - name: Deploy to Fly
