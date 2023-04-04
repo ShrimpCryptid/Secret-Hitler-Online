@@ -1,0 +1,41 @@
+# flyctl launch added from .gitignore
+**\build
+**\.gradle
+**\.idea
+**\out
+**\*.iml
+**\*.ipr
+**\*.iws
+**\.DS_Store
+
+# flyctl launch added from .idea\.gitignore
+# Default ignored files
+.idea\workspace.xml
+.idea\dictionaries\gabyb.xml
+.idea\.gitignore
+.idea\.gitignore
+
+# flyctl launch added from secret-hitler-online-interface\.gitignore
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+secret-hitler-online-interface\node_modules
+secret-hitler-online-interface\.pnp
+secret-hitler-online-interface\**\.pnp.js
+
+# testing
+secret-hitler-online-interface\coverage
+
+# production
+secret-hitler-online-interface\build
+
+# misc
+secret-hitler-online-interface\**\.DS_Store
+secret-hitler-online-interface\**\.env.local
+secret-hitler-online-interface\**\.env.development.local
+secret-hitler-online-interface\**\.env.test.local
+secret-hitler-online-interface\**\.env.production.local
+
+secret-hitler-online-interface\**\npm-debug.log*
+secret-hitler-online-interface\**\yarn-debug.log*
+secret-hitler-online-interface\**\yarn-error.log*

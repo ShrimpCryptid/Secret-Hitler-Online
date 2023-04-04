@@ -1,7 +1,8 @@
-# Build Directories
+# Build Directories + Binary Files
 build
 out
 bin
+*.jar
 
 # Gradle stored files
 .gradle
