@@ -8,7 +8,7 @@ jobs:
     name: Deploy app
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code 
+      - name: Checkout Code
         uses: actions/checkout@v3
 
       - name: Setup Java
@@ -21,12 +21,15 @@ jobs:
         uses: gradle/gradle-build-action@v2
       
       - name: Build JAR with Gradle
+        working-directory: ./backend/
         run: ./gradlew jar && mkdir target && mv build/libs/secret-hitler-online.jar target/secret-hitler-online.jar --force
 
       - name: Setup Fly
+        working-directory: ./backend/
         uses: superfly/flyctl-actions/setup-flyctl@master
 
       - name: Deploy to Fly
+        working-directory: ./backend/
         run: flyctl deploy --remote-only
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
