@@ -84,7 +84,11 @@ class Board extends Component {
                 </div>
 
                 <div id="board-group" style={{margin:"4px 10px", position:"relative"}}>
-                    <img id="board" src={this.getFascistBoard()}/>
+                    <img
+                      id="board"
+                      src={this.getFascistBoard()}
+                      alt={this.props.numFascistPolicies + " fascist policies have been passed."}
+                    />
                     {this.placeRepeating(this.props.numFascistPolicies, 6, PolicyFascist, "policy", "11%", "13.6%")}
                 </div>
             </div>

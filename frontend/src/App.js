@@ -63,7 +63,6 @@ import {
     STATE_LIBERAL_VICTORY_EXECUTION,
     STATE_LIBERAL_VICTORY_POLICY,
     PARAM_PEEK,
-    PARAM_INVESTIGATION,
     HITLER,
     PARAM_DRAW_DECK,
     PARAM_DISCARD_DECK,
@@ -121,6 +120,8 @@ const DEFAULT_GAME_STATE = {
     "election-tracker": 0,
     "veto-occurred": false
 };
+
+/*
 const TEST_GAME_STATE = {
     "liberal-policies": 0,
     "fascist-policies": 0,
@@ -154,7 +155,7 @@ const TEST_GAME_STATE = {
         "P7": "p2"
     },
     "veto-occurred": false
-};
+};*/
 
 class App extends Component {
 
@@ -739,7 +740,6 @@ class App extends Component {
     renderLobbyPage() {
         // The first player in the lobby is counted as the VIP.
         let isVIP = (this.state.usernames.length > 0 && this.state.usernames[0] === this.state.name);
-        let canStartGame;
         return (
             <div className="App">
                 <header className="App-header">

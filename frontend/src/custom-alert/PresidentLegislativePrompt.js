@@ -1,11 +1,8 @@
 import React, {Component} from 'react';
 import PropTypes from "prop-types";
-import FascistPolicy from "../assets/policy-fascist.png";
-import LiberalPolicy from "../assets/policy-liberal.png";
 import ButtonPrompt from "./ButtonPrompt";
 import {
     COMMAND_REGISTER_PRESIDENT_CHOICE,
-    LIBERAL,
     PARAM_CHOICE,
     SERVER_TIMEOUT
 } from "../GlobalDefinitions";

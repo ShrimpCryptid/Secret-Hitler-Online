@@ -9,7 +9,7 @@ import FolderCoverBack from '../assets/policy-folder-cover-back.png';
 import FolderBack from '../assets/policy-folder-back.png';
 
 import './PolicyEnactedAlert.css';
-import {DEBUG, LIBERAL} from "../GlobalDefinitions";
+import {LIBERAL} from "../GlobalDefinitions";
 
 class PolicyEnactedAlert extends Component {
 
