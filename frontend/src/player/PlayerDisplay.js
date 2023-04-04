@@ -26,7 +26,6 @@ import {
     PLAYER_INVESTIGATED, PARAM_LAST_CHANCELLOR, PARAM_LAST_PRESIDENT, PARAM_ICON
 } from "../GlobalDefinitions";
 import './PlayerDisplay.css';
-import portraits from "../assets";
 
 /**
  * Displays a row of player icons and handles displaying busy status, votes, and roles where applicable.
