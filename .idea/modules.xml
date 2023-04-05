@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="ProjectModuleManager">
-    <modules>
-      <module fileurl="file://$PROJECT_DIR$/secret-hitler-online-interface.iml" filepath="$PROJECT_DIR$/secret-hitler-online-interface.iml" />
-      <module fileurl="file://$PROJECT_DIR$/secret-hitler-online-server.iml" filepath="$PROJECT_DIR$/secret-hitler-online-server.iml" />
-    </modules>
-  </component>
-</project>
