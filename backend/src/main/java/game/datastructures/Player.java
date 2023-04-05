@@ -13,6 +13,8 @@ public class Player implements Serializable {
     private boolean isAlive;
     private boolean investigated;
 
+    private boolean isCPU = false;
+
     /**
      * Constructs a new Player with the given username.
      * @param username The username of the player.
@@ -44,6 +46,14 @@ public class Player implements Serializable {
 
     public Identity getIdentity() {
       return id;
+    }
+
+    public void markAsCpu() {
+      isCPU = true;
+    }
+
+    public boolean isCpu() {
+      return isCPU;
     }
 
     public boolean isHitler() {

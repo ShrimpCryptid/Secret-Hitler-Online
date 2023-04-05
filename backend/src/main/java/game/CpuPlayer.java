@@ -1,6 +1,8 @@
 package game;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -10,10 +12,12 @@ import game.datastructures.Player;
 
 public class CpuPlayer implements Serializable {
 
+  private static int MAX_SUSPICION = 5;
+
   /**
-   * Tracks the current level of suspicion in a range from [0,10] that the
+   * Tracks the current level of suspicion in a range from [-5, 5] that the
    * CpuPlayer has for each other player (both other CPUs and players) in the
-   * game, starting at neutral (5). The higher the suspicion value is, the more
+   * game, starting at neutral (0). The higher the suspicion value is, the more
    * likely the CpuPlayer will act as though the player is Fascist/Hitler.
    */
   public final HashMap<String, Integer> playerSuspicion;
@@ -34,12 +38,12 @@ public class CpuPlayer implements Serializable {
     knownPlayerRoles = new HashMap<>();
   }
 
-  public void initialize(SecretHitlerGame game, Set<String> players) {
+  public void initialize(SecretHitlerGame game, Collection<String> players) {
     // Set player suspicion to neutral (5) by default
     playerSuspicion.clear();
     for (String player : players) {
       if (!player.equals(myName)) { // Don't add an entry for self
-        playerSuspicion.put(player, 5);
+        playerSuspicion.put(player, 0);
       }
     }
 
@@ -71,7 +75,7 @@ public class CpuPlayer implements Serializable {
         }
       }
     }
-  }
+  } // end initialize()
 
   public void onUpdate(SecretHitlerGame game, Set<String> players) {
     // Do nothing if this CpuPlayer is dead (no actions required).
@@ -87,7 +91,6 @@ public class CpuPlayer implements Serializable {
           // Handle checks for whether the player is eligible
 
         }
-
         break;
       case CHANCELLOR_VOTING:
         break;
@@ -114,5 +117,92 @@ public class CpuPlayer implements Serializable {
     /*
      * CHANCELLOR_NOMINATION
      */
+  } // end onUpdate
+
+
+  /**
+   * Returns the name of a player, chosen by weighted random. Weighting is
+   * determined by suspected or known roles, and can be biased towards or away
+   * from players.
+   * 
+   * @param playerList    : List of players to traverse.
+   * @param fascistWeight :
+   * @param liberalWeight :
+   * @param hitlerWeight  : Used only if Hitler identity is known.
+   * @param playerBias    : How much selection should be biased towards players,
+   *                      relative. Positive values increase likelihood that
+   *                      players are chosen.
+   * @return The name of a player, chosen by weighted random.
+   */
+  public String chooseRandomPlayerWeighted(List<Player> playerList,
+      float fascistWeight, float liberalWeight, float hitlerWeight,
+      float playerBias) {
+
+    // Make a copy of the player list so we can modify, then remove this
+    // CpuPlayer from it for traversal
+    playerList = new ArrayList<Player>(playerList);
+
+    // Traverse player list, calculating weight for each player based on known
+    // or suspected roles
+    float totalWeight = 0f;
+    float[] playerMinThreshold = new float[playerList.size()];
+
+    for (int i = 0; i < playerList.size(); i++) {
+      Player currPlayer = playerList.get(i);
+      String currPlayerName = currPlayer.getUsername();
+      float currWeight = 0f;
+
+      if (!myName.equals(currPlayerName)) { // Skip self
+        if (knownPlayerRoles.containsKey(currPlayerName)) { // Role is known
+          switch (knownPlayerRoles.get(currPlayerName)) {
+            case FASCIST:
+              currWeight = fascistWeight;
+              break;
+            case HITLER:
+              currWeight = hitlerWeight;
+              break;
+            default: // liberal
+              currWeight = liberalWeight;
+          }
+        } else { // Role unknown
+          // Normalize suspicion value to [0, 1] range, where 0 is fascist.
+          int suspicion = playerSuspicion.get(currPlayerName);
+          float t = (suspicion + MAX_SUSPICION) / (2f * MAX_SUSPICION);
+          // Interpolate between fascist and liberal weights.
+          currWeight = t * liberalWeight + (1f - t) * fascistWeight;
+        }
+
+        // Add player biases
+        if (!currPlayer.isCpu()) {
+          currWeight += playerBias;
+        }
+      } // end if
+
+      // Clamp weight so there are no negative values.
+      currWeight = Math.max(currWeight, 0f);
+
+      // If weight is 0, set threshold to an unreachable float number so the
+      // player won't ever be chosen.
+      if (currWeight < 0.0000001f) {
+        playerMinThreshold[i] = Float.MAX_VALUE;
+      } else {
+        playerMinThreshold[i] = totalWeight;
+      }
+      totalWeight += currWeight;
+
+    } // end for
+
+    // Calculate a random value based on the total weight, then traverse the
+    // thresholds until we find and return the matching player.
+    float random = (float) (totalWeight * Math.random());
+    for (int i = 0; i < playerList.size(); i++) {
+      if (random >= playerMinThreshold[i]) {
+        // We've met the threshold, so choose this player!
+        return playerList.get(i).getUsername();
+      }
+    }
+    assert (false); // Should be unreachable.
+    return "";
   }
-}
+
+} // end CpuPlayer

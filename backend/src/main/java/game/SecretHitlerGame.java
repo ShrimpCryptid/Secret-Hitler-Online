@@ -171,7 +171,7 @@ public class SecretHitlerGame implements Serializable {
 
     /**
      * Gets the list of active players.
-     * @return an immutable list of Players.
+     * @return a copy of the list of Players.
      */
     public List<Player> getPlayerList() {
         return new ArrayList<>(playerList);
@@ -191,7 +191,7 @@ public class SecretHitlerGame implements Serializable {
         return -1;
     }
 
-    private Player getPlayer(String username) {
+    public Player getPlayer(String username) {
         return playerList.get(indexOfPlayer(username));
     }
 
