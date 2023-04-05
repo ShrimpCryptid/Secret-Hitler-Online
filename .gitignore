@@ -17,8 +17,6 @@ bin
 
 # Firebase Hosting Files
 **/.firebase
-**/.firebaserc
-**/firebase.json
 
 # Node
 **/node_modules/
