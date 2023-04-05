@@ -17,7 +17,6 @@
     "react-router": "^5.2.0",
     "react-router-config": "^5.1.1",
     "react-router-dom": "^5.2.0",
-    "react-scripts": "^5.0.0",
     "react-textfit": "^1.1.1",
     "react-twitter-embed": "^3.0.3",
     "typescript": "^3.9.10"
@@ -44,6 +43,7 @@
     ]
   },
   "devDependencies": {
-    "prop-types": "^15.7.2"
+    "prop-types": "^15.7.2",
+    "react-scripts": "^5.0.0"
   }
 }
