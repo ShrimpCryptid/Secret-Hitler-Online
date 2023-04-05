@@ -42,6 +42,10 @@ public class Player implements Serializable {
         this.id = id;
     }
 
+    public Identity getIdentity() {
+      return id;
+    }
+
     public boolean isHitler() {
         return this.id.equals(Identity.HITLER);
     }
