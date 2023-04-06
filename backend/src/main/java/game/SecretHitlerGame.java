@@ -127,7 +127,8 @@ public class SecretHitlerGame implements Serializable {
      * @requires there can be no repeat names in {@code players}. The number of players must be between MIN_PLAYERS and
      *           MAX_PLAYERS, inclusive.
      * @modifies this
-     * @effects this is a new game.SecretHitlerGame in setup mode with no players.
+     * @effects initializes the game, setting all player identities and card decks. The first player in the provided
+     *          player list is the first president, and the game begins the chancellor nomination process.
      */
     public SecretHitlerGame(Collection<String> players) {
         if (players.size() < MIN_PLAYERS) {
@@ -142,11 +143,29 @@ public class SecretHitlerGame implements Serializable {
             playerList.add(new Player(name));
         }
 
-        state = GameState.SETUP;
         random = new Random();
         electionTracker = 0;
         voteMap = new HashMap<>();
-        start();
+
+        resetDeck();
+        assignRoles();
+        electionTracker = 0;
+
+        // Assign a new board based on the number of players.
+        if (playerList.size() <= 6) {
+            board = new FiveToSixPlayerBoard();
+        } else if (playerList.size() <= 8) {
+            board = new SevenToEightPlayerBoard();
+        } else {
+            board = new NineToTenPlayerBoard();
+        }
+
+        currentPresident = playerList.get(0).getUsername();
+        currentChancellor = null;
+        lastChancellor = null;
+        lastPresident = null;
+
+        state = GameState.CHANCELLOR_NOMINATION;
     }
 
     //</editor-fold>
@@ -199,34 +218,6 @@ public class SecretHitlerGame implements Serializable {
 
     /////////////////// Game Setup
     //<editor-fold desc="Game Setup">
-
-    /**
-     * Starts the game of Secret Hitler.
-     * @modifies this
-     * @effects initializes the game, setting all player identities and card decks. The first player in the provided
-     *          player list is the first president, and the game begins the chancellor nomination process.
-     */
-    private void start() {
-        resetDeck();
-        assignRoles();
-        electionTracker = 0;
-
-        // Assign a new board based on the number of players.
-        if (playerList.size() <= 6) {
-            board = new FiveToSixPlayerBoard();
-        } else if (playerList.size() <= 8) {
-            board = new SevenToEightPlayerBoard();
-        } else {
-            board = new NineToTenPlayerBoard();
-        }
-
-        currentPresident = playerList.get(0).getUsername();
-        currentChancellor = null;
-        lastChancellor = null;
-        lastPresident = null;
-
-        state = GameState.CHANCELLOR_NOMINATION;
-    }
 
     /**
      * Resets the Draw and Discard decks.
