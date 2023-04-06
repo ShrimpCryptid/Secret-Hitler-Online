@@ -337,6 +337,15 @@ public class SecretHitlerGame implements Serializable {
     /////////////////// Nomination and Voting
     //<editor-fold desc="Nomination and Voting">
 
+    public int getLivingPlayerCount() {
+      int numLivingPlayers = 0;
+      for (Player player : playerList) {
+          if (player.isAlive())
+              numLivingPlayers++;
+      }
+      return numLivingPlayers;
+    }
+
     /**
      * Selects the chancellor for the current legislation.
      * @param username username of the chancellor to elect.
@@ -349,11 +358,7 @@ public class SecretHitlerGame implements Serializable {
      *          CHANCELLOR_VOTING.
      */
     public void nominateChancellor(String username) {
-        int numLivingPlayers = 0;
-        for (Player player : playerList) {
-            if (player.isAlive())
-                numLivingPlayers++;
-        }
+        int numLivingPlayers = getLivingPlayerCount();
 
         if (getState() != GameState.CHANCELLOR_NOMINATION) {
             throw new IllegalStateException("Cannot elect a chancellor now (invalid state).");
@@ -363,6 +368,8 @@ public class SecretHitlerGame implements Serializable {
             throw new IllegalArgumentException("Player " + username + " does not exist.");
         } else if (!getPlayer(username).isAlive()) {
             throw new IllegalArgumentException("Player " + username + " is dead and cannot be elected for chancellor.");
+        } else if (username.equals(currentPresident)) {
+           throw new IllegalArgumentException("President cannot choose themselves as chancellor.");
         }
 
         didElectionTrackerAdvance = false; // reset the election tracker
@@ -370,6 +377,14 @@ public class SecretHitlerGame implements Serializable {
         this.lastState = this.state;
         state = GameState.CHANCELLOR_VOTING; // exits the previous state.
         voteMap = new HashMap<>(); // initializes a new map for voting.
+    }
+
+    /**
+     * Returns whether the given player has voted yet during the currently
+     * open voting round.
+     */
+    public boolean hasPlayerVoted(String username) {
+      return voteMap.containsKey(username);
     }
 
     /**

@@ -7,7 +7,6 @@ import static junit.framework.TestCase.*;
 import static org.junit.Assert.assertNotEquals;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class testCpuPlayer {
@@ -36,7 +35,7 @@ public class testCpuPlayer {
     SecretHitlerGame game = new SecretHitlerGame(players);
 
     CpuPlayer cpu = new CpuPlayer(players.get(0));
-    cpu.initialize(game, players);
+    cpu.initialize(game);
 
     for (int i = 0; i < ITERATIONS; i++) {
       String selectedName = cpu.chooseRandomPlayerWeighted(game.getPlayerList(),
@@ -55,15 +54,15 @@ public class testCpuPlayer {
     SecretHitlerGame game = new SecretHitlerGame(players);
 
     CpuPlayer cpu = new CpuPlayer(getPlayerOfIdentity(game, Identity.LIBERAL));
-    cpu.initialize(game, players);
+    cpu.initialize(game);
 
     String hitler = getPlayerOfIdentity(game, Identity.HITLER);
 
     for (int i = 0; i < ITERATIONS; i++) {
       String selectedName = cpu.chooseRandomPlayerWeighted(game.getPlayerList(),
         1f,
-        1f,
         0f,
+        1f,
         0f);
       assertNotNull(selectedName);
       assertNotEquals(cpu.myName, selectedName);
@@ -77,7 +76,7 @@ public class testCpuPlayer {
     SecretHitlerGame game = new SecretHitlerGame(players);
 
     CpuPlayer cpu = new CpuPlayer(getPlayerOfIdentity(game, Identity.LIBERAL));
-    cpu.initialize(game, players);
+    cpu.initialize(game);
 
     String randomPlayer = getPlayerOfIdentity(game, Identity.FASCIST);
     // Mark every other player as a CPU
@@ -94,6 +93,18 @@ public class testCpuPlayer {
         0f,
         0.5f);
       assertEquals(randomPlayer, selectedName);
+    }
+  }
+
+  @Test
+  public void testCanNominateChancellor() {
+    List<String> players = makePlayers(8);
+    for (int i = 0; i < ITERATIONS; i++) {
+      SecretHitlerGame game = new SecretHitlerGame(players);
+      CpuPlayer cpu = new CpuPlayer(game.getCurrentPresident());
+      cpu.initialize(game);
+      cpu.onUpdate(game);
+      assertEquals(game.getState(), GameState.CHANCELLOR_VOTING);
     }
   }
 }
