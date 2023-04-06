@@ -2,10 +2,9 @@ package game;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Random;
 
 import game.datastructures.Identity;
 import game.datastructures.Player;
@@ -15,6 +14,8 @@ import game.datastructures.Player;
 public class CpuPlayer implements Serializable {
 
   private static int MAX_REPUTATION = 5;
+
+  private Random random;
 
   /**
    * Tracks the current level of reputation in a range from [-5, 5] 
@@ -41,6 +42,7 @@ public class CpuPlayer implements Serializable {
     this.myName = name;
     playerReputation = new HashMap<>();
     knownPlayerRoles = new HashMap<>();
+    random = new Random();
   }
 
   public void initialize(SecretHitlerGame game) {
@@ -51,6 +53,7 @@ public class CpuPlayer implements Serializable {
     for (Player player : playerList) {
       playerReputation.put(player.getUsername(), 0);
     }
+
     // Get a reference to our current player data
     myPlayerData = null;
     for (Player playerData : playerList) {
@@ -63,6 +66,9 @@ public class CpuPlayer implements Serializable {
       throw new IllegalStateException(
           "Could not find a matching Player username in the current game while initializing this CpuPlayer.");
     }
+
+    // Mark ourselves as a CPU Player in the game
+    myPlayerData.markAsCpu();
 
     // Update known identities, based on identity, according to rules
     knownPlayerRoles.clear();
@@ -177,8 +183,8 @@ public class CpuPlayer implements Serializable {
 
 
   private void voteWithProbability(SecretHitlerGame game, float yesProbability) {
-    double random = Math.random();
-    boolean vote = random <= yesProbability;
+    double t = random.nextDouble();
+    boolean vote = t <= yesProbability;
     game.registerVote(myName, vote);
   }
 
@@ -282,7 +288,7 @@ public class CpuPlayer implements Serializable {
   /**
    * Returns the name of a player, chosen by weighted random. Weighting is
    * determined by suspected or known roles, and can be biased towards or away
-   * from (non-CPU) players.
+   * from users.
    * 
    * If a player's role is unknown, the weight will be calculated based
    * on the strength of their reputation, interpolated between the fascist and
@@ -296,14 +302,14 @@ public class CpuPlayer implements Serializable {
    *                      only for fascist players.)
    * @param liberalWeight : Relative weight assigned to known or suspected
    *                      liberal players.
-   * @param playerBias    : How much selection should be biased towards non-CPU
+   * @param userBias    : How much selection should be biased towards non-CPU
    *                      players, relative. Positive values increase likelihood
    *                      that players are chosen.
    * @return The name of a player, chosen by weighted random.
    */
   public String chooseRandomPlayerWeighted(List<Player> playerList,
       float fascistWeight, float hitlerWeight, float liberalWeight,
-      float playerBias) {
+      float userBias) {
 
     // Make a copy of the player list so we can modify, then remove this
     // CpuPlayer from it for traversal
@@ -338,8 +344,8 @@ public class CpuPlayer implements Serializable {
         }
 
         // Add player biases
-        if (!currPlayer.isCpu()) {
-          currWeight += playerBias;
+        if (!currPlayer.isCpu()) { 
+          currWeight += userBias;
         }
       } // end if
 
@@ -359,9 +365,9 @@ public class CpuPlayer implements Serializable {
 
     // Calculate a random value based on the total weight, then traverse the
     // thresholds until we find and return the matching player.
-    float random = (float) (totalWeight * Math.random());
+    float t = (float) (totalWeight * random.nextDouble());
     for (int i = 0; i < playerList.size(); i++) {
-      if (random >= playerMinThreshold[i]) {
+      if (t >= playerMinThreshold[i]) {
         // We've met the threshold, so choose this player!
         return playerList.get(i).getUsername();
       }
