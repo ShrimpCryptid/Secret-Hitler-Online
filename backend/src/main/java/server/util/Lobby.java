@@ -26,15 +26,15 @@ public class Lobby implements Serializable {
 
     // These two marked transient because they track currently active/connected users.
     transient private ConcurrentHashMap<WsContext, String> userToUsername;
-    transient private ConcurrentLinkedQueue<String> activeUsernames;
+    transient private Queue<String> activeUsernames;
 
-    final private ConcurrentSkipListSet<String> usersInGame;
+    final private Set<String> usersInGame;
     final private ConcurrentHashMap<String, String> usernameToIcon;
 
     // The number of players that should be in this lobby. If there are fewer
     // users, backfills with CpuPlayers.
     private int lobbySize;
-    private List<CpuPlayer> cpuPlayers;
+    private Set<CpuPlayer> cpuPlayers;
 
     /* Used to reassign users to previously chosen images if they disconnect*/
     final private ConcurrentHashMap<String, String> usernameToPreferredIcon;
@@ -51,12 +51,13 @@ public class Lobby implements Serializable {
      * Constructs a new Lobby.
      */
     public Lobby() {
-        userToUsername = new ConcurrentHashMap<>();
+        userToUsername = new ConcurrentHashMap<WsContext, String>();
         activeUsernames = new ConcurrentLinkedQueue<>();
         usersInGame = new ConcurrentSkipListSet<>();
         usernameToIcon = new ConcurrentHashMap<>();
         usernameToPreferredIcon = new ConcurrentHashMap<>();
         lobbySize = SecretHitlerGame.MIN_PLAYERS;
+        cpuPlayers = new ConcurrentSkipListSet<>();
         resetTimeout();
     }
 
@@ -284,8 +285,14 @@ public class Lobby implements Serializable {
         }
 
         // Update all the CpuPlayers so they can act
-        for (CpuPlayer cpu : cpuPlayers) {
-          cpu.onUpdate(game);
+        if (isInGame()) {
+            boolean didCpuUpdateState = false;
+            for (CpuPlayer cpu : cpuPlayers) {
+              didCpuUpdateState = didCpuUpdateState || cpu.onUpdate(game);
+            }
+            if (didCpuUpdateState) {
+              updateAllUsers();  // Update users again if the CPUs have taken an
+            }
         }
 
         //Check if the game ended.
@@ -416,6 +423,7 @@ public class Lobby implements Serializable {
             if (!userToUsername.containsValue(botName)) {
               cpuNames.add(botName);
               cpuPlayers.add(new CpuPlayer(botName));
+              numCpuPlayersToGenerate--;
             }
             i++;
 

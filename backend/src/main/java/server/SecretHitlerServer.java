@@ -22,7 +22,8 @@ public class SecretHitlerServer {
 
     ////// Static Fields
     // <editor-fold desc="Static Fields">
-    private static boolean DEBUG = false;
+    // TODO: Replace this with an environment variable or environment flag
+    private static boolean DEBUG = true;
     public static final int DEFAULT_PORT_NUMBER = 4040;
 
     // Environmental Variable Names

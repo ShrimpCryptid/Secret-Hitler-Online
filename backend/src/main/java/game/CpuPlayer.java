@@ -11,7 +11,7 @@ import game.datastructures.Player;
 
 // TODO: Move CpuPlayer thresholds to an input file?
 
-public class CpuPlayer implements Serializable {
+public class CpuPlayer implements Serializable, Comparable {
 
   private static int MAX_REPUTATION = 5;
 
@@ -89,19 +89,17 @@ public class CpuPlayer implements Serializable {
 
   } // end initialize()
 
-  public void onUpdate(SecretHitlerGame game) {
+  public boolean onUpdate(SecretHitlerGame game) {
     // Do nothing if this CpuPlayer is dead (no actions required).
     if (!myPlayerData.isAlive()) {
-      return;
+      return false;
     }
 
     switch (game.getState()) {
       case CHANCELLOR_NOMINATION:
-        handleChancellorNomination(game);
-        break;
+        return handleChancellorNomination(game);
       case CHANCELLOR_VOTING:
-        handleChancellorVoting(game);
-        break;
+        return handleChancellorVoting(game);
       case LEGISLATIVE_PRESIDENT:
         // If I am the president, vote according to my party preference
         break;
@@ -119,12 +117,8 @@ public class CpuPlayer implements Serializable {
         // Update our suspicion rating for the other players
         break;
       default:
-        break;
     }
-
-    /*
-     * CHANCELLOR_NOMINATION
-     */
+    return false;
   } // end onUpdate
 
   private boolean isFascistInDanger(SecretHitlerGame game) {
@@ -141,10 +135,10 @@ public class CpuPlayer implements Serializable {
         || (name.equals(game.getLastPresident()) && game.getLivingPlayerCount() > 5));
   }
 
-  private void handleChancellorNomination(SecretHitlerGame game) {
+  private boolean handleChancellorNomination(SecretHitlerGame game) {
     // No action required if we are not president
     if (!game.getCurrentPresident().equals(myName)) {
-      return;
+      return false;
     }
 
     List<Player> playerList = game.getPlayerList();
@@ -177,6 +171,7 @@ public class CpuPlayer implements Serializable {
         game.nominateChancellor(chancellorName);
       }
     }
+    return true;
 
     // Handle checks for whether the player is eligible
   }
@@ -205,10 +200,10 @@ public class CpuPlayer implements Serializable {
   }
 
 
-  private void handleChancellorVoting(SecretHitlerGame game) {
+  private boolean handleChancellorVoting(SecretHitlerGame game) {
     // Check that we haven't already voted
     if (game.hasPlayerVoted(myName)) {
-      return;
+      return false;
     }
 
     Identity myId = myPlayerData.getIdentity();
@@ -237,7 +232,7 @@ public class CpuPlayer implements Serializable {
     if (myPlayerData.isFascist() && canHitlerWinByElection(game)
         && game.getPlayer(chancellor).isHitler()) {
       voteWithProbability(game, 0.99f);
-      return;
+      return true;
     }
 
     // Fascist voting behavior (+hitler if fascists are in danger)
@@ -256,7 +251,7 @@ public class CpuPlayer implements Serializable {
       }
       float voteProbability = t * liberalVoteProbability + (1f - t) * fascistVoteProbability;
       voteWithProbability(game, voteProbability);
-      return;
+      return true;
     }
       
     // DEFAULT voting behavior for liberals + hitler:
@@ -281,7 +276,7 @@ public class CpuPlayer implements Serializable {
       float voteProbability = 2f * t - (t * t);
       voteWithProbability(game, voteProbability);
     }
-    return;
+    return true;
   }
 
 
@@ -374,5 +369,13 @@ public class CpuPlayer implements Serializable {
     }
     return null;
   } // end chooseRandomPlayerWeighted()
+
+  @Override
+  public int compareTo(Object o) {
+    if (o instanceof CpuPlayer) {
+      return this.myName.compareTo(((CpuPlayer) o).myName);
+    }
+    return 0;
+  }
 
 } // end CpuPlayer
