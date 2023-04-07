@@ -697,7 +697,7 @@ class App extends Component {
                 return false;
             }
         }
-        return (this.state.userCount >= MIN_PLAYERS) && (this.state.userCount <= MAX_PLAYERS);
+        return true;
     }
 
     /**
