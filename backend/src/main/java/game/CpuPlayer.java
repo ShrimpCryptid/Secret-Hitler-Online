@@ -8,6 +8,7 @@ import java.util.Random;
 
 import game.datastructures.Identity;
 import game.datastructures.Player;
+import game.datastructures.Policy;
 
 // TODO: Move CpuPlayer thresholds to an input file?
 
@@ -15,6 +16,7 @@ public class CpuPlayer implements Serializable, Comparable {
 
   private static int MAX_REPUTATION = 5;
 
+  // TODO: Make transient
   private Random random;
 
   /**
@@ -102,7 +104,7 @@ public class CpuPlayer implements Serializable, Comparable {
         return handleChancellorVoting(game);
       case LEGISLATIVE_PRESIDENT:
         // If I am the president, vote according to my party preference
-        break;
+        return handleLegislativePresident(game);
       case LEGISLATIVE_CHANCELLOR:
         // If I am the chancellor, vote according to my party preference
         break;
@@ -123,6 +125,10 @@ public class CpuPlayer implements Serializable, Comparable {
 
   private boolean isFascistInDanger(SecretHitlerGame game) {
     return game.getNumLiberalPolicies() >= 4;
+  }
+
+  private boolean isLiberalInDanger(SecretHitlerGame game) {
+    return game.getNumFascistPolicies() >= 5;
   }
 
   private boolean canHitlerWinByElection(SecretHitlerGame game) {
@@ -169,6 +175,7 @@ public class CpuPlayer implements Serializable, Comparable {
 
       if (isValidChancellor(chancellorName, game)) {
         game.nominateChancellor(chancellorName);
+        break;
       }
     }
     return true;
@@ -281,6 +288,92 @@ public class CpuPlayer implements Serializable, Comparable {
 
 
   /**
+   * Gets the index of the first policy of a matching type, if it exists.
+   * Returns -1 otherwise.
+   */
+  private int tryGetIndexOfPolicy(List<Policy> policies, Policy.Type type) {
+    for (int i = 0; i < policies.size(); i++) {
+      Policy policy = policies.get(i);
+      if (policy.getType() == type) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  private boolean handleLegislativePresident(SecretHitlerGame game) {
+    if (!game.getCurrentPresident().equals(myName)) {
+      return false;  // We are not president, no action required
+    }
+
+    List<Policy> policies = game.getPresidentLegislativeChoices();
+
+    // Count the number of fascist and liberal policies
+    int fascistPolicyCount = 0;
+    for (Policy policy : policies) {
+      if (policy.getType() == Policy.Type.FASCIST) {
+        fascistPolicyCount++;
+      }
+    }
+    int liberalPolicyCount = SecretHitlerGame.PRESIDENT_DRAW_SIZE - fascistPolicyCount;
+
+    // Choose a policy to discard
+    int policyIndexToRemove = 0;
+
+    // Check if the policy deck is all of one card type. If so, choose any to
+    // discard, since there is essentially no choice to make.
+    Identity myId = myPlayerData.getIdentity();
+    if (fascistPolicyCount == SecretHitlerGame.PRESIDENT_DRAW_SIZE
+        || liberalPolicyCount == SecretHitlerGame.PRESIDENT_DRAW_SIZE) {
+      policyIndexToRemove = 0;
+
+    } else if (fascistPolicyCount == 1) {  // One fascist, two liberal policies
+      if (myId == Identity.FASCIST) {
+        // Discard one of the liberal policies
+        policyIndexToRemove = tryGetIndexOfPolicy(policies, Policy.Type.LIBERAL);
+      } else if (myId == Identity.HITLER) {
+        if (isFascistInDanger(game)) {
+          // Don't let liberals win by policy election
+          policyIndexToRemove = tryGetIndexOfPolicy(policies, Policy.Type.LIBERAL);
+        } else {
+          // Choose random policy
+          policyIndexToRemove = random.nextInt(SecretHitlerGame.PRESIDENT_DRAW_SIZE);
+        }
+
+      } else {  // Liberal
+        if (isLiberalInDanger(game)) {
+          // Don't give choices if in danger.
+          policyIndexToRemove = tryGetIndexOfPolicy(policies, Policy.Type.FASCIST);
+        } else {
+          // Choose a random policy to discard
+          policyIndexToRemove = random.nextInt(SecretHitlerGame.PRESIDENT_DRAW_SIZE);
+        }
+      }
+
+    } else if (fascistPolicyCount == 2) {  // Two fascist, one liberal policy
+      if (myId == Identity.FASCIST) {
+        // Discard the liberal policy
+        policyIndexToRemove = tryGetIndexOfPolicy(policies, Policy.Type.LIBERAL);
+      } else if (myId == Identity.HITLER) {
+        if (isFascistInDanger(game)) {  
+          // Don't let liberals win by policy election
+          policyIndexToRemove = tryGetIndexOfPolicy(policies, Policy.Type.LIBERAL);
+        } else {
+          // Choose a random policy to discard
+          policyIndexToRemove = random.nextInt(SecretHitlerGame.PRESIDENT_DRAW_SIZE);
+        }
+      } else {
+        // Liberals should always discard the fascist policy
+        policyIndexToRemove = tryGetIndexOfPolicy(policies, Policy.Type.FASCIST);
+      }
+    }
+    
+    game.presidentDiscardPolicy(policyIndexToRemove);
+    return true;
+  }
+
+
+  /**
    * Returns the name of a player, chosen by weighted random. Weighting is
    * determined by suspected or known roles, and can be biased towards or away
    * from users.
@@ -339,7 +432,7 @@ public class CpuPlayer implements Serializable, Comparable {
         }
 
         // Add player biases
-        if (!currPlayer.isCpu()) { 
+        if (!currPlayer.isCpu()) {
           currWeight += userBias;
         }
       } // end if
@@ -347,27 +440,32 @@ public class CpuPlayer implements Serializable, Comparable {
       // Clamp weight so there are no negative values.
       currWeight = Math.max(currWeight, 0f);
 
-      // If weight is 0, set threshold to an unreachable float number so the
-      // player won't ever be chosen.
-      if (currWeight < 0.0000001f) {
-        playerMinThreshold[i] = Float.MAX_VALUE;
+      // If weight is 0, set threshold to a negative number.
+      if (currWeight < 0.000001f) {
+        currWeight = 0f;
+        playerMinThreshold[i] = -1f;
       } else {
+        totalWeight += currWeight;
         playerMinThreshold[i] = totalWeight;
       }
-      totalWeight += currWeight;
 
     } // end for
 
     // Calculate a random value based on the total weight, then traverse the
     // thresholds until we find and return the matching player.
     float t = (float) (totalWeight * random.nextDouble());
+    int lastValidIndex = 0;
+  
     for (int i = 0; i < playerList.size(); i++) {
-      if (t >= playerMinThreshold[i]) {
-        // We've met the threshold, so choose this player!
-        return playerList.get(i).getUsername();
+      if (playerMinThreshold[i] > 0f) {
+        lastValidIndex = i;
+        if (t >= totalWeight - playerMinThreshold[i]) {
+          // We've met the threshold, so choose this player!
+          return playerList.get(i).getUsername();
+        }
       }
     }
-    return null;
+    return playerList.get(lastValidIndex).getUsername();
   } // end chooseRandomPlayerWeighted()
 
   @Override

@@ -594,11 +594,12 @@ public class SecretHitlerGame implements Serializable {
 
     /**
      * Gets the legislative choices available for the Chancellor.
-     * @throws IllegalStateException if called when the state is not {@code LEGISLATIVE_CHANCELLOR}.
+     * @throws IllegalStateException if called when the state is not
+     *         {@code LEGISLATIVE_CHANCELLOR} or {@code LEGISLATIVE_PRESIDENT_VETO}.
      * @return a list of policies (size of {@code this.CHANCELLOR_DRAW_SIZE}) representing the available choices.
      */
     public List<Policy> getChancellorLegislativeChoices() {
-        if (getState() != GameState.LEGISLATIVE_CHANCELLOR) {
+        if (getState() != GameState.LEGISLATIVE_CHANCELLOR && getState() != GameState.LEGISLATIVE_PRESIDENT_VETO) {
             throw new IllegalStateException("Cannot get Chancellor legislative choices when not in legislative session.");
         } if (legislativePolicies.size() != CHANCELLOR_DRAW_SIZE) {
             throw new IllegalStateException("An incorrect number of legislative policies are available for the chancellor ("
