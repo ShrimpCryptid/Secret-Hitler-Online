@@ -100,11 +100,17 @@ public class CpuPlayer implements Serializable, Comparable<CpuPlayer> {
     if (game.getRound() > lastUpdatedRound) {
       Policy.Type lastPolicy = game.getLastEnactedPolicy();
 
+      if (lastPolicy == null) {
+        return;
+      }
       // Update reputation for the chancellor and president based on what policy
       // was passed.
       int repModifier = lastPolicy == Policy.Type.LIBERAL ? 1 : -1;
       String lastPresident = game.getLastPresident();
       String lastChancellor = game.getLastChancellor();
+      if (lastPresident == null || lastChancellor == null) {
+        return;
+      }
       playerReputation.put(lastPresident, playerReputation.get(lastPresident) + repModifier);
       playerReputation.put(lastChancellor, playerReputation.get(lastChancellor) + repModifier);
 
@@ -198,9 +204,10 @@ public class CpuPlayer implements Serializable, Comparable<CpuPlayer> {
       } else { // Liberal
         if (canHitlerWinByElection(game)) { // Avoid hitler or fascist players.
           // TODO: Add a way to check for "safe" players
-          chancellorName = chooseRandomPlayerWeighted(playerList, -0.2f, -0.2f, 1, 0.05f);
+          // TODO: Add filters for certain players (ie, players ineligible for reelection)
+          chancellorName = chooseRandomPlayerWeighted(playerList, 0.01f, 0, 1, 0.05f);
         } else { // Less drastic avoidance of F/H players
-          chancellorName = chooseRandomPlayerWeighted(playerList, 0, 0, 1, 0.1f);
+          chancellorName = chooseRandomPlayerWeighted(playerList, 0.01f, 0, 1, 0.1f);
         }
       }
 
@@ -509,9 +516,9 @@ public class CpuPlayer implements Serializable, Comparable<CpuPlayer> {
     // Include self in calculations. Liberals should avoid suspicious players, while fascists should
     // slightly avoid liberals. For both, preferentially choose players.
     if (myPlayerData.getIdentity() == Identity.LIBERAL) {
-      selectedPlayer = chooseRandomPlayerWeighted(game.getPlayerList(), -0.8f, 0, 1f, 0.5f, true);
+      selectedPlayer = chooseRandomPlayerWeighted(game.getPlayerList(), -0.8f, 0, 1f, 0.5f);
     } else {
-      selectedPlayer = chooseRandomPlayerWeighted(game.getPlayerList(), 1f, 1f, 0.5f, 0.5f, true);
+      selectedPlayer = chooseRandomPlayerWeighted(game.getPlayerList(), 1f, 1f, 0.5f, 0.5f);
     }
     game.electNextPresident(selectedPlayer);
     return true;
@@ -619,7 +626,7 @@ public class CpuPlayer implements Serializable, Comparable<CpuPlayer> {
       String currPlayerName = currPlayer.getUsername();
       float currWeight = 0f;
 
-      if (includeSelf || !myName.equals(currPlayerName)) { // Skip self
+      if ((includeSelf || !myName.equals(currPlayerName)) && currPlayer.isAlive()) { // Skip self and dead
         if (knownPlayerRoles.containsKey(currPlayerName)) { // Role is known
           Identity currId = knownPlayerRoles.get(currPlayerName);
           if (currId == Identity.FASCIST) {
