@@ -1,6 +1,7 @@
 package server.util;
 
 import game.CpuPlayer;
+import game.GameState;
 import game.SecretHitlerGame;
 import io.javalin.websocket.WsContext;
 import org.json.JSONObject;
@@ -40,6 +41,7 @@ public class Lobby implements Serializable {
 
     public static long LOBBY_TIMEOUT_DURATION_IN_MIN = 10;
     public static float PLAYER_TIMEOUT_IN_SEC = 3;
+    public static float CPU_ACTION_DELAY = 4;
     private long timeout;
     private static int MAX_TIMER_SCHEDULING_ATTEMPTS = 2;
     transient private Timer timer = new Timer();
@@ -253,6 +255,8 @@ public class Lobby implements Serializable {
         RemoveUserTask(String username) { this.username = username; }
 
         public void run() {
+            // If the user is still disconnected when the task runs, mark them as inactive and
+            // remove them from the lobby.
             if (!userToUsername.values().contains(username) && activeUsernames.contains(username)) {
                 activeUsernames.remove(username);
 
@@ -283,23 +287,56 @@ public class Lobby implements Serializable {
             updateUser(ws);
         }
 
-        // Update all the CpuPlayers so they can act
-        if (isInGame()) {
-            boolean didCpuUpdateState = false;
-            for (CpuPlayer cpu : cpuPlayers) {
-              didCpuUpdateState = didCpuUpdateState || cpu.onUpdate(game);
-            }
-            if (didCpuUpdateState) {
-              updateAllUsers();  // Update users again if the CPUs have taken an
-            }
-        }
-
         //Check if the game ended.
         if (game != null && game.hasGameFinished()) {
             game = null;
             cpuPlayers.clear();
         }
+
+        // Update all the CpuPlayers so they can act
+        boolean didCpuUpdateState = false;
+        if (isInGame()) {
+            // Update all CPUs before allowing them to start acting
+            for (CpuPlayer cpu : cpuPlayers) {
+              cpu.update(game);
+            }
+            // Allow CPUs to act. If 
+            for (CpuPlayer cpu : cpuPlayers) {
+                if (game.getState() == GameState.CHANCELLOR_VOTING) {
+                  // We're in a voting step, so it doesn't matter if the CPU is
+                  // acting unless the gamestate changes.
+                  boolean stateUpdated = cpu.act(game);
+                  // Did acting cause voting to end?
+                  if (stateUpdated && game.getState() != GameState.CHANCELLOR_VOTING) {
+                    didCpuUpdateState = true;
+                    break;
+                  }
+                } else {
+                  if (cpu.act(game)) {
+                    didCpuUpdateState = true;
+                    break;
+                  }
+                }
+            }
+        }
+        // If the game changed because of a CPU action, send an update after a
+        // delay.
+        // TODO: This is unsafe, and can still cause multiple actions to happen simultaneously. Add a max tick rate.
+        if (didCpuUpdateState) {
+            int delay_in_ms = (int) (CPU_ACTION_DELAY * 1000);
+            timer.schedule(new UpdateUsersTask(), delay_in_ms);
+        }
     }
+
+
+    /**
+     * Small helper class for removing users from the active users queue.
+     */
+    class UpdateUsersTask extends TimerTask {
+      public void run() {
+          updateAllUsers();
+      }
+  }
 
     /**
      * Sends a message to the specified user with the current game state.

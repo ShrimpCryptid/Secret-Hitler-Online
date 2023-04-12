@@ -150,7 +150,7 @@ public class testCpuPlayer {
       SecretHitlerGame game = new SecretHitlerGame(players);
       CpuPlayer cpu = new CpuPlayer(game.getCurrentPresident());
       cpu.initialize(game);
-      cpu.onUpdate(game);
+      cpu.act(game);
       assertEquals(game.getState(), GameState.CHANCELLOR_VOTING);
     }
   }
@@ -173,7 +173,12 @@ public class testCpuPlayer {
       // Run through the game until a victory state is achieved
       while (!game.hasGameFinished()) {
         for (CpuPlayer cpu : cpus) {
-          cpu.onUpdate(game);
+          cpu.update(game);
+        }
+        for (CpuPlayer cpu : cpus) {
+          if (cpu.act(game)) {
+            break;
+          }
         }
       }
     }

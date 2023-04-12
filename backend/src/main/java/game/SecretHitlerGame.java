@@ -58,12 +58,14 @@ public class SecretHitlerGame implements Serializable {
 
     private GameState state;
     private GameState lastState = GameState.SETUP;
+    private int round;
 
     private Random random;
 
     // The last president and chancellor that were successfully voted into office.
     private String lastPresident;
     private String lastChancellor;
+    private Policy.Type lastEnactedPolicy;
 
     private String currentPresident;
     private String currentChancellor;
@@ -101,6 +103,8 @@ public class SecretHitlerGame implements Serializable {
     public String getLastPresident() { return lastPresident; }
 
     public String getLastChancellor() { return lastChancellor; }
+
+    public Policy.Type getLastEnactedPolicy() { return lastEnactedPolicy; }
 
     public int getDrawSize() { return draw.getSize(); }
 
@@ -166,6 +170,7 @@ public class SecretHitlerGame implements Serializable {
         lastPresident = null;
 
         state = GameState.CHANCELLOR_NOMINATION;
+        round = 1;
     }
 
     //</editor-fold>
@@ -180,6 +185,9 @@ public class SecretHitlerGame implements Serializable {
      * @return true iff the player is in the game.
      */
     public boolean hasPlayer(String username) {
+        if (username == null) {
+          return false;
+        }
         for (Player p : playerList) {
             if (p.getUsername().equals(username)) {
                 return true;
@@ -293,6 +301,14 @@ public class SecretHitlerGame implements Serializable {
             checkIfGameOver();
         }
         return state;
+    }
+
+    /**
+     * Gets the current round number. The round is incremented whenever it's a
+     * new president's turn, starting at 1 at the start of the game.
+     */
+    public int getRound() {
+      return round;
     }
 
     /**
@@ -473,7 +489,7 @@ public class SecretHitlerGame implements Serializable {
             // Note that the newPolicy is NOT added back to the discard pile.
             electionTracker = 0; // Reset
 
-            onEnactPolicy();
+            onEnactPolicy(newPolicy.getType());
         } else {
             concludePresidentialActions();
         }
@@ -527,6 +543,7 @@ public class SecretHitlerGame implements Serializable {
         currentChancellor = null;
         this.lastState = this.state;
         this.state = GameState.CHANCELLOR_NOMINATION;
+        this.round++;
     }
 
     /**
@@ -635,10 +652,11 @@ public class SecretHitlerGame implements Serializable {
             throw new IndexOutOfBoundsException("Cannot discard policy at the index " + index + "");
         }
 
-        board.enactPolicy(legislativePolicies.remove(index));
+        Policy newPolicy = legislativePolicies.remove(index);
+        board.enactPolicy(newPolicy);
         discard.add(legislativePolicies.remove(0)); //Discard last remaining Policy
         didVetoOccurThisTurn = false;  // Reset because we have moved past chancellor stage
-        onEnactPolicy();
+        onEnactPolicy(newPolicy.getType());
     }
 
     /**
@@ -691,8 +709,9 @@ public class SecretHitlerGame implements Serializable {
      *          Also handles reshuffling the discard into the draw deck when there are insufficient cards for a hand,
      *          and resets the election tracker to 0.
      */
-    private void onEnactPolicy() {
+    private void onEnactPolicy(Policy.Type policyType) {
         electionTracker = 0;
+        lastEnactedPolicy = policyType;
 
         if (draw.getSize() < MIN_DRAW_DECK_SIZE) {
             shuffleDiscardIntoDraw();
