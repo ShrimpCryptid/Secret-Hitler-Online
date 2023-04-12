@@ -1,7 +1,6 @@
 package server.util;
 
 import game.CpuPlayer;
-import game.GameState;
 import game.SecretHitlerGame;
 import io.javalin.websocket.WsContext;
 import org.json.JSONObject;
@@ -296,10 +295,7 @@ public class Lobby implements Serializable {
         }
 
         //Check if the game ended.
-        if (game != null && (game.getState() == GameState.FASCIST_VICTORY_ELECTION
-                || game.getState() == GameState.FASCIST_VICTORY_POLICY
-                || game.getState() == GameState.LIBERAL_VICTORY_EXECUTION
-                || game.getState() == GameState.LIBERAL_VICTORY_POLICY)) {
+        if (game != null && game.hasGameFinished()) {
             game = null;
             cpuPlayers.clear();
         }

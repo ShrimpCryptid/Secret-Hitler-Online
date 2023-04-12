@@ -312,6 +312,17 @@ public class SecretHitlerGame implements Serializable {
     }
 
     /**
+     * Returns whether the game has reached an ending victory state.
+     */
+    public boolean hasGameFinished() {
+      return state == GameState.FASCIST_VICTORY_ELECTION
+        || state == GameState.FASCIST_VICTORY_POLICY
+        || state == GameState.LIBERAL_VICTORY_EXECUTION
+        || state == GameState.LIBERAL_VICTORY_POLICY;
+    }
+
+
+    /**
      * Adds the discard deck to the draw deck and shuffles.
      * @modifies this
      * @effects Empties the discard pile into the draw pile and shuffles.
@@ -639,6 +650,10 @@ public class SecretHitlerGame implements Serializable {
     public void chancellorVeto() {
         if (getState() != GameState.LEGISLATIVE_CHANCELLOR) {
             throw new IllegalStateException("Cannot veto in state " + getState().toString());
+        } else if (board.getNumFascistPolicies() != 5) {
+          throw new IllegalStateException("Cannot veto when there are less than 5 fascist policies enacted (currently " + board.getNumFascistPolicies() + ")");
+        } else if (didVetoOccurThisTurn()) {
+          throw new IllegalStateException("Cannot veto again once veto is denied.");
         }
         didVetoOccurThisTurn = true;
         state = GameState.LEGISLATIVE_PRESIDENT_VETO;

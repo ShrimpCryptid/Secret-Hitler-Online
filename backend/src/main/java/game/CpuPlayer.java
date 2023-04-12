@@ -12,7 +12,7 @@ import game.datastructures.Policy;
 
 // TODO: Move CpuPlayer thresholds to an input file?
 
-public class CpuPlayer implements Serializable, Comparable {
+public class CpuPlayer implements Serializable, Comparable<CpuPlayer> {
 
   private static int MAX_REPUTATION = 5;
 
@@ -107,9 +107,8 @@ public class CpuPlayer implements Serializable, Comparable {
         return handleLegislativePresident(game);
       case LEGISLATIVE_CHANCELLOR:
         // If I am the chancellor, vote according to my party preference
-        break;
+        return handleLegislativeChancellor(game);
       case LEGISLATIVE_PRESIDENT_VETO:
-        //
         break;
       case PRESIDENTIAL_POWER_PEEK:
       case PRESIDENTIAL_POWER_INVESTIGATE:
@@ -117,6 +116,7 @@ public class CpuPlayer implements Serializable, Comparable {
       case PRESIDENTIAL_POWER_ELECTION:
       case POST_LEGISLATIVE:
         // Update our suspicion rating for the other players
+        // president should end term
         break;
       default:
     }
@@ -373,6 +373,58 @@ public class CpuPlayer implements Serializable, Comparable {
   }
 
 
+  private boolean handleLegislativeChancellor(SecretHitlerGame game) {
+    if (!myName.equals(game.getCurrentChancellor())) {
+      return false;
+    }
+
+    Identity myId = myPlayerData.getIdentity();
+    List<Policy> policies = game.getChancellorLegislativeChoices();
+    // Veto can't re-occur
+    boolean canVeto = game.getNumFascistPolicies() == 5 && !game.didVetoOccurThisTurn();
+
+    if (policies.get(0).getType() == policies.get(1).getType()) {
+      // Both policies are the same.
+      Policy.Type policyType = policies.get(0).getType();
+      if (canVeto && policyType == Policy.Type.FASCIST && myId == Identity.LIBERAL) {
+        // We are liberal and there are two fascist policies, so we should veto.
+        game.chancellorVeto();
+        return true;
+      } else if (canVeto && policyType == Policy.Type.LIBERAL && myPlayerData.isFascist()) {
+        // Check if our president is a known fascist/hitler. If so, we can pull
+        // off a veto with them.
+        String president = game.getCurrentPresident();
+        if (knownPlayerRoles.containsKey(president)) {
+          Identity presidentId = knownPlayerRoles.get(president);
+          if (presidentId == Identity.HITLER || presidentId == Identity.FASCIST) {
+            game.chancellorVeto();
+            return true;
+          }
+        } 
+      }
+      // Otherwise, enact one of them because the order doesn't matter
+      game.chancellorEnactPolicy(0);
+    } else {
+      // One Liberal and one fascist policy, so decide based on role
+      if (myId == Identity.FASCIST) {
+        // Fascists should always try and pass more fascist policies
+        game.chancellorEnactPolicy(tryGetIndexOfPolicy(policies, Policy.Type.FASCIST));
+      } else if (myId == Identity.HITLER) {
+        if (isFascistInDanger(game)) {
+          // Don't pass liberal policies if fascists are in danger of losing from them
+          game.chancellorEnactPolicy(tryGetIndexOfPolicy(policies, Policy.Type.FASCIST));
+        } else {
+          // preferentially choose liberal policies to gain trust
+          game.chancellorEnactPolicy(tryGetIndexOfPolicy(policies, Policy.Type.LIBERAL));
+        }
+      } else {  // Liberal
+        game.chancellorEnactPolicy(tryGetIndexOfPolicy(policies, Policy.Type.LIBERAL));
+      }
+    }
+    return true;
+  }
+
+
   /**
    * Returns the name of a player, chosen by weighted random. Weighting is
    * determined by suspected or known roles, and can be biased towards or away
@@ -469,11 +521,8 @@ public class CpuPlayer implements Serializable, Comparable {
   } // end chooseRandomPlayerWeighted()
 
   @Override
-  public int compareTo(Object o) {
-    if (o instanceof CpuPlayer) {
-      return this.myName.compareTo(((CpuPlayer) o).myName);
-    }
-    return 0;
+  public int compareTo(CpuPlayer o) {
+    return this.myName.compareTo(((CpuPlayer) o).myName);
   }
 
 } // end CpuPlayer

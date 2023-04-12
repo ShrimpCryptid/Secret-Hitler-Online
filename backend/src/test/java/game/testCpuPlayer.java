@@ -3,15 +3,21 @@ package game;
 import game.datastructures.Identity;
 import game.datastructures.Player;
 import org.junit.Test;
+import org.junit.Rule;
+import org.junit.rules.Timeout;
 import static junit.framework.TestCase.*;
 import static org.junit.Assert.assertNotEquals;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
 public class testCpuPlayer {
   static int ITERATIONS = 1000;
+
+  @Rule
+  public Timeout globalTimeout = Timeout.seconds(10);
 
   private ArrayList<String> makePlayers(int numPlayers) {
     ArrayList<String> out = new ArrayList<>();
@@ -146,6 +152,30 @@ public class testCpuPlayer {
       cpu.initialize(game);
       cpu.onUpdate(game);
       assertEquals(game.getState(), GameState.CHANCELLOR_VOTING);
+    }
+  }
+
+  @Test
+  public void testCanPlayFullGame() {
+    for (int i = 0; i < ITERATIONS; i++) {
+      List<String> players = makePlayers(5);
+      Collections.shuffle(players);
+      SecretHitlerGame game = new SecretHitlerGame(players);
+
+      // Mark all as CPUs
+      List<CpuPlayer> cpus = new ArrayList<CpuPlayer>();
+      for (String player : players) {
+        CpuPlayer cpu = new CpuPlayer(player);
+        cpu.initialize(game);
+        cpus.add(cpu);
+      }
+
+      // Run through the game until a victory state is achieved
+      while (!game.hasGameFinished()) {
+        for (CpuPlayer cpu : cpus) {
+          cpu.onUpdate(game);
+        }
+      }
     }
   }
 }
