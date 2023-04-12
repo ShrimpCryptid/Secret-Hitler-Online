@@ -278,6 +278,7 @@ public class SecretHitlerServer {
             objectOutputStream.flush();
             objectOutputStream.close();
             byteBuilder.flush();
+            // No need to close bytebuilder (close has no effect)
         } catch (Exception e) {
             System.out.println("Failed to serialize the Lobby data.");
             System.err.println(e);
@@ -349,13 +350,16 @@ public class SecretHitlerServer {
      *          {@code name}: the username of the user.
      *          {@code command}: the command
      * @effects Result status is one of the following:
-     *          <p>- 400: if the {@code lobby} or {@code name} parameters are missing (or blank).
+     *          <p>- 400: if the {@code lobby} or {@code name} parameters are
+     *              missing (or blank).
      *          <p>- 404: if there is no lobby with the given code
-     *          <p>- 403: the username is invalid (there is already another user with that name in the lobby.)
+     *          <p>- 403: the username is invalid (there is already another user
+     *              with that name in the lobby.)
      *          <p>- 488: the lobby is currently in a game.
      *          <p>- 489: the lobby is full.
-     *          <p>- 200: Success. There is a lobby with the given name and the user can open a websocket connection with
-     *              these login credentials.
+     *          <p>- 200: Success. There is a lobby with the given name and the
+     *              user can open a websocket connection with these login
+     *              credentials.
      */
     public static void checkLogin(Context ctx) {
         String lobbyCode = ctx.queryParam(PARAM_LOBBY);
@@ -441,12 +445,14 @@ public class SecretHitlerServer {
      *          {@code lobby}: a String representing the lobby code.
      *          {@code name}: a String username. Cannot already exist in the given lobby.
      * @effects Closes the websocket session if:
-     *              400 if the {@code lobby} or {@code name} parameters are missing.
-     *              404 if there is no lobby with the given code
-     *              403 the username is invalid (there is already another user with that name in the lobby).
-     *              488 if the lobby is currently in a game and the user is not a rejoining player.
-     *              489 if the lobby is full.
-     *          Otherwise, connects the user to the lobby.
+     *              <p>- 400 if the {@code lobby} or {@code name} parameters are missing.
+     *              <p>- 404 if there is no lobby with the given code
+     *              <p>- 403 the username is invalid (there is already another user
+     *                  with that name in the lobby).
+     *              <p>- 488 if the lobby is currently in a game and the user is not
+     *                  a rejoining player.
+     *              <p>- 489 if the lobby is full.
+     *          <p>Otherwise, connects the user to the lobby.
      */
     private static void onWebsocketConnect(WsConnectContext ctx) {
         if (ctx.queryParam(PARAM_LOBBY) == null || ctx.queryParam(PARAM_NAME) == null) {
