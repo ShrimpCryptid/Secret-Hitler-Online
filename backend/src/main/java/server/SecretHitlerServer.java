@@ -221,6 +221,7 @@ public class SecretHitlerServer {
      * Loads lobby data stored in the database (intended to be run on server wake).
      * @effects {@code codeToLobby} is set to the stored database
      */
+    @SuppressWarnings("unchecked")
     private static void loadDatabaseBackup() {
         // Get connection to the Postgres Database and select the backup data.
         Connection c = getDatabaseConnection();
@@ -254,7 +255,6 @@ public class SecretHitlerServer {
                 ByteArrayInputStream lobbyByteStream = new ByteArrayInputStream(lobbyBytes);
                 ObjectInputStream objectStream = new ObjectInputStream(lobbyByteStream)
             ) {
-                
                 codeToLobby = (ConcurrentHashMap<String, Lobby>) objectStream.readObject();
                 objectStream.close();
                 System.out.println("Successfully parsed lobby data from the database.");
