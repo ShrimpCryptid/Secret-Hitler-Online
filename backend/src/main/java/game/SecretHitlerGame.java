@@ -484,6 +484,9 @@ public class SecretHitlerGame implements Serializable {
         didElectionTrackerAdvance = true;
         electionTracker += 1;
         if (electionTracker == MAX_FAILED_ELECTIONS) {
+            if (draw.getSize() < MIN_DRAW_DECK_SIZE) {
+              shuffleDiscardIntoDraw();
+            }
             Policy newPolicy = draw.remove();
             board.enactPolicy(newPolicy);
             // Note that the newPolicy is NOT added back to the discard pile.
@@ -574,8 +577,12 @@ public class SecretHitlerGame implements Serializable {
         // Action may be triggered more than once in failure states,
         // so only update lastState once
         if (this.state != this.lastState && this.state != GameState.LEGISLATIVE_PRESIDENT) {
-          this.lastState = this.state;
-          state = GameState.LEGISLATIVE_PRESIDENT; // Legislative session begins.
+            this.lastState = this.state;
+            state = GameState.LEGISLATIVE_PRESIDENT; // Legislative session begins.
+        }
+
+        if (draw.getSize() < MIN_DRAW_DECK_SIZE) {
+            shuffleDiscardIntoDraw();
         }
 
         legislativePolicies = new ArrayList<>();
