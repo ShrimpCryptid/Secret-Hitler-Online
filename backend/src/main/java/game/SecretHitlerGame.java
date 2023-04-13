@@ -600,9 +600,6 @@ public class SecretHitlerGame implements Serializable {
     public List<Policy> getPresidentLegislativeChoices() {
         if (state != GameState.LEGISLATIVE_PRESIDENT) {
             throw new IllegalStateException("Cannot get President legislative choices when not in legislative session.");
-        } if (legislativePolicies.size() != PRESIDENT_DRAW_SIZE) {
-            // Try re-drawing policies
-            startLegislativeSession();
         }
         return new ArrayList<>(legislativePolicies); // makes a copy of the legislative policies
     }
@@ -700,6 +697,10 @@ public class SecretHitlerGame implements Serializable {
             throw new IllegalStateException("Cannot get president veto input during state " + getState().toString() + "");
         }
         if (response) { // veto was approved, advance election tracker
+            // Empty legislative back into discard pile
+            while (!legislativePolicies.isEmpty()) {
+              discard.add(legislativePolicies.remove(0));
+            }
             advanceElectionTracker();
             didVetoOccurThisTurn = false;
         } else {        // veto was denied, return to chancellor selection
