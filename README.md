@@ -7,7 +7,7 @@ In the game, players are divided into Liberals, Fascists, and one secret Hitler.
 Can you find and stop the Secret Hitler?
 
 ### How to Play: 
-Go to [secret-hitler.online](https://secret-hitler.online) and open a new lobby! Use the lobby's code or the provided link to invite your friends. You can start the game once you have 5-10 players.
+Go to [secret-hitler.online](https://secret-hitler.online) and open a new lobby! Use the lobby's code or the provided link to invite your friends. You can play with up to 10 players at once!
 
 There are instructions on how to play the game provided on the website, and plenty of helpful tips are provided for first-time players. You can read the [full rulebook here](https://cdn.vapid.site/sites/a67e0c72-4902-4365-a899-3386df73c2c4/assets/Secret_Hitler_Rules-023bc755617986cb2276a3b6920e43e0.pdf).
 
