@@ -35,7 +35,7 @@ class LoginPageContent extends Component {
                         <p id={"login-page-description-text"}>
                             Secret Hitler Online is an adaptation of the original Secret Hitler board game,
                             reimagined for the web.
-                            It supports 5-10 players, featuring smooth art and animations with all the secrecy and
+                            It supports up to 10 players, featuring smooth art and animations with all the secrecy and
                             intrigue of the original. It's designed to be easy to pick up and play for any quarantine
                             game night.<br/><br/>Play for free in your browser, with no ads ever!
                             <br/> <br/>
@@ -47,17 +47,12 @@ class LoginPageContent extends Component {
                     <div id={"login-page-description-text-container"}>
                         <p id={"login-page-description-text"}>
                             <br/>
-                            The project is open-source, and is licensed under <a
-                                href={"https://creativecommons.org/licenses/by-nc-sa/4.0/"}
-                                rel="noreferrer"
-                                target={"_blank"}>
-                                    CC BY-NC-SA 4.0
-                            </a>.
+                            The project is open-source, and is licensed under CC BY-NC-SA 4.0.
                             You can read more about the project <a
-                                href={"https://github.com/ShrimpCryptid/Secret-Hitler-Online/blob/master/README.md"}
+                                href={"https://github.com/ShrimpCryptid/Secret-Hitler-Online/"}
                                 rel="noreferrer"
                                 target={"_blank"} onClick={this.onClickAbout}>
-                                    here
+                                    on GitHub
                             </a>!
                             <br/><br/>
                             Adapted from the original <a href={"https://secrethitler.com"} target={"_blank"} rel="noreferrer" onClick={this.onClickGameWebsite}>
@@ -68,6 +63,7 @@ class LoginPageContent extends Component {
                                                                                              rel="noreferrer"
                                                                                              target={"_blank"}>Issues page</a>.
                         </p>
+                        <br/>
                     </div>
 
                 </div>

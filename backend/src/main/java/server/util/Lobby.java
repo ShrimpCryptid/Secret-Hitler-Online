@@ -106,8 +106,7 @@ public class Lobby implements Serializable {
      * 
      * @effects Sets the number of players in the lobby. The lobby size must be
      *          a valid number of players (5-10) and can't be less than the number
-     *          of
-     *          users currently connected.
+     *          of users currently connected.
      */
     synchronized public void trySetLobbySize(int newLobbySize) {
         // Apply bounds to newLobbySize
@@ -327,7 +326,6 @@ public class Lobby implements Serializable {
             cpuPlayers.clear();
         }
 
-        // TODO: Add scheduling for the CpuPlayer actions.
         // Update all the CpuPlayers so they can act
         boolean didCpuUpdateState = false;
         if (isInGame()) {
