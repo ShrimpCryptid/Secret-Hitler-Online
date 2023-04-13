@@ -1,8 +1,14 @@
+/**
+ * Copyright 2023, Peyton Lee (@ShrimpCryptid)
+ */
+
 package game;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -10,14 +16,12 @@ import game.datastructures.Identity;
 import game.datastructures.Player;
 import game.datastructures.Policy;
 
-// TODO: Move CpuPlayer thresholds to an input file?
-
 public class CpuPlayer implements Serializable, Comparable<CpuPlayer> {
 
   private static int MAX_REPUTATION = 5;
 
-  // TODO: Make transient
-  private Random random;
+  private List<Policy.Type> chancellorChoices;
+  private transient Random random;
   private int lastUpdatedRound = 1;
 
   /**
@@ -92,29 +96,49 @@ public class CpuPlayer implements Serializable, Comparable<CpuPlayer> {
 
   } // end initialize()
 
+  private void updateReputation(String name, int repModifier) {
+    int newRep = playerReputation.get(name) + repModifier;
+    newRep = Math.max(newRep, -MAX_REPUTATION);
+    newRep = Math.min(newRep, MAX_REPUTATION);
+    playerReputation.put(name, newRep);
+  }
+
   /**
    * Allows the CpuPlayer to update assumptions after legislation is passed.
+   * 
    * @param game
    */
   public void update(SecretHitlerGame game) {
-    if (game.getRound() > lastUpdatedRound) {
+    if (game.getRound() > lastUpdatedRound && game.getState() == GameState.POST_LEGISLATIVE) {
       Policy.Type lastPolicy = game.getLastEnactedPolicy();
 
-      if (lastPolicy == null) {
+      if (lastPolicy == null || game.didElectionTrackerAdvance()) {
         return;
       }
-      // Update reputation for the chancellor and president based on what policy
-      // was passed.
-      int repModifier = lastPolicy == Policy.Type.LIBERAL ? 1 : -1;
-      String lastPresident = game.getLastPresident();
-      String lastChancellor = game.getLastChancellor();
-      if (lastPresident == null || lastChancellor == null) {
-        return;
-      }
-      playerReputation.put(lastPresident, playerReputation.get(lastPresident) + repModifier);
-      playerReputation.put(lastChancellor, playerReputation.get(lastChancellor) + repModifier);
 
-      // TODO: Add additional edge cases
+      String lastPresident = game.getCurrentPresident();
+      String lastChancellor = game.getCurrentChancellor();
+
+      if (myName.equals(lastPresident)) {
+        if (chancellorChoices.get(0) != chancellorChoices.get(1)) {
+          // We tested the chancellor. Did they pass?
+          if (game.getLastEnactedPolicy() == Policy.Type.FASCIST) {
+            updateReputation(lastChancellor, -3);
+          } else {
+            updateReputation(lastChancellor, 3);
+          }
+        }
+      } else if (myName.equals(lastChancellor)) {
+      } else {
+        // Update reputation for the chancellor and president based on what policy
+        // was passed.
+        int repModifier = lastPolicy == Policy.Type.LIBERAL ? 1 : -1;
+        if (lastPresident == null || lastChancellor == null) {
+          return;
+        }
+        updateReputation(lastPresident, repModifier);
+        updateReputation(lastChancellor, repModifier);
+      }
 
       lastUpdatedRound = game.getRound();
     }
@@ -171,10 +195,31 @@ public class CpuPlayer implements Serializable, Comparable<CpuPlayer> {
     return game.getNumFascistPolicies() >= 3;
   }
 
-  private boolean isValidChancellor(String name, SecretHitlerGame game) {
-    return !(name == null || !game.getPlayer(name).isAlive()
-        || name.equals(game.getLastChancellor())
-        || (name.equals(game.getLastPresident()) && game.getLivingPlayerCount() > 5));
+  private List<Player> removePlayerFromList(String username, List<Player> playerList) {
+    if (username == null) {
+      return playerList;
+    }
+
+    List<Player> ret = new ArrayList<Player>(playerList);
+    Iterator<Player> itr = ret.iterator();
+    while (itr.hasNext()) {
+      if (itr.next().getUsername().equals(username)) {
+        itr.remove();
+      }
+    }
+    return ret;
+  }
+
+  private List<Player> removeDeadPlayersAndSelf(List<Player> playerList) {
+    List<Player> ret = new ArrayList<Player>(playerList);
+    Iterator<Player> itr = ret.iterator();
+    while (itr.hasNext()) {
+      Player curr = itr.next();
+      if (curr.getUsername().equals(myName) || !curr.isAlive()) {
+        itr.remove();
+      }
+    }
+    return ret;
   }
 
   private boolean handleChancellorNomination(SecretHitlerGame game) {
@@ -185,37 +230,39 @@ public class CpuPlayer implements Serializable, Comparable<CpuPlayer> {
 
     List<Player> playerList = game.getPlayerList();
 
+    // Remove the chancellor and optionally the president
+    playerList = removePlayerFromList(game.getLastChancellor(), playerList);
+    if (game.getLivingPlayerCount() > 5) {
+      playerList = removePlayerFromList(game.getLastPresident(), playerList);
+    }
+    playerList = removeDeadPlayersAndSelf(playerList);
+
     // Nominate a chancellor using a weighted random, based on our role and the
     // current game state. Keep trying until game state has advanced past
     // nomination.
-    while (game.getState() == GameState.CHANCELLOR_NOMINATION) {
-      String chancellorName = null;
+    String chancellorName = null;
 
-      // Choose chancellor nominee using weighted random
-      if (myPlayerData.getIdentity() == Identity.FASCIST) {
-        if (canHitlerWinByElection(game)) { // Increase likelihood of choosing hitler
-          chancellorName = chooseRandomPlayerWeighted(playerList, 0.35f, 1.5f, 0.15f, 0.05f);
-        } else {
-          chancellorName = chooseRandomPlayerWeighted(playerList, 1f, 0.25f, 0.5f, 0.25f);
-        }
-      } else if (myPlayerData.getIdentity() == Identity.HITLER) {
-        // Target liberal players to increase trust
-        chancellorName = chooseRandomPlayerWeighted(playerList, 0.5f, 0, 1, 0.25f);
-      } else { // Liberal
-        if (canHitlerWinByElection(game)) { // Avoid hitler or fascist players.
-          // TODO: Add a way to check for "safe" players
-          // TODO: Add filters for certain players (ie, players ineligible for reelection)
-          chancellorName = chooseRandomPlayerWeighted(playerList, 0.01f, 0, 1, 0.05f);
-        } else { // Less drastic avoidance of F/H players
-          chancellorName = chooseRandomPlayerWeighted(playerList, 0.01f, 0, 1, 0.1f);
-        }
+    // Choose chancellor nominee using weighted random
+    if (myPlayerData.getIdentity() == Identity.FASCIST) {
+      if (canHitlerWinByElection(game)) { // Increase likelihood of choosing hitler
+        chancellorName = chooseRandomPlayerWeighted(playerList, 0.35f, 1.5f, 0.15f, 0.05f);
+      } else {
+        chancellorName = chooseRandomPlayerWeighted(playerList, 1f, 0.25f, 0.5f, 0.25f);
       }
-
-      if (isValidChancellor(chancellorName, game)) {
-        game.nominateChancellor(chancellorName);
-        break;
+    } else if (myPlayerData.getIdentity() == Identity.HITLER) {
+      // Target liberal players to increase trust
+      chancellorName = chooseRandomPlayerWeighted(playerList, 0.5f, 0, 1, 0.25f);
+    } else { // Liberal
+      if (canHitlerWinByElection(game)) { // Avoid hitler or fascist players.
+        // TODO: Add a way to check for "safe" players
+        // TODO: Add filters for certain players (ie, players ineligible for reelection)
+        chancellorName = chooseRandomPlayerWeighted(playerList, 0.01f, 0, 1, 0.05f);
+      } else { // Less drastic avoidance of F/H players
+        chancellorName = chooseRandomPlayerWeighted(playerList, 0.01f, 0, 1, 0.1f);
       }
     }
+
+    game.nominateChancellor(chancellorName);
     return true;
 
     // Handle checks for whether the player is eligible
@@ -301,16 +348,16 @@ public class CpuPlayer implements Serializable, Comparable<CpuPlayer> {
     // Use an individual AND combined trust threshold, which get higher when
     // fascists can win by electing hitler.
     int minIndividualRep = -3; // Avoid players with bad rep.
-    int minCombinedRep = -3; // Avoid players if they have a bad combined rep.
+    int minCombinedRep = -2; // Avoid players if they have a bad combined rep.
 
     if (canHitlerWinByElection(game)) { // Tighten thresholds
       minIndividualRep = -2;
-      minCombinedRep = -2;
+      minCombinedRep = -1;
     }
 
     if (presidentRep < minIndividualRep || chancellorRep < minIndividualRep || combinedRep < minCombinedRep) {
       // This legislation is untrustworthy and should probably not be voted for.
-      voteWithProbability(game, 0.1f);
+      voteWithProbability(game, 0.05f);
     } else {
       // Scale probability of voting yes with the reputation of the players.
       // Use a parabolic curve that's more likely to say yes to neutral or
@@ -403,6 +450,13 @@ public class CpuPlayer implements Serializable, Comparable<CpuPlayer> {
       }
     }
 
+    // Track what choices we gave the chancellor.
+    chancellorChoices = new ArrayList<>();
+    for (Policy policy : policies) {
+      chancellorChoices.add(policy.getType());
+    }
+    chancellorChoices.remove(policyIndexToRemove);
+
     game.presidentDiscardPolicy(policyIndexToRemove);
     return true;
   }
@@ -470,14 +524,17 @@ public class CpuPlayer implements Serializable, Comparable<CpuPlayer> {
     if (policies.get(0).getType() == policies.get(1).getType()) {
       Policy.Type policyType = policies.get(0).getType();
       if (myId == Identity.LIBERAL) {
+        boolean shouldAllowVeto = policyType == Policy.Type.FASCIST;
         // Allow veto for fascist policies, deny for liberal policies
-        game.presidentialVeto(policyType == Policy.Type.FASCIST);
+        game.presidentialVeto(shouldAllowVeto);
+        updateReputation(game.getCurrentChancellor(), shouldAllowVeto ? 4 : -4);
       } else { // Fascists and hitler should do the inverse
         game.presidentialVeto(policyType == Policy.Type.LIBERAL);
       }
     } else { // 1 F, 1 L
       // No reason to veto since chancellor has a choice
       game.presidentialVeto(false);
+      updateReputation(game.getCurrentChancellor(), -1);
     }
     return true;
   }
@@ -496,12 +553,15 @@ public class CpuPlayer implements Serializable, Comparable<CpuPlayer> {
     if (!game.getCurrentPresident().equals(myName)) {
       return false;
     }
-    String selectedPlayer = "";
-    if (myPlayerData.getIdentity() == Identity.LIBERAL) {
-      selectedPlayer = chooseRandomPlayerWeighted(game.getPlayerList(), 1f, 0, -0.4f, 0.5f);
-    } else {
-      // Totally randomize selection
-      selectedPlayer = chooseRandomPlayerWeighted(game.getPlayerList(), 1f, 1f, 1f, 0.5f);
+    List<Player> playerList = removeDeadPlayersAndSelf(game.getPlayerList());
+    String selectedPlayer = null;
+    while (selectedPlayer == null || game.getPlayer(selectedPlayer).hasBeenInvestigated()) {
+      if (myPlayerData.getIdentity() == Identity.LIBERAL) {
+        selectedPlayer = chooseRandomPlayerWeighted(playerList, 1f, 0, -0.4f, 0.5f);
+      } else {
+        // Totally randomize selection
+        selectedPlayer = chooseRandomPlayerWeighted(playerList, 1f, 1f, 1f, 0.5f);
+      }
     }
     // Update known roles using the investigated role
     knownPlayerRoles.put(selectedPlayer, game.investigatePlayer(selectedPlayer));
@@ -513,12 +573,13 @@ public class CpuPlayer implements Serializable, Comparable<CpuPlayer> {
       return false;
     }
     String selectedPlayer = "";
-    // Include self in calculations. Liberals should avoid suspicious players, while fascists should
+    // Liberals should avoid suspicious players, while fascists should
     // slightly avoid liberals. For both, preferentially choose players.
+    List<Player> playerList = removeDeadPlayersAndSelf(game.getPlayerList());
     if (myPlayerData.getIdentity() == Identity.LIBERAL) {
-      selectedPlayer = chooseRandomPlayerWeighted(game.getPlayerList(), -0.8f, 0, 1f, 0.5f);
+      selectedPlayer = chooseRandomPlayerWeighted(playerList, -0.8f, 0, 1f, 0.5f);
     } else {
-      selectedPlayer = chooseRandomPlayerWeighted(game.getPlayerList(), 1f, 1f, 0.5f, 0.5f);
+      selectedPlayer = chooseRandomPlayerWeighted(playerList, 1f, 1f, 0.5f, 0.5f);
     }
     game.electNextPresident(selectedPlayer);
     return true;
@@ -530,14 +591,15 @@ public class CpuPlayer implements Serializable, Comparable<CpuPlayer> {
     }
 
     String selectedPlayer = null;
-    // Keep going until a murderable player is selected
+    List<Player> playerList = removeDeadPlayersAndSelf(game.getPlayerList());
+    // Keep going until a valid player is selected
     while (selectedPlayer == null || !game.getPlayer(selectedPlayer).isAlive()) {
       if (myPlayerData.getIdentity() == Identity.LIBERAL) {
         // Aim for fascist or suspicious players
         // TODO: Keep a pool of players that are tested/untested for hitler role?
-        selectedPlayer = chooseRandomPlayerWeighted(game.getPlayerList(), 1f, 1f, -0.4f, 0);
+        selectedPlayer = chooseRandomPlayerWeighted(playerList, 1f, 1f, -0.4f, 0);
       } else {
-        selectedPlayer = chooseRandomPlayerWeighted(game.getPlayerList(), 0.5f, 0, 1f, 0);
+        selectedPlayer = chooseRandomPlayerWeighted(playerList, 0.5f, 0, 1f, 0);
         // Do not assassinate hitler
         if (knownPlayerRoles.get(selectedPlayer) == Identity.HITLER) {
           selectedPlayer = null;
@@ -557,13 +619,15 @@ public class CpuPlayer implements Serializable, Comparable<CpuPlayer> {
   }
 
   /**
-   * Returns the name of another player, chosen by weighted random. Weighting is
+   * Returns the name of a player, chosen by weighted random. Weighting is
    * determined by suspected or known roles, and can be biased towards or away
    * from users.
    * 
    * If a player's role is unknown, the weight will be calculated based
    * on the strength of their reputation, interpolated between the fascist and
    * liberal role weights.
+   * 
+   * Ignores dead players and self (this CPU).
    * 
    * @param playerList    : List of players to traverse.
    * @param fascistWeight : Relative weight assigned to known or suspected
@@ -581,36 +645,6 @@ public class CpuPlayer implements Serializable, Comparable<CpuPlayer> {
   public String chooseRandomPlayerWeighted(List<Player> playerList,
       float fascistWeight, float hitlerWeight, float liberalWeight,
       float userBias) {
-    return chooseRandomPlayerWeighted(playerList, fascistWeight, hitlerWeight, liberalWeight, userBias, false);
-  }
-
-  /**
-   * Returns the name of a player, chosen by weighted random. Weighting is
-   * determined by suspected or known roles, and can be biased towards or away
-   * from users.
-   * 
-   * If a player's role is unknown, the weight will be calculated based
-   * on the strength of their reputation, interpolated between the fascist and
-   * liberal role weights.
-   * 
-   * @param playerList    : List of players to traverse.
-   * @param fascistWeight : Relative weight assigned to known or suspected
-   *                      fascist players. Higher values mean the player is
-   *                      more likely to be chosen.
-   * @param hitlerWeight  : Used only if Hitler identity is known. (relevant
-   *                      only for fascist players.)
-   * @param liberalWeight : Relative weight assigned to known or suspected
-   *                      liberal players.
-   * @param userBias      : How much selection should be biased towards non-CPU
-   *                      players, relative. Positive values increase likelihood
-   *                      that players are chosen.
-   * @param includeSelf   : Whether to include this CpuPlayer in the random
-   *                      selection.
-   * @return The name of a player, chosen by weighted random.
-   */
-  public String chooseRandomPlayerWeighted(List<Player> playerList,
-      float fascistWeight, float hitlerWeight, float liberalWeight,
-      float userBias, boolean includeSelf) {
 
     // Make a copy of the player list so we can modify, then remove this
     // CpuPlayer from it for traversal
@@ -626,7 +660,7 @@ public class CpuPlayer implements Serializable, Comparable<CpuPlayer> {
       String currPlayerName = currPlayer.getUsername();
       float currWeight = 0f;
 
-      if ((includeSelf || !myName.equals(currPlayerName)) && currPlayer.isAlive()) { // Skip self and dead
+      if (!myName.equals(currPlayerName) && currPlayer.isAlive()) {
         if (knownPlayerRoles.containsKey(currPlayerName)) { // Role is known
           Identity currId = knownPlayerRoles.get(currPlayerName);
           if (currId == Identity.FASCIST) {
@@ -666,24 +700,41 @@ public class CpuPlayer implements Serializable, Comparable<CpuPlayer> {
 
     // Calculate a random value based on the total weight, then traverse the
     // thresholds until we find and return the matching player.
+    int index = getWeightedRandomIndex(playerMinThreshold);
+    return playerList.get(index).getUsername();
+  } // end chooseRandomPlayerWeighted()
+
+  private int getWeightedRandomIndex(float[] weights) {
+    // Calculate total weight
+    float totalWeight = 0;
+    for (int i = 0; i < weights.length; i++) {
+      if (weights[i] > 0) {
+        totalWeight += 1;
+      }
+    }
+
     float t = (float) (totalWeight * random.nextDouble());
     int lastValidIndex = 0;
 
-    for (int i = 0; i < playerList.size(); i++) {
-      if (playerMinThreshold[i] > 0f) {
+    for (int i = 0; i < weights.length; i++) {
+      if (weights[i] > 0f) {
         lastValidIndex = i;
-        if (t >= totalWeight - playerMinThreshold[i]) {
-          // We've met the threshold, so choose this player!
-          return playerList.get(i).getUsername();
+        if (t >= totalWeight - weights[i]) {
+          return i;
         }
       }
     }
-    return playerList.get(lastValidIndex).getUsername();
-  } // end chooseRandomPlayerWeighted()
+    return lastValidIndex;
+  }
 
   @Override
   public int compareTo(CpuPlayer o) {
     return this.myName.compareTo(((CpuPlayer) o).myName);
+  }
+
+  private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+    in.defaultReadObject();
+    random = new Random();
   }
 
 } // end CpuPlayer
