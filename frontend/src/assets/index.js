@@ -20,9 +20,6 @@ import p19 from "./player-portraits/player-portrait-19.svg";
 import p20 from "./player-portraits/player-portrait-20.svg";
 import p_default from "./player-portraits/player-portrait-default.svg";
 import twitter_icon from "./twitter-icon.svg";
-import gif_place_policy from "./gifs/place-policy.gif";
-import gif_show_policy from "./gifs/show-policy.gif";
-import gif_show_votes from "./gifs/show-votes.gif";
 
 const portraits = {
     p_default,
@@ -101,7 +98,3 @@ export const portraitsAltText = {
 };
 
 export const twitterIcon = twitter_icon;
-
-export const gifPlacePolicy = gif_place_policy;
-export const gifShowPolicy = gif_show_policy;
-export const gifShowVotes = gif_show_votes;
