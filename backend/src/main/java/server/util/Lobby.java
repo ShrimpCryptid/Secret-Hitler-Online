@@ -41,10 +41,12 @@ public class Lobby implements Serializable {
 
     public static long LOBBY_TIMEOUT_DURATION_IN_MIN = 10;
     public static float PLAYER_TIMEOUT_IN_SEC = 3;
-    public static float CPU_ACTION_DELAY = 4;
+    public static float CPU_ACTION_DELAY_IN_SEC = 4;
     private long timeout;
+
     private static int MAX_TIMER_SCHEDULING_ATTEMPTS = 2;
-    transient private Timer timer = new Timer();
+    transient private Timer userTimeoutTimer = new Timer();
+    transient private Timer cpuTickTimer = new Timer();
 
     static String DEFAULT_ICON = "p_default";
 
@@ -63,7 +65,7 @@ public class Lobby implements Serializable {
     }
 
     /**
-     * Resets the internal timeout for this.
+     * Resets the internal timeout for this lobby.
      * @effects The lobby will time out in {@code TIMEOUT_DURATION_MS} ms from now.
      */
     synchronized public void resetTimeout() {
@@ -229,12 +231,12 @@ public class Lobby implements Serializable {
             int timerSchedulingAttempts = 0;
             while (timerSchedulingAttempts < MAX_TIMER_SCHEDULING_ATTEMPTS) {
                 try {
-                    timer.schedule(new RemoveUserTask(username), delay_in_ms);
+                    userTimeoutTimer.schedule(new RemoveUserTask(username), delay_in_ms);
                     break; // exit loop if successful
                 } catch (IllegalStateException e) {
                     // Timer hit an error state and must be reset.
-                    timer.cancel();
-                    timer = new Timer();
+                    userTimeoutTimer.cancel();
+                    userTimeoutTimer = new Timer();
                     timerSchedulingAttempts++;
                 }
             }
@@ -280,7 +282,7 @@ public class Lobby implements Serializable {
      * Sends a message to every connected user with the current game state.
      * @effects a message containing a JSONObject representing the state of the SecretHitlerGame is sent
      *          to each connected WsContext. ({@code GameToJSONConverter.convert()}). Also
-     *          updates all connected CpuPlayers.
+     *          updates all connected CpuPlayers after a set amount of time.
      */
     synchronized public void updateAllUsers() {
         for (WsContext ws : userToUsername.keySet()) {
@@ -293,38 +295,51 @@ public class Lobby implements Serializable {
             cpuPlayers.clear();
         }
 
-        // Update all the CpuPlayers so they can act
-        boolean didCpuUpdateState = false;
-        if (isInGame()) {
-            // Update all CPUs before allowing them to start acting
-            for (CpuPlayer cpu : cpuPlayers) {
-              cpu.update(game);
-            }
-            // Allow CPUs to act. If 
-            for (CpuPlayer cpu : cpuPlayers) {
-                if (game.getState() == GameState.CHANCELLOR_VOTING) {
-                  // We're in a voting step, so it doesn't matter if the CPU is
-                  // acting unless the gamestate changes.
-                  boolean stateUpdated = cpu.act(game);
-                  // Did acting cause voting to end?
-                  if (stateUpdated && game.getState() != GameState.CHANCELLOR_VOTING) {
-                    didCpuUpdateState = true;
+        // TODO: Add scheduling for the CpuPlayer actions.
+         // Update all the CpuPlayers so they can act
+         boolean didCpuUpdateState = false;
+         if (isInGame()) {
+             // Update all CPUs before allowing them to start acting
+             for (CpuPlayer cpu : cpuPlayers) {
+                cpu.update(game);
+             }
+             for (CpuPlayer cpu : cpuPlayers) {
+                 if (game.getState() == GameState.CHANCELLOR_VOTING) {
+                    // We're in a voting step, so it doesn't matter if the CPU is
+                    // acting unless the gamestate changes.
+                    boolean stateUpdated = cpu.act(game);
+                    // Did acting cause voting to end?
+                    if (stateUpdated && game.getState() != GameState.CHANCELLOR_VOTING) {
+                        didCpuUpdateState = true;
+                        break;
+                    }
+                 } else {
+                    if (cpu.act(game)) {
+                        didCpuUpdateState = true;
+                        break;
+                    }
+                 }
+             }
+         }
+
+        if (didCpuUpdateState) {
+            int delay_in_ms = (int) (CPU_ACTION_DELAY_IN_SEC * 1000);
+            int timerSchedulingAttempts = 0;
+            // Make multiple attempts to schedule the timer.
+            while (timerSchedulingAttempts < MAX_TIMER_SCHEDULING_ATTEMPTS) {
+                try {
+                    cpuTickTimer.schedule(new updateUsersTask(), delay_in_ms);
                     break;
-                  }
-                } else {
-                  if (cpu.act(game)) {
-                    didCpuUpdateState = true;
-                    break;
-                  }
+                } catch (IllegalStateException e) {
+                    // Timer hit an error state and must be reset.
+                    cpuTickTimer.cancel();
+                    cpuTickTimer = new Timer();
+                    timerSchedulingAttempts++;
                 }
             }
-        }
-        // If the game changed because of a CPU action, send an update after a
-        // delay.
-        // TODO: This is unsafe, and can still cause multiple actions to happen simultaneously. Add a max tick rate.
-        if (didCpuUpdateState) {
-            int delay_in_ms = (int) (CPU_ACTION_DELAY * 1000);
-            timer.schedule(new UpdateUsersTask(), delay_in_ms);
+            if (timerSchedulingAttempts == MAX_TIMER_SCHEDULING_ATTEMPTS) {
+              System.err.println("Failed to schedule timer for CPU ticks.");
+            }
         }
     }
 
@@ -332,9 +347,9 @@ public class Lobby implements Serializable {
     /**
      * Small helper class for removing users from the active users queue.
      */
-    class UpdateUsersTask extends TimerTask {
+    class updateUsersTask extends TimerTask {
       public void run() {
-          updateAllUsers();
+        updateAllUsers();
       }
   }
 
@@ -375,7 +390,8 @@ public class Lobby implements Serializable {
         in.defaultReadObject();
         userToUsername = new ConcurrentHashMap<>();
         activeUsernames = new ConcurrentLinkedQueue<>();
-        timer = new Timer();
+        userTimeoutTimer = new Timer();
+        cpuTickTimer = new Timer();
     }
 
     /**
