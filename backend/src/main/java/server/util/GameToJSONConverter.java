@@ -7,42 +7,39 @@ import game.datastructures.Policy;
 import org.json.JSONObject;
 
 import java.util.List;
+
 /**
  * Converts a SecretHitlerGame to a JSONObject that represents the game state.
  */
 public class GameToJSONConverter {
-    public static final String HITLER = "HITLER";
-    public static final String FASCIST = "FASCIST";
-    public static final String LIBERAL = "LIBERAL";
-
     /**
      * Creates a JSON object from a SecretHitlerGame that represents its state.
      * @param game the SecretHitlerGame to convert.
      * @throws NullPointerException if {@code game} is null.
      * @return a JSONObject with the following properties:
-     *          {@code state}: the state of the game.
-     *          {@code player-order}: an array of names representing the order of the players in the game.
+     *          - {@code state}: the state of the game.
+     *          - {@code player-order}: an array of names representing the order of the players in the game.
      *
-     *          {@code players}: a JSONObject map, with keys that are a player's {@code username}.
+     *          - {@code players}: a JSONObject map, with keys that are a player's {@code username}.
      *              Each {@code username} key maps to an object with the properties {@code id} (String),
      *              {@code alive} (boolean), and {@code investigated} (boolean), to represent the player.
      *              The identity is either this.HITLER, this.FASCIST, or this.LIBERAL.
      *              Ex: {"player1":{"alive": true, "investigated": false, "id": "LIBERAL"}}.
      *
-     *          {@code president}: the username of the current president.
-     *          {@code chancellor}: the username of the current chancellor (can be null).
-     *          {@code last-president}: The username of the last president that presided over a legislative session.
-     *          {@code last-chancellor}: The username of the last chancellor that presided over a legislative session.
-     *          {@code draw-size}: The size of the draw deck.
-     *          {@code discard-size}: The size of the discard deck.
-     *          {@code fascist-policies}: The number of passed fascist policies.
-     *          {@code liberal-policies}: The number of passed liberal policies.:
-     *          {@code user-votes}: A map from each user to their vote from the last chancellor nomination.
-     *          {@code president-choices}: The choices for the president during the legislative session (only if in
+     *          - {@code president}: the username of the current president.
+     *          - {@code chancellor}: the username of the current chancellor (can be null).
+     *          - {@code last-president}: The username of the last president that presided over a legislative session.
+     *          - {@code last-chancellor}: The username of the last chancellor that presided over a legislative session.
+     *          - {@code draw-size}: The size of the draw deck.
+     *          - {@code discard-size}: The size of the discard deck.
+     *          - {@code fascist-policies}: The number of passed fascist policies.
+     *          - {@code liberal-policies}: The number of passed liberal policies.:
+     *          - {@code user-votes}: A map from each user to their vote from the last chancellor nomination.
+     *          - {@code president-choices}: The choices for the president during the legislative session (only if in
      *                  game state LEGISLATIVE_PRESIDENT).
-     *          {@code chancellor-choices}: The choices for the chancellor during the legislative session (only if in
+     *          - {@code chancellor-choices}: The choices for the chancellor during the legislative session (only if in
      *                  game state LEGISLATIVE_CHANCELLOR).
-     *          {@code veto-occurred}: Set to true if a veto has already taken place on this legislative session.
+     *          - {@code veto-occurred}: Set to true if a veto has already taken place on this legislative session.
      */
     public static JSONObject convert(SecretHitlerGame game) {
         if (game == null) {
@@ -60,12 +57,7 @@ public class GameToJSONConverter {
 
             playerObj.put("alive", player.isAlive());
 
-            String id = LIBERAL;
-            if (player.isHitler()) {
-                id = HITLER;
-            } else if (player.isFascist()) {
-                id = FASCIST;
-            }
+            String id = player.getIdentity().toString();
             playerObj.put("id", id);
             playerObj.put("investigated", player.hasBeenInvestigated());
 

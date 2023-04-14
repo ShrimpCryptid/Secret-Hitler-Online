@@ -22,6 +22,7 @@ public class SecretHitlerServer {
 
     ////// Static Fields
     // <editor-fold desc="Static Fields">
+    // TODO: Replace this with an environment variable or environment flag
     private static boolean DEBUG = false;
     public static final int DEFAULT_PORT_NUMBER = 4040;
 
@@ -37,6 +38,7 @@ public class SecretHitlerServer {
     public static final String PARAM_VETO = "veto";
     public static final String PARAM_CHOICE = "choice"; // the index of the chosen policy.
     public static final String PARAM_ICON = "icon";
+    public static final String PARAM_LOBBY_SIZE = "lobby-size";
 
     // Passed to client
     // The type of the packet tells the client how to parse the contents.
@@ -45,7 +47,7 @@ public class SecretHitlerServer {
     public static final String PACKET_GAME_STATE = "game";
     public static final String PACKET_LOBBY = "lobby";
     public static final String PACKET_OK = "ok"; // general response packet sent after any successful command.
-    public static final String PACKET_PONG = "pong";  // response to pings.
+    public static final String PACKET_PONG = "pong"; // response to pings.
 
     public static final String PARAM_INVESTIGATION = "investigation";
     public static final String FASCIST = "FASCIST";
@@ -55,6 +57,7 @@ public class SecretHitlerServer {
     public static final String COMMAND_PING = "ping";
     public static final String COMMAND_START_GAME = "start-game";
     public static final String COMMAND_GET_STATE = "get-state";
+    public static final String COMMAND_SET_LOBBY_SIZE = "set-lobby-size";
     public static final String COMMAND_SELECT_ICON = "select-icon";
     public static final String COMMAND_NOMINATE_CHANCELLOR = "nominate-chancellor";
     public static final String COMMAND_REGISTER_VOTE = "register-vote";
@@ -74,7 +77,7 @@ public class SecretHitlerServer {
     private static final int CODE_LENGTH = 4;
 
     private static final float UPDATE_FREQUENCY_MIN = 1;
-    //</editor-fold>
+    // </editor-fold>
 
     ///// Private Fields
     // <editor-fold desc="Private Fields">
@@ -100,7 +103,8 @@ public class SecretHitlerServer {
     }
 
     public static void main(String[] args) {
-        // On load, check the connected database to see if there's a stored state from the server.
+        // On load, check the connected database to see if there's a stored state from
+        // the server.
         loadDatabaseBackup();
         removeInactiveLobbies(); // immediately clean in case of redundant lobbies.
 
@@ -150,9 +154,13 @@ public class SecretHitlerServer {
 
     /**
      * Checks for and removes any lobbies that have timed out.
-     * @effects For each lobby in the {@code codeToLobby} map, checks if the lobby has timed out.
-     *          If so, closes all websockets associated with the lobby and removes them from the
-     *          {@code userToLobby} map, then removes the lobby from the {@code codeToLobby} map.
+     * 
+     * @effects For each lobby in the {@code codeToLobby} map, checks if the lobby
+     *          has timed out.
+     *          If so, closes all websockets associated with the lobby and removes
+     *          them from the
+     *          {@code userToLobby} map, then removes the lobby from the
+     *          {@code codeToLobby} map.
      */
     private static void removeInactiveLobbies() {
         Set<String> removedLobbyCodes = new HashSet<>();
@@ -179,12 +187,12 @@ public class SecretHitlerServer {
         }
     }
 
-
     /////// Database Handling
-    //<editor-fold desc="Database Handling">
+    // <editor-fold desc="Database Handling">
 
     /**
      * Attempts to get a connection to the PostGres database.
+     * 
      * @return null if no connection could be made.
      *         otherwise, returns a {@code java.sql.Connection} object.
      */
@@ -216,12 +224,16 @@ public class SecretHitlerServer {
 
     /**
      * Loads lobby data stored in the database (intended to be run on server wake).
+     * 
      * @effects {@code codeToLobby} is set to the stored database
      */
+    @SuppressWarnings("unchecked")
     private static void loadDatabaseBackup() {
         // Get connection to the Postgres Database and select the backup data.
         Connection c = getDatabaseConnection();
-        if (c == null) { return; }
+        if (c == null) {
+            return;
+        }
         Statement stmt = null;
 
         try {
@@ -246,23 +258,22 @@ public class SecretHitlerServer {
             c.close();
 
             // Deserialize the data and convert to lobbies.
-            // (Use try-with-resources to ensure streams are closed even if an error occurs.)
+            // (Use try-with-resources to ensure streams are closed even if an error
+            // occurs.)
             try (
-                ByteArrayInputStream lobbyByteStream = new ByteArrayInputStream(lobbyBytes);
-                ObjectInputStream objectStream = new ObjectInputStream(lobbyByteStream)
-            ) {
-                
+                    ByteArrayInputStream lobbyByteStream = new ByteArrayInputStream(lobbyBytes);
+                    ObjectInputStream objectStream = new ObjectInputStream(lobbyByteStream)) {
                 codeToLobby = (ConcurrentHashMap<String, Lobby>) objectStream.readObject();
                 objectStream.close();
                 System.out.println("Successfully parsed lobby data from the database.");
             } catch (Exception e) {
                 System.out.println("Failed to parse lobby data from stored backup. ");
-                System.err.println( e.getClass().getName()+": "+ e.getMessage() );
+                System.err.println(e.getClass().getName() + ": " + e.getMessage());
             }
 
         } catch (Exception e) {
             System.out.println("Failed to retrieve lobby backups from the database.");
-            System.err.println( e.getClass().getName()+": "+ e.getMessage() );
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
         }
     }
 
@@ -275,6 +286,7 @@ public class SecretHitlerServer {
             objectOutputStream.flush();
             objectOutputStream.close();
             byteBuilder.flush();
+            // No need to close bytebuilder (close has no effect)
         } catch (Exception e) {
             System.out.println("Failed to serialize the Lobby data.");
             System.err.println(e);
@@ -282,11 +294,13 @@ public class SecretHitlerServer {
         }
         byte[] lobbyData = byteBuilder.toByteArray();
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String timestamp =  formatter.format(new Timestamp(System.currentTimeMillis()));
+        String timestamp = formatter.format(new Timestamp(System.currentTimeMillis()));
         int attempts = 0;
 
         Connection c = getDatabaseConnection();
-        if (c == null) { return; }
+        if (c == null) {
+            return;
+        }
         try {
             String queryStr = "INSERT INTO BACKUP (id, timestamp, attempts, lobby_bytes)" +
                     "VALUES (0, ?, ?, ?) " +
@@ -309,12 +323,12 @@ public class SecretHitlerServer {
         System.out.println("Successfully saved Lobby state to the database.");
     }
 
-
-        /**
-         * Initializes the database by adding the BACKUP table.
-         * @param c the connection to the database.
-         * @effects the Postgres SQL datbase has a new
-         */
+    /**
+     * Initializes the database by adding the BACKUP table.
+     * 
+     * @param c the connection to the database.
+     * @effects the Postgres SQL datbase has a new
+     */
     private static void initializeDatabase(Connection c) throws SQLException {
         Statement stmt = c.createStatement();
         stmt.executeUpdate("create table if not exists backup " +
@@ -322,14 +336,14 @@ public class SecretHitlerServer {
         stmt.close();
     }
 
-    //</editor-fold>
-
+    // </editor-fold>
 
     /////// Get Requests
-    //<editor-fold desc="Get Requests">
+    // <editor-fold desc="Get Requests">
 
     /**
      * Pings the server (intended to wake the inactive server)
+     * 
      * @param ctx the context of the login request
      * @effects Returns the message "OK" with status code 200.
      */
@@ -340,19 +354,29 @@ public class SecretHitlerServer {
 
     /**
      * Determines whether a login is valid.
+     * 
      * @param ctx the context of the login request.
      * @requires the context must have the following parameters:
-     *          {@code lobby}: the code of the lobby.
-     *          {@code name}: the username of the user.
-     *          {@code command}: the command
+     *           {@code lobby}: the code of the lobby.
+     *           {@code name}: the username of the user.
+     *           {@code command}: the command
      * @effects Result status is one of the following:
-     *          <p>- 400: if the {@code lobby} or {@code name} parameters are missing (or blank).
-     *          <p>- 404: if there is no lobby with the given code
-     *          <p>- 403: the username is invalid (there is already another user with that name in the lobby.)
-     *          <p>- 488: the lobby is currently in a game.
-     *          <p>- 489: the lobby is full.
-     *          <p>- 200: Success. There is a lobby with the given name and the user can open a websocket connection with
-     *              these login credentials.
+     *          <p>
+     *          - 400: if the {@code lobby} or {@code name} parameters are
+     *          missing (or blank).
+     *          <p>
+     *          - 404: if there is no lobby with the given code
+     *          <p>
+     *          - 403: the username is invalid (there is already another user
+     *          with that name in the lobby.)
+     *          <p>
+     *          - 488: the lobby is currently in a game.
+     *          <p>
+     *          - 489: the lobby is full.
+     *          <p>
+     *          - 200: Success. There is a lobby with the given name and the
+     *          user can open a websocket connection with these login
+     *          credentials.
      */
     public static void checkLogin(Context ctx) {
         String lobbyCode = ctx.queryParam(PARAM_LOBBY);
@@ -369,7 +393,7 @@ public class SecretHitlerServer {
         } else { // the lobby exists
             Lobby lobby = codeToLobby.get(lobbyCode);
 
-            if(lobby.isFull()) {
+            if (lobby.isFull()) {
                 ctx.status(489);
                 ctx.result("The lobby is currently full.");
             } else if (lobby.isInGame()) {
@@ -392,6 +416,7 @@ public class SecretHitlerServer {
 
     /**
      * Generates a new lobby and returns the access code.
+     * 
      * @param ctx the HTTP get request context.
      */
     public static void createNewLobby(Context ctx) {
@@ -399,7 +424,7 @@ public class SecretHitlerServer {
         hasLobbyChanged = true;
 
         String newCode = generateCode();
-        while(codeToLobby.containsKey(newCode)) {
+        while (codeToLobby.containsKey(newCode)) {
             newCode = generateCode();
         }
 
@@ -414,7 +439,9 @@ public class SecretHitlerServer {
 
     /**
      * Generates a random code.
-     * @return a String code, with length specified by {@code this.CODE_LENGTH} and characters randomly
+     * 
+     * @return a String code, with length specified by {@code this.CODE_LENGTH} and
+     *         characters randomly
      *         chosen from {@code CODE_CHARACTERS}.
      */
     private static String generateCode() {
@@ -426,23 +453,33 @@ public class SecretHitlerServer {
         return builder.toString();
     }
 
-    //</editor-fold>
+    // </editor-fold>
 
     /////// Websocket Handling
-    //<editor-fold desc="Websocket Handling">
+    // <editor-fold desc="Websocket Handling">
 
     /**
      * Called when a websocket connects to the server.
+     * 
      * @param ctx the WsConnectContext of the websocket.
      * @requires the context must have the following parameters:
-     *          {@code lobby}: a String representing the lobby code.
-     *          {@code name}: a String username. Cannot already exist in the given lobby.
+     *           {@code lobby}: a String representing the lobby code.
+     *           {@code name}: a String username. Cannot already exist in the given
+     *           lobby.
      * @effects Closes the websocket session if:
-     *              400 if the {@code lobby} or {@code name} parameters are missing.
-     *              404 if there is no lobby with the given code
-     *              403 the username is invalid (there is already another user with that name in the lobby).
-     *              488 if the lobby is currently in a game and the user is not a rejoining player.
-     *              489 if the lobby is full.
+     *          <p>
+     *          - 400 if the {@code lobby} or {@code name} parameters are missing.
+     *          <p>
+     *          - 404 if there is no lobby with the given code
+     *          <p>
+     *          - 403 the username is invalid (there is already another user
+     *          with that name in the lobby).
+     *          <p>
+     *          - 488 if the lobby is currently in a game and the user is not
+     *          a rejoining player.
+     *          <p>
+     *          - 489 if the lobby is full.
+     *          <p>
      *          Otherwise, connects the user to the lobby.
      */
     private static void onWebsocketConnect(WsConnectContext ctx) {
@@ -489,20 +526,24 @@ public class SecretHitlerServer {
         hasLobbyChanged = true;
     }
 
-
     /**
      * Parses a websocket message sent from the user.
+     * 
      * @param ctx the WsMessageContext of the websocket.
      * @requires the context must have the following parameters:
-     *          {@code lobby}: a String representing the lobby code.
-     *          {@code name}: a String username. Cannot already exist in the given lobby.
-     *          {@code command}: a String command.
+     *           {@code lobby}: a String representing the lobby code.
+     *           {@code name}: a String username. Cannot already exist in the given
+     *           lobby.
+     *           {@code command}: a String command.
      * @modifies this
-     * @effects Ends the websocket command with code 400 if the specified lobby does not exist, the user is not allowed
-     *          to make this action (usually because they are not a president/chancellor), if a required parameter is
+     * @effects Ends the websocket command with code 400 if the specified lobby does
+     *          not exist, the user is not allowed
+     *          to make this action (usually because they are not a
+     *          president/chancellor), if a required parameter is
      *          missing, or the command cannot be executed in this state.
      *          <p>
-     *          Updates the game state according to the specified command and updates every other connected user
+     *          Updates the game state according to the specified command and
+     *          updates every other connected user
      *          with the new state.
      */
     private static void onWebSocketMessage(WsMessageContext ctx) {
@@ -520,7 +561,8 @@ public class SecretHitlerServer {
         String name = message.getString(PARAM_NAME);
         String lobbyCode = message.getString(PARAM_LOBBY);
 
-        String log_message = "Received a message from user '" + name + "' in lobby '" + lobbyCode + "' (" + ctx.message() + "): ";
+        String log_message = "Received a message from user '" + name + "' in lobby '" + lobbyCode + "' ("
+                + ctx.message() + "): ";
         int log_length = log_message.length();
         System.out.print(log_message);
 
@@ -555,6 +597,11 @@ public class SecretHitlerServer {
                         JSONObject msg = new JSONObject();
                         msg.put(PARAM_PACKET_TYPE, PACKET_PONG);
                         ctx.send(msg.toString());
+                        break;
+
+                    case COMMAND_SET_LOBBY_SIZE:
+                        int lobbySize = message.getInt(PARAM_LOBBY_SIZE);
+                        lobby.trySetLobbySize(lobbySize);
                         break;
 
                     case COMMAND_START_GAME: // Starts the game.
@@ -637,9 +684,9 @@ public class SecretHitlerServer {
                         lobby.trySetUserIcon(iconId, ctx);
                         break;
 
-                    default: //This is an invalid command.
+                    default: // This is an invalid command.
                         throw new RuntimeException("FAILED (unrecognized command " + message.get(PARAM_COMMAND) + ")");
-                }  // End switch
+                } // End switch
 
                 if (sendOKMessage) {
                     System.out.println("SUCCESS");
@@ -664,7 +711,8 @@ public class SecretHitlerServer {
 
     /**
      * Verifies that the user is the president.
-     * @param name String name of the user.
+     * 
+     * @param name  String name of the user.
      * @param lobby the Lobby that the game is in.
      * @throws RuntimeException if the user is not the president.
      */
@@ -676,7 +724,8 @@ public class SecretHitlerServer {
 
     /**
      * Verifies that the user is the chancellor.
-     * @param name String name of the user.
+     * 
+     * @param name  String name of the user.
      * @param lobby the Lobby that the game is in.
      * @throws RuntimeException if the user is not the chancellor.
      */
@@ -688,6 +737,7 @@ public class SecretHitlerServer {
 
     /**
      * Called when a websocket is closed.
+     * 
      * @param ctx the WsContext of the websocket.
      * @modifies this
      * @effects Removes the user from any connected lobbies.
@@ -705,6 +755,6 @@ public class SecretHitlerServer {
         }
     }
 
-    //</editor-fold>
+    // </editor-fold>
 
 }

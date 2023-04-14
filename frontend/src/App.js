@@ -20,8 +20,6 @@ import {
     PARAM_USERNAMES,
     PARAM_COMMAND,
     LOBBY_CODE_LENGTH,
-    MAX_PLAYERS,
-    MIN_PLAYERS,
     COMMAND_START_GAME,
     PARAM_PLAYERS,
     PLAYER_IDENTITY,
@@ -102,6 +100,8 @@ import HelmetMetaData from "./util/HelmetMetaData";
 import {defaultPortrait} from "./assets";
 import Player from "./player/Player";
 import LoginPageContent from "./LoginPageContent";
+import Cookies from 'js-cookie';
+import AnnouncementBox from './util/AnnouncementBox';
 
 const EVENT_BAR_FADE_OUT_DURATION = 500;
 const CUSTOM_ALERT_FADE_DURATION = 1000;
@@ -120,6 +120,9 @@ const DEFAULT_GAME_STATE = {
     "election-tracker": 0,
     "veto-occurred": false
 };
+
+const COOKIE_NAME = "name";
+const COOKIE_LOBBY = "lobby";
 
 /*
 const TEST_GAME_STATE = {
@@ -172,13 +175,17 @@ class App extends Component {
     // noinspection DuplicatedCode
     constructor(props) {
         super(props);
+
+        let name = Cookies.get(COOKIE_NAME) ? Cookies.get(COOKIE_NAME) : "";
+        let lobby = Cookies.get(COOKIE_LOBBY) ? Cookies.get(COOKIE_LOBBY) : "";
+
         this.state = {
             page: PAGE.LOGIN,
 
-            joinName: "",
-            joinLobby: "",
+            joinName: name,
+            joinLobby: lobby,
             joinError: "",
-            createLobbyName: "",
+            createLobbyName: name,
             createLobbyError: "",
             name: "P1",
             lobby: "AAAAAA",
@@ -535,6 +542,10 @@ class App extends Component {
                     // Username and lobby were verified. Try to open websocket.
                     if (!this.tryOpenWebSocket(this.state.joinName, this.state.joinLobby)) {
                         this.setState({joinError: "There was an error connecting to the server. Please try again."});
+                    } else {
+                      // Save the username and lobby login
+                      Cookies.set(COOKIE_NAME, this.state.name, {expires: 7});
+                      Cookies.set(COOKIE_LOBBY, this.state.joinLobby);
                     }
                 }
             })
@@ -562,6 +573,9 @@ class App extends Component {
                             category: "Lobby Created",
                             action: "Successfully created new lobby.",
                         });
+                        // Save the username and lobby login
+                        Cookies.set(COOKIE_NAME, this.state.name, {expires: 7});
+                        Cookies.set(COOKIE_LOBBY, lobbyCode);
                     }
                 });
             } else {
@@ -631,6 +645,14 @@ class App extends Component {
                         CREATE LOBBY
                     </button>
                 </div>
+                <AnnouncementBox>
+                  <h2>Announcing: BOTS!</h2>
+                  <p>You can now start games with only 1-4 players; extra
+                    spots will be filled by bots.
+                  </p>
+                  <p>Bots are still in beta, so <a href={"https://github.com/ShrimpCryptid/Secret-Hitler-Online/issues/44"} target={"_blank"} rel="noreferrer">leave feedback on GitHub!</a></p>
+                  <p style={{fontStyle: "italic", fontSize: "calc(8px + 1vmin)"}}>(Please be nice, they are trying their best.)</p>
+                </AnnouncementBox>
                 <br/>
                 <LoginPageContent />
             </div>
@@ -697,7 +719,7 @@ class App extends Component {
                 return false;
             }
         }
-        return (this.state.userCount >= MIN_PLAYERS) && (this.state.userCount <= MAX_PLAYERS);
+        return true;
     }
 
     /**

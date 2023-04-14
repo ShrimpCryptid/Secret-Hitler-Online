@@ -47,31 +47,4 @@ public class testSecretHitlerGame {
         game.nominateChancellor("2");
         assertEquals(game.getState(), GameState.CHANCELLOR_VOTING);
     }
-
-    ///////////////// Test Nomination and Voting
-    // <editor-fold desc="Test Nomination and Voting">
-
-
-    private void applyVotes(SecretHitlerGame game, Boolean[] votes) {
-        List<Player> playerList = game.getPlayerList();
-        for (int i = 0; i < playerList.size(); i++) {
-            if (playerList.get(i).isAlive()) {
-                game.registerVote(playerList.get(i).getUsername(), votes[i]);
-            }
-        }
-    }
-
-    @Test
-    public void testVotingSplit(){
-        SecretHitlerGame game = new SecretHitlerGame(makePlayers(5));
-        game.nominateChancellor("1");
-
-    }
-
-    @Test
-    public void testVotingAfterPlayerIsExecuted() {
-
-    }
-
-    //</editor-fold>
 }
