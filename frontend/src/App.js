@@ -20,8 +20,6 @@ import {
     PARAM_USERNAMES,
     PARAM_COMMAND,
     LOBBY_CODE_LENGTH,
-    MAX_PLAYERS,
-    MIN_PLAYERS,
     COMMAND_START_GAME,
     PARAM_PLAYERS,
     PLAYER_IDENTITY,
@@ -103,6 +101,7 @@ import {defaultPortrait} from "./assets";
 import Player from "./player/Player";
 import LoginPageContent from "./LoginPageContent";
 import Cookies from 'js-cookie';
+import AnnouncementBox from './util/AnnouncementBox';
 
 const EVENT_BAR_FADE_OUT_DURATION = 500;
 const CUSTOM_ALERT_FADE_DURATION = 1000;
@@ -646,6 +645,14 @@ class App extends Component {
                         CREATE LOBBY
                     </button>
                 </div>
+                <AnnouncementBox>
+                  <h2>Announcing: BOTS!</h2>
+                  <p>You can now start games with only 1-4 players; extra
+                    spots will be filled by bots.
+                  </p>
+                  <p>Bots are still in beta, so <a href={"https://github.com/ShrimpCryptid/Secret-Hitler-Online/issues/44"} target={"_blank"} rel="noreferrer">leave feedback on GitHub!</a></p>
+                  <p style={{fontStyle: "italic", fontSize: "calc(8px + 1vmin)"}}>(Please be nice, they are trying their best.)</p>
+                </AnnouncementBox>
                 <br/>
                 <LoginPageContent />
             </div>
