@@ -820,7 +820,7 @@ class App extends Component {
                         </div>
                         <div id={"lobby-text-container"}>
                             <p id={"lobby-about-text"}>
-                                <a href={"https://github.com/ShrimpCryptid/Secret-Hitler-Online/blob/master/README.md"}
+                                <a href={"https://github.com/ShrimpCryptid/Secret-Hitler-Online/blob/main/README.md"}
                                    target={"_blank"} rel="noopener noreferrer" onClick={this.onClickAbout}>
                                     About this project
                                 </a>
