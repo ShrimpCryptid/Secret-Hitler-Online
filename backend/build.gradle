@@ -27,7 +27,7 @@ dependencies {
     implementation 'com.google.guava:guava:27.0.1-jre'
 
     // Javalin is a server/networking library for Java.
-    compile 'io.javalin:javalin:3.7.0'
+    compile 'io.javalin:javalin:5.6.1'
     compile 'org.slf4j:slf4j-simple:1.7.30'
     compile 'org.json:json:20190722'
     compile 'com.j2html:j2html:1.4.0'
