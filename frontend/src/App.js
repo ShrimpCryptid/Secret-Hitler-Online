@@ -611,7 +611,7 @@ class App extends Component {
                             <p style={{fontStyle: "italic", fontSize: "calc(8px + 1vmin)"}}>(read: I broke something super badly.)</p>
                             Sorry for the interruption and please check back in in a few hours! -Shrimp
                         </p>
-                        <p style={{fontStyle: "italic", fontSize: "calc(8px + 1vmin)"}}>(10:45 PM PT)</p>
+                        <p style={{fontStyle: "italic", fontSize: "calc(8px + 1vmin)"}}>(7/21/23 10:45 PM PT)</p>
 
                     </div>
                     <h2>JOIN A GAME</h2>
