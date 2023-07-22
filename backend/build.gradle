@@ -26,6 +26,7 @@ dependencies {
 
     // Javalin is a server/networking library for Java.
     implementation 'io.javalin:javalin:5.6.1'
+    implementation 'io.javalin:javalin-bundle:5.6.1'
     implementation 'org.slf4j:slf4j-simple:1.7.30'
     implementation 'org.json:json:20190722'
     implementation 'com.j2html:j2html:1.4.0'
@@ -53,21 +54,6 @@ tasks.named('jar') {
     )
   }
 }
-
-/**
-jar {
-    from {
-        configurations.implementation.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-    manifest {
-        attributes(
-                'Class-Path': configurations.implementation.collect { it.getName() }.join(' '),
-                'Main-Class': 'server.SecretHitlerServer',
-                'Implementation-Title': 'secret-hitler-online'
-        )
-    }
-}
-*/
 
 javadoc {
     options.tags = ["requires:a:Requires:", "modifies:a:Modifies:", "effects:a:Effects:"]
