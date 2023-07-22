@@ -7,6 +7,10 @@ processes = []
 
 [env]
 
+[mounts]
+  source="sho_data"
+  destination="/data"
+
 [build.args]
   PORT = "8080"
 
