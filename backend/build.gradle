@@ -17,9 +17,7 @@ plugins {
 }
 
 repositories {
-    // Use jcenter for resolving your dependencies.
-    // You can declare any Maven/Ivy/file repository here.
-    jcenter()
+    mavenCentral()
 }
 
 dependencies {
@@ -27,34 +25,34 @@ dependencies {
     implementation 'com.google.guava:guava:27.0.1-jre'
 
     // Javalin is a server/networking library for Java.
-    compile 'io.javalin:javalin:5.6.1'
-    compile 'org.slf4j:slf4j-simple:1.7.30'
-    compile 'org.json:json:20190722'
-    compile 'com.j2html:j2html:1.4.0'
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.10.1'
+    implementation 'io.javalin:javalin:5.6.1'
+    implementation 'io.javalin:javalin-bundle:5.6.1'
+    implementation 'org.slf4j:slf4j-simple:1.7.30'
+    implementation 'org.json:json:20190722'
+    implementation 'com.j2html:j2html:1.4.0'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.10.1'
 
     // PostgresSQL driver
-    compile 'org.postgresql:postgresql:42.2.5'
+    implementation 'org.postgresql:postgresql:42.2.5'
     
     // Apache Commons Lang
-    compile 'org.apache.commons:commons-lang3:3.0'
+    implementation 'org.apache.commons:commons-lang3:3.0'
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
-    implementation 'junit:junit:4.12'
 }
 
-jar {
-    from {
-        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-    manifest {
-        attributes(
-                'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
-                'Main-Class': 'server.SecretHitlerServer',
-                'Implementation-Title': 'secret-hitler-online'
-        )
-    }
+tasks.named('test') {
+  useJUnitPlatform()
+}
+
+tasks.named('jar') {
+  manifest {
+    attributes(
+            'Main-Class': 'server.SecretHitlerServer',
+            'Implementation-Title': 'secret-hitler-online'
+    )
+  }
 }
 
 javadoc {
