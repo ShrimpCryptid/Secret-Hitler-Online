@@ -604,6 +604,16 @@ class App extends Component {
                 </header>
                 <br/>
                 <div style={{textAlign: "center"}}>
+                    {/** TODO: Add reusable announcement component. */}
+                    <div style={{backgroundColor: "#222222", width: "50vmin", margin: "0 auto", padding: "20px"}}>
+                        <p>
+                            Hello! Secret Hitler Online is currently undergoing some maintenance.
+                            <p style={{fontStyle: "italic", fontSize: "calc(8px + 1vmin)"}}>(read: I broke something super badly.)</p>
+                            Sorry for the interruption and please check back in in a few hours! -Shrimp
+                        </p>
+                        <p style={{fontStyle: "italic", fontSize: "calc(8px + 1vmin)"}}>(10:45 PM PT)</p>
+
+                    </div>
                     <h2>JOIN A GAME</h2>
                     <MaxLengthTextField
                         label={"Lobby"}
