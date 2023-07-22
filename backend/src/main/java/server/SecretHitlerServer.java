@@ -25,8 +25,9 @@ public class SecretHitlerServer {
     // TODO: Replace this with an environment variable or environment flag
     private static boolean DEBUG = false;
     public static final int DEFAULT_PORT_NUMBER = 4040;
-
+    
     // Environmental Variable Names
+    private static final String ENV_DEBUG = "DEBUG";
     private static final String ENV_DATABASE_URL = "DATABASE_URL";
 
     // Passed to server
@@ -73,7 +74,7 @@ public class SecretHitlerServer {
 
     public static final String COMMAND_END_TERM = "end-term";
 
-    private static final String CODE_CHARACTERS = "ABCDEFGHIJKLMNOPQRSTWXYZ"; // u,v character can look ambiguous
+    private static final String CODE_CHARACTERS = "ABCDEFGHIJKLMNOPQRSTWXYZ"; // u,v characters can look ambiguous
     private static final int CODE_LENGTH = 4;
 
     private static final float UPDATE_FREQUENCY_MIN = 1;
@@ -89,7 +90,7 @@ public class SecretHitlerServer {
 
     // </editor-fold>
 
-    ////// Private Classes
+    ////// Private Methods
 
     private static int getHerokuAssignedPort() {
         if (DEBUG) {
@@ -210,7 +211,12 @@ public class SecretHitlerServer {
             if (DEBUG) {
                 databaseUri = new URI("");
             } else {
-                databaseUri = new URI(System.getenv(ENV_DATABASE_URL));
+                String envUri = System.getenv(ENV_DATABASE_URL);
+                if (envUri == null) {
+                  System.out.println("Could not connect to database: No ENV_DATABASE_URL environment variable provided.");
+                  return null;
+                }
+                databaseUri = new URI(envUri);
             }
             String username = databaseUri.getUserInfo().split(":")[0];
             String password = databaseUri.getUserInfo().split(":")[1];
