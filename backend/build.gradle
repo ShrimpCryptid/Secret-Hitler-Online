@@ -28,7 +28,7 @@ dependencies {
     implementation 'io.javalin:javalin:5.6.1'
     implementation 'io.javalin:javalin-bundle:5.6.1'
     implementation 'org.slf4j:slf4j-simple:1.7.30'
-    implementation 'org.json:json:20190722'
+    implementation 'org.json:json:20230618'
     implementation 'com.j2html:j2html:1.4.0'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.10.1'
 
