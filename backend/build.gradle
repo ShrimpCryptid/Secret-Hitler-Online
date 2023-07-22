@@ -42,15 +42,22 @@ dependencies {
     testImplementation 'junit:junit:4.12'
 }
 
-tasks.named('test') {
-  useJUnitPlatform()
-}
-
 tasks.named('jar') {
+  exclude 'META-INF/MANIFEST.MF'
+  // Remove signing information because the conflicts caused by adding libraries
+  // to the same path will cause java to throw a java.lang.SecurityException.
+  exclude 'META-INF/*.SF'
+  exclude 'META-INF/*.DSA'
+  exclude 'META-INF/*.RSA'
+  duplicatesStrategy = DuplicatesStrategy.WARN
+  from {
+      configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+  }
   manifest {
     attributes(
-            'Main-Class': 'server.SecretHitlerServer',
-            'Implementation-Title': 'secret-hitler-online'
+      'Class-Path': configurations.runtimeClasspath.collect { it.getName() }.join(' '),
+      'Main-Class': 'server.SecretHitlerServer',
+      'Implementation-Title': 'secret-hitler-online'
     )
   }
 }
