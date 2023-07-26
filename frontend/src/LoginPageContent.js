@@ -38,7 +38,7 @@ class LoginPageContent extends Component {
                             It supports up to 10 players, featuring smooth art and animations with all the secrecy and
                             intrigue of the original. It's designed to be easy to pick up and play for any quarantine
                             game night.<br/><br/>Play for free in your browser, with no ads ever!
-                            <br/> <br/>
+                            <br/><br/>
                         </p>
                     </div>
                     <div id={"login-page-gif-container"}>
@@ -57,7 +57,7 @@ class LoginPageContent extends Component {
                             <br/><br/>
                             Adapted from the original <a href={"https://secrethitler.com"} target={"_blank"} rel="noreferrer" onClick={this.onClickGameWebsite}>
                                 Secret Hitler
-                            </a> board game by Goat, Wolf, & Cabbage (© 2016-2020). Developed by ShrimpCryptid (© 2020-2021).
+                            </a> board game by Goat, Wolf, & Cabbage (© 2016-2020). Developed by ShrimpCryptid (© 2020-2023).
                             <br/><br/>
                             Found a bug or want to leave a comment? Report bugs on the <a href={"https://github.com/ShrimpCryptid/Secret-Hitler-Online/issues"}
                                                                                              rel="noreferrer"
