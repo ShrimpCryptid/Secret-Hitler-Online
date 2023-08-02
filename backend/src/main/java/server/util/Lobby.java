@@ -33,9 +33,6 @@ public class Lobby implements Serializable {
     final private Set<String> usersInGame;
     final private ConcurrentHashMap<String, String> usernameToIcon;
 
-    // The number of players that should be in this lobby. If there are fewer
-    // users, backfills with CpuPlayers.
-    private int lobbySize;
     private Set<CpuPlayer> cpuPlayers;
 
     /* Used to reassign users to previously chosen images if they disconnect */
@@ -61,7 +58,6 @@ public class Lobby implements Serializable {
         usersInGame = new ConcurrentSkipListSet<>();
         usernameToIcon = new ConcurrentHashMap<>();
         usernameToPreferredIcon = new ConcurrentHashMap<>();
-        lobbySize = SecretHitlerGame.MIN_PLAYERS;
         cpuPlayers = new ConcurrentSkipListSet<>();
         resetTimeout();
     }
@@ -98,24 +94,6 @@ public class Lobby implements Serializable {
 
     /////// User Management
     // <editor-fold desc="User Management">
-
-    /**
-     * Attempts to update the lobby size.
-     * 
-     * @param newLobbySize The new size of the lobby.
-     * 
-     * @effects Sets the number of players in the lobby. The lobby size must be
-     *          a valid number of players (5-10) and can't be less than the number
-     *          of users currently connected.
-     */
-    synchronized public void trySetLobbySize(int newLobbySize) {
-        // Apply bounds to newLobbySize
-        newLobbySize = Math.max(SecretHitlerGame.MIN_PLAYERS, newLobbySize);
-        newLobbySize = Math.min(SecretHitlerGame.MAX_PLAYERS, newLobbySize);
-        newLobbySize = Math.max(SecretHitlerGame.MAX_PLAYERS, activeUsernames.size());
-
-        lobbySize = newLobbySize;
-    }
 
     /**
      * Returns whether the given user (websocket connection) is in this lobby
@@ -221,9 +199,6 @@ public class Lobby implements Serializable {
                             String iconID = usernameToPreferredIcon.get(name);
                             trySetUserIcon(iconID, context);
                         }
-
-                        // Update the lobby size if needed
-                        lobbySize = Math.max(activeUsernames.size(), lobbySize);
                     } else {
                         throw new IllegalArgumentException("Cannot add duplicate names.");
                     }
@@ -400,7 +375,6 @@ public class Lobby implements Serializable {
             message.put(SecretHitlerServer.PARAM_PACKET_TYPE, SecretHitlerServer.PACKET_LOBBY);
             message.put("user-count", getUserCount());
             message.put("usernames", activeUsernames.toArray());
-            message.put("lobby-size", lobbySize);
         }
         // Add user icons to the update message
         JSONObject icons = new JSONObject(usernameToIcon);
@@ -506,8 +480,8 @@ public class Lobby implements Serializable {
         // Generate CpuPlayers if the lobby size has not been met
         List<String> cpuNames = new ArrayList<>();
         cpuPlayers.clear();
-        if (usersInGame.size() < lobbySize) {
-            int numCpuPlayersToGenerate = lobbySize - usersInGame.size();
+        if (usersInGame.size() < SecretHitlerGame.MIN_PLAYERS) {
+            int numCpuPlayersToGenerate = SecretHitlerGame.MIN_PLAYERS - usersInGame.size();
             int i = 1;
             while (numCpuPlayersToGenerate > 0) {
                 String botName = "Bot " + i;
@@ -517,8 +491,6 @@ public class Lobby implements Serializable {
                     numCpuPlayersToGenerate--;
                 }
                 i++;
-
-                // TODO: Assign a random user icon to the CpuPlayer.
             }
         }
 

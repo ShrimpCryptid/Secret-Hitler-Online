@@ -39,7 +39,6 @@ public class SecretHitlerServer {
     public static final String PARAM_VETO = "veto";
     public static final String PARAM_CHOICE = "choice"; // the index of the chosen policy.
     public static final String PARAM_ICON = "icon";
-    public static final String PARAM_LOBBY_SIZE = "lobby-size";
 
     // Passed to client
     // The type of the packet tells the client how to parse the contents.
@@ -609,11 +608,6 @@ public class SecretHitlerServer {
                         JSONObject msg = new JSONObject();
                         msg.put(PARAM_PACKET_TYPE, PACKET_PONG);
                         ctx.send(msg.toString());
-                        break;
-
-                    case COMMAND_SET_LOBBY_SIZE:
-                        int lobbySize = message.getInt(PARAM_LOBBY_SIZE);
-                        lobby.trySetLobbySize(lobbySize);
                         break;
 
                     case COMMAND_START_GAME: // Starts the game.
