@@ -7,6 +7,8 @@ import io.javalin.websocket.WsCloseContext;
 import io.javalin.websocket.WsConnectContext;
 import io.javalin.websocket.WsContext;
 import io.javalin.websocket.WsMessageContext;
+
+import org.eclipse.jetty.websocket.api.StatusCode;
 import org.json.JSONObject;
 import server.util.Lobby;
 
@@ -178,7 +180,7 @@ public class SecretHitlerServer {
             if (lobby.hasTimedOut()) {
                 // Remove the websocket connections.
                 for (WsContext ctx : lobby.getConnections()) {
-                    ctx.session.close(504, "The lobby has timed out.");
+                    ctx.session.close(StatusCode.NORMAL, "The lobby has timed out.");
                     userToLobby.remove(ctx);
                 }
                 removedLobbyCodes.add(entry.getKey());
@@ -496,7 +498,7 @@ public class SecretHitlerServer {
     private static void onWebsocketConnect(WsConnectContext ctx) {
         if (ctx.queryParam(PARAM_LOBBY) == null || ctx.queryParam(PARAM_NAME) == null) {
             System.out.println("A websocket request was missing a parameter and was disconnected.");
-            ctx.session.close(400, "Must have the '" + PARAM_LOBBY + "' and '" + PARAM_NAME + "' parameters.");
+            ctx.session.close(StatusCode.PROTOCOL, "Must have the '" + PARAM_LOBBY + "' and '" + PARAM_NAME + "' parameters.");
             return;
         }
 
@@ -506,28 +508,28 @@ public class SecretHitlerServer {
 
         if (code == null || name == null || name.isEmpty() || name.isBlank()) {
             System.out.println("FAILED (Lobby or name is empty/null)");
-            ctx.session.close(400, "Lobby and name must be specified.");
+            ctx.session.close(StatusCode.PROTOCOL, "Lobby and name must be specified.");
         }
 
         System.out.print("Attempting to connect user '" + name + "' to lobby '" + code + "': ");
         if (!codeToLobby.containsKey(code)) { // the lobby does not exist.
             System.out.println("FAILED (The lobby does not exist)");
-            ctx.session.close(404, "The lobby '" + code + "' does not exist.");
+            ctx.session.close(StatusCode.PROTOCOL, "The lobby '" + code + "' does not exist.");
             return;
         }
 
         Lobby lobby = codeToLobby.get(code);
         if (lobby.hasUserWithName(name)) { // duplicate names not allowed
             System.out.println("FAILED (Repeat username)");
-            ctx.session.close(403, "A user with the name " + name + " is already in the lobby.");
+            ctx.session.close(StatusCode.PROTOCOL, "A user with the name " + name + " is already in the lobby.");
             return;
         } else if (lobby.isFull()) {
             System.out.println("FAILED (Lobby is full)");
-            ctx.session.close(489, "The lobby " + code + " is currently full.");
+            ctx.session.close(StatusCode.PROTOCOL, "The lobby " + code + " is currently full.");
             return;
         } else if (lobby.isInGame() && !lobby.canAddUserDuringGame(name)) {
             System.out.println("FAILED (Lobby in game)");
-            ctx.session.close(488, "The lobby " + code + " is currently in a game..");
+            ctx.session.close(StatusCode.PROTOCOL, "The lobby " + code + " is currently in a game..");
             return;
         }
         System.out.println("SUCCESS");
@@ -565,7 +567,7 @@ public class SecretHitlerServer {
                 || message.getString(PARAM_NAME) == null
                 || message.getString(PARAM_COMMAND) == null) {
             System.out.println("Message request failed: missing a parameter.");
-            ctx.session.close(400, "A required parameter is missing.");
+            ctx.session.close(StatusCode.PROTOCOL, "A required parameter is missing.");
             return;
         }
 
@@ -579,7 +581,7 @@ public class SecretHitlerServer {
 
         if (!codeToLobby.containsKey(lobbyCode)) {
             System.out.println("FAILED (Lobby requested does not exist)");
-            ctx.session.close(404, "The lobby does not exist.");
+            ctx.session.close(StatusCode.PROTOCOL, "The lobby does not exist.");
             return;
         }
 
@@ -589,7 +591,7 @@ public class SecretHitlerServer {
 
             if (!lobby.hasUser(ctx, name)) {
                 System.out.println("FAILED (Lobby does not have the user)");
-                ctx.session.close(403, "The user is not in the lobby " + lobbyCode + ".");
+                ctx.session.close(StatusCode.PROTOCOL, "The user is not in the lobby " + lobbyCode + ".");
                 return;
             }
 
@@ -703,10 +705,10 @@ public class SecretHitlerServer {
 
             } catch (NullPointerException e) {
                 System.out.println("FAILED (" + e.toString() + ")");
-                ctx.session.close(400, "NullPointerException:" + e.toString());
+                ctx.session.close(StatusCode.PROTOCOL, "NullPointerException:" + e.toString());
             } catch (RuntimeException e) {
                 System.out.println("FAILED (" + e.toString() + ")");
-                ctx.session.close(400, "RuntimeException:" + e.toString());
+                ctx.session.close(StatusCode.PROTOCOL, "RuntimeException:" + e.toString());
             }
             if (updateUsers) {
                 lobby.updateAllUsers();
