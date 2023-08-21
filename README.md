@@ -1,5 +1,5 @@
 # Secret-Hitler-Online
-![](https://postimg.cc/V0ksxNSh)
+![](https://i.postimg.cc/zvnLRbqq/place-policy.gif)
 
 A fan-made web adaptation of [Secret Hitler](https://secrethitler.com), a social deduction board game for up to 10 players by Goat, Wolf & Cabbage. You can play it with friends at [secret-hitler.online](https://secret-hitler.online)!
 
@@ -27,7 +27,7 @@ Secret Hitler Online is licensed under [Creative Commons BY-NC-SA 4.0](https://c
 *(This project is not affiliated with or endorsed by Goat, Wolf & Cabbage.)*
 
 #### What's changed from the original?
-![](https://postimg.cc/vg3btdPt)
+![](https://i.postimg.cc/cCNCZxw2/show-votes.gif)
 - Art assets from the game (the boards, policies, identity cards, etc.) were adapted for the website with some minor modifications.
 - Custom assets (made in Inkscape) were added based on the style of the original, most notably for the election tracker, policy reveal popup windows, and the player icons and tiles.
 - All of the base game's rules were kept as-is, but the web interface, animations, and server are new additions.
