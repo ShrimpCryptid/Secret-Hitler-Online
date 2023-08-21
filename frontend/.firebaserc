@@ -1,5 +1,18 @@
 {
   "projects": {
     "default": "secret-hitler-online"
-  }
+  },
+  "targets": {
+    "secret-hitler-online": {
+      "hosting": {
+        "dev": [
+          "secret-hitler-online-dev"
+        ],
+        "prod": [
+          "secret-hitler-online"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }
