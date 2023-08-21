@@ -2,10 +2,8 @@
 
 app = "secret-hitler-online"
 kill_signal = "SIGINT"
-kill_timeout = 5
+kill_timeout = "5s"
 processes = []
-
-[env]
 
 [mounts]
   source="sho_data"
