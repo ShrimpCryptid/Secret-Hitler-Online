@@ -23,6 +23,9 @@ jobs:
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
 
+      - name: Run Tests
+        run: ./gradlew test
+
       - name: Build JAR with Gradle
         run: ./gradlew jar && mkdir target && mv build/libs/secret-hitler-online.jar target/secret-hitler-online.jar --force
 
