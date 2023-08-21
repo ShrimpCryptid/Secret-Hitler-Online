@@ -1,8 +1,8 @@
-name: Build and Deploy Server
+name: Build and Deploy Server - Development
 on:
   push:
     branches:
-      - main
+      - development
 jobs:
   deploy:
     name: Deploy app
@@ -33,6 +33,6 @@ jobs:
         uses: superfly/flyctl-actions/setup-flyctl@master
 
       - name: Deploy to Fly
-        run: flyctl deploy --remote-only
+        run: flyctl deploy -a "secret-hitler-online-dev" --remote-only
         env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN_DEV }}
