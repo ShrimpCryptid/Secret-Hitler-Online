@@ -11,7 +11,7 @@ Can you find and stop the Secret Hitler?
 ### How to Play: 
 Go to [secret-hitler.online](https://secret-hitler.online) and open a new lobby! Use the lobby's code or the provided link to invite your friends. You can play with up to 10 players at once!
 
-There are instructions on how to play the game provided on the website, and plenty of helpful tips are provided for first-time players. Secret Hitler Online takes care of the game rules for you, making it easy to pick up and play. 
+There are instructions on how to play the game provided on the website, and plenty of helpful tips are provided for first-time players. The game takes care of rules for you, making it easy to pick up and play. 
 
 For more information, read the [official rulebook here](https://cdn.vapid.site/sites/a67e0c72-4902-4365-a899-3386df73c2c4/assets/Secret_Hitler_Rules-023bc755617986cb2276a3b6920e43e0.pdf).
 
@@ -28,8 +28,9 @@ Secret Hitler Online is licensed under [Creative Commons BY-NC-SA 4.0](https://c
 
 #### What's changed from the original?
 ![](https://i.postimg.cc/cCNCZxw2/show-votes.gif)
-- Art assets from the game (the boards, policies, identity cards, etc.) were adapted for the website with some minor modifications.
+- Artwork for the boards, policy deck, identity cards, party cards, and liberal/fascist icons were adapted for the website with some minor modifications (rounding corners, adding depth, shadows).
 - Custom assets (made in Inkscape) were added based on the style of the original, most notably for the election tracker, policy reveal popup windows, and the player icons and tiles.
-- All of the base game's rules were kept as-is, but the web interface, animations, and server are new additions.
+- Where possible, fonts were replaced with ones licensed under the [Open Font License](https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL), namely [Germania One](https://fonts.google.com/specimen/Germania+One) and [Montserrat](https://fonts.google.com/specimen/Montserrat).
+- The web interface, animations, and server are new additions that use the same rules from the original game.
 
 ### Report problems or suggest features on the [Issues page](https://github.com/ShrimpCryptid/Secret-Hitler-Online/issues).
