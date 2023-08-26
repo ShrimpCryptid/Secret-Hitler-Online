@@ -3,27 +3,21 @@ export const FASCIST = "FASCIST";
 export const HITLER = "HITLER";
 
 export const PAGE = {
-    LOGIN: 'login',
-    LOBBY: 'lobby',
-    GAME: 'game'
+	LOGIN: "login",
+	LOBBY: "lobby",
+	GAME: "game",
 };
-export const DEBUG = false;
-const USING_DEBUG_SERVER = false;
-
-export let SERVER_ADDRESS = "secret-hitler-online.fly.dev";
-export let SERVER_ADDRESS_HTTP = "https://" + SERVER_ADDRESS;
-export let WEBSOCKET_HEADER = "wss://";
-
-if (USING_DEBUG_SERVER) {
-    // Debug Constants
-    SERVER_ADDRESS = "localhost:4040";
-    SERVER_ADDRESS_HTTP = "http://" + SERVER_ADDRESS;
-    WEBSOCKET_HEADER = "ws://";
-}
+export const DEBUG = process.env.REACT_APP_DEBUG !== undefined;
+export const SERVER_ADDRESS =
+	process.env.REACT_APP_SERVER_ADDRESS || "secret-hitler-online.fly.dev";
+export const SERVER_ADDRESS_HTTP =
+	process.env.REACT_APP_SERVER_ADDRESS_HTTP || "https://" + SERVER_ADDRESS;
+export const WEBSOCKET_HEADER =
+	process.env.REACT_APP_WEBSOCKET_HEADER || "wss://";
 
 export const CHECK_LOGIN = "/check-login";
-export const NEW_LOBBY = '/new-lobby';
-export const WEBSOCKET = '/game';
+export const NEW_LOBBY = "/new-lobby";
+export const WEBSOCKET = "/game";
 export const SERVER_PING = "/ping";
 export const MAX_FAILED_CONNECTIONS = 5;
 export const LOBBY_CODE_LENGTH = 4;
@@ -75,19 +69,19 @@ export const COMMAND_END_TERM = "end-term";
 
 export const STATE_SETUP = "SETUP";
 export const STATE_CHANCELLOR_NOMINATION = "CHANCELLOR_NOMINATION";
-export const STATE_CHANCELLOR_VOTING = "CHANCELLOR_VOTING";             // Voting on the chancellor is taking place.
-export const STATE_LEGISLATIVE_PRESIDENT = "LEGISLATIVE_PRESIDENT";     // In the legislative phase. The president is selecting a card to discard.
-export const STATE_LEGISLATIVE_CHANCELLOR = "LEGISLATIVE_CHANCELLOR";   // In the legislative phase. The chancellor is selecting a card to enact.
-export const STATE_LEGISLATIVE_PRESIDENT_VETO = "LEGISLATIVE_PRESIDENT_VETO";       // Chancellor decided to initiate veto, President chooses whether to allow.
-export const STATE_PP_PEEK = "PRESIDENTIAL_POWER_PEEK";                 // President may peek at the next three cards in the deck
-export const STATE_PP_INVESTIGATE = "PRESIDENTIAL_POWER_INVESTIGATE";   // President can investigate a party membership
-export const STATE_PP_EXECUTION = "PRESIDENTIAL_POWER_EXECUTION";       // President may choose a player to execute
-export const STATE_PP_ELECTION = "PRESIDENTIAL_POWER_ELECTION";         // President chooses the next president, seat continues as normal after.
-export const STATE_POST_LEGISLATIVE = "POST_LEGISLATIVE";               // Waiting for the President to end their turn.
-export const STATE_LIBERAL_VICTORY_POLICY = "LIBERAL_VICTORY_POLICY";               // Liberal Party won through enacting Liberal policies.
-export const STATE_LIBERAL_VICTORY_EXECUTION = "LIBERAL_VICTORY_EXECUTION";         // Liberal Party won through executing Hitler.
-export const STATE_FASCIST_VICTORY_POLICY = "FASCIST_VICTORY_POLICY";               // Fascist Party won through enacting Fascist policies.
-export const STATE_FASCIST_VICTORY_ELECTION = "FASCIST_VICTORY_ELECTION";           // Fascist Party won by successfully electing Hitler chancellor.
+export const STATE_CHANCELLOR_VOTING = "CHANCELLOR_VOTING"; // Voting on the chancellor is taking place.
+export const STATE_LEGISLATIVE_PRESIDENT = "LEGISLATIVE_PRESIDENT"; // In the legislative phase. The president is selecting a card to discard.
+export const STATE_LEGISLATIVE_CHANCELLOR = "LEGISLATIVE_CHANCELLOR"; // In the legislative phase. The chancellor is selecting a card to enact.
+export const STATE_LEGISLATIVE_PRESIDENT_VETO = "LEGISLATIVE_PRESIDENT_VETO"; // Chancellor decided to initiate veto, President chooses whether to allow.
+export const STATE_PP_PEEK = "PRESIDENTIAL_POWER_PEEK"; // President may peek at the next three cards in the deck
+export const STATE_PP_INVESTIGATE = "PRESIDENTIAL_POWER_INVESTIGATE"; // President can investigate a party membership
+export const STATE_PP_EXECUTION = "PRESIDENTIAL_POWER_EXECUTION"; // President may choose a player to execute
+export const STATE_PP_ELECTION = "PRESIDENTIAL_POWER_ELECTION"; // President chooses the next president, seat continues as normal after.
+export const STATE_POST_LEGISLATIVE = "POST_LEGISLATIVE"; // Waiting for the President to end their turn.
+export const STATE_LIBERAL_VICTORY_POLICY = "LIBERAL_VICTORY_POLICY"; // Liberal Party won through enacting Liberal policies.
+export const STATE_LIBERAL_VICTORY_EXECUTION = "LIBERAL_VICTORY_EXECUTION"; // Liberal Party won through executing Hitler.
+export const STATE_FASCIST_VICTORY_POLICY = "FASCIST_VICTORY_POLICY"; // Fascist Party won through enacting Fascist policies.
+export const STATE_FASCIST_VICTORY_ELECTION = "FASCIST_VICTORY_ELECTION"; // Fascist Party won by successfully electing Hitler chancellor.
 
 // Params
 // <editor-fold desc="Params">

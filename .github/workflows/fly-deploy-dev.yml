@@ -1,8 +1,8 @@
-name: Build and Deploy Server
+name: Deploy Server - Dev
 on:
   push:
     branches:
-      - main
+      - development
 jobs:
   deploy:
     name: Deploy app
@@ -17,19 +17,25 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin' # See 'Supported distributions' for available options
-          java-version: '11'
+          distribution: "temurin" # See 'Supported distributions' for available options
+          java-version: "11"
 
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
-      
+
+      - name: Run Tests
+        run: ./gradlew test
+
       - name: Build JAR with Gradle
         run: ./gradlew jar && mkdir target && mv build/libs/secret-hitler-online.jar target/secret-hitler-online.jar --force
+
+      - name: Replace standard Dockerfile with debug version
+        run: rm ./Dockerfile && cp ./config/Dockerfile.dev ./Dockerfile
 
       - name: Setup Fly
         uses: superfly/flyctl-actions/setup-flyctl@master
 
       - name: Deploy to Fly
-        run: flyctl deploy --remote-only
+        run: flyctl deploy -a "secret-hitler-online-dev" --remote-only
         env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN_DEV }}

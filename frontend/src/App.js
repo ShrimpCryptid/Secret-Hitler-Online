@@ -160,6 +160,10 @@ const TEST_GAME_STATE = {
     "veto-occurred": false
 };*/
 
+if (DEBUG) {
+	console.warn("Running in debug mode.");
+}
+
 class App extends Component {
 
     websocket = undefined;
