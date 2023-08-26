@@ -13,7 +13,7 @@ export const SERVER_ADDRESS =
 export const SERVER_ADDRESS_HTTP =
 	process.env.REACT_APP_SERVER_ADDRESS_HTTP || "https://" + SERVER_ADDRESS;
 export const WEBSOCKET_HEADER =
-	process.env.REACT_APP_SERVER_ADDRESS_HTTP || "wss://";
+	process.env.REACT_APP_WEBSOCKET_HEADER || "wss://";
 
 export const CHECK_LOGIN = "/check-login";
 export const NEW_LOBBY = "/new-lobby";
