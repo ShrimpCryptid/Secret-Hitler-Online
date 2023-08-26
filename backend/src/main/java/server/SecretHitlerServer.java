@@ -95,9 +95,6 @@ public class SecretHitlerServer {
     ////// Private Methods
 
     private static int getHerokuAssignedPort() {
-        if (DEBUG) {
-            return DEFAULT_PORT_NUMBER;
-        }
         String herokuPort = System.getenv("PORT");
         if (herokuPort != null) {
             return Integer.parseInt(herokuPort);
