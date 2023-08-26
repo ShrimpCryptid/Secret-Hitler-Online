@@ -618,7 +618,7 @@ public class SecretHitlerServer {
                         break;
 
                     case COMMAND_GET_STATE: // Requests the updated state of the game.
-                        lobby.updateUser(ctx);
+                        lobby.updateUser(ctx, name);
                         break;
 
                     case COMMAND_NOMINATE_CHANCELLOR: // params: PARAM_TARGET (String)
