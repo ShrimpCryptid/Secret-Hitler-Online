@@ -67,7 +67,7 @@ public class SecretHitlerGame implements Serializable {
     // The last president and chancellor that were successfully voted into office.
     private String lastPresident;
     private String lastChancellor;
-    private Policy.Type lastEnactedPolicy;
+    private Policy.Type lastEnactedPolicy = Policy.Type.FASCIST;
 
     private String currentPresident;
     private String currentChancellor;
