@@ -12,7 +12,8 @@ jobs:
         working-directory: ./frontend
     steps:
       - uses: actions/checkout@v3
-      - run: npm ci && npm run build
+      # Use dev environment so the preview uses the dev server
+      - run: npm ci && npx env-cmd -f .env.dev npm run build
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
