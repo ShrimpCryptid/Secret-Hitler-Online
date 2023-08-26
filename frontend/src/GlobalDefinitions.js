@@ -118,5 +118,6 @@ export const PARAM_DISCARD_DECK = "discard-size";
 export const PARAM_PRESIDENT_CHOICES = "president-choices";
 export const PARAM_CHANCELLOR_CHOICES = "chancellor-choices";
 export const PARAM_TARGET = "target-user";
+export const PARAM_LAST_POLICY = "last-policy";
 export const PARAM_DID_VETO_OCCUR = "veto-occurred";
 // </editor-fold>

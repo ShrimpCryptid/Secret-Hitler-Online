@@ -53,6 +53,7 @@ import {
     PARAM_ELEC_TRACKER_ADVANCED,
     COMMAND_END_TERM,
     PARAM_LAST_STATE,
+    PARAM_LAST_POLICY,
     STATE_PP_PEEK,
     PLAYER_IS_ALIVE,
     PARAM_TARGET,
@@ -921,7 +922,7 @@ class App extends Component {
                 this.queueAlert((
                     <PolicyEnactedAlert
                         hideAlert={this.hideAlertAndFinish}
-                        policyType={liberalChanged ? LIBERAL : FASCIST}/>
+                        policyType={newState[PARAM_LAST_POLICY]}/>
                 ));
             }
 
