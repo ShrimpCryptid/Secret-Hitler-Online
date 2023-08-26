@@ -25,12 +25,13 @@ public class SecretHitlerServer {
     ////// Static Fields
     // <editor-fold desc="Static Fields">
     // TODO: Replace this with an environment variable or environment flag
-    private static boolean DEBUG = false;
     public static final int DEFAULT_PORT_NUMBER = 4040;
-    
+
     // Environmental Variable Names
-    private static final String ENV_DEBUG = "DEBUG";
+    private static final String ENV_DEBUG = "DEBUG_MODE";
     private static final String ENV_DATABASE_URL = "DATABASE_URL";
+
+    private static boolean DEBUG = System.getenv(ENV_DEBUG) != null;
 
     // Passed to server
     public static final String PARAM_LOBBY = "lobby";
@@ -110,18 +111,22 @@ public class SecretHitlerServer {
         loadDatabaseBackup();
         removeInactiveLobbies(); // immediately clean in case of redundant lobbies.
 
+        if (DEBUG) {
+            System.out.println("Running in DEBUG mode.");
+        }
+
         // Only initialize Javalin communication after the database has been queried.
         Javalin serverApp = Javalin.create(config -> {
             config.plugins.enableCors(cors -> {
-              if (DEBUG) {
-                cors.add(it -> {
-                  it.anyHost();
-                });
-              } else {
-                cors.add(it -> {
-                  it.allowHost("https://secret-hitler.online");
-                });
-              }
+                if (DEBUG) {
+                    cors.add(it -> {
+                        it.anyHost();
+                    });
+                } else {
+                    cors.add(it -> {
+                        it.allowHost("https://secret-hitler.online");
+                    });
+                }
             });
         }).start(getHerokuAssignedPort());
 
@@ -209,16 +214,14 @@ public class SecretHitlerServer {
         Connection c = null;
         try {
             URI databaseUri;
-            if (DEBUG) {
-                databaseUri = new URI("");
-            } else {
-                String envUri = System.getenv(ENV_DATABASE_URL);
-                if (envUri == null) {
-                  System.out.println("Could not connect to database: No ENV_DATABASE_URL environment variable provided.");
-                  return null;
-                }
-                databaseUri = new URI(envUri);
+            String envUri = System.getenv(ENV_DATABASE_URL);
+            if (envUri == null) {
+                System.out.println(
+                        "Could not connect to database: No ENV_DATABASE_URL environment variable provided.");
+                return null;
             }
+            databaseUri = new URI(envUri);
+
             String username = databaseUri.getUserInfo().split(":")[0];
             String password = databaseUri.getUserInfo().split(":")[1];
             String dbUrl = "jdbc:postgresql://" + databaseUri.getHost() + ':' + databaseUri.getPort()
@@ -498,7 +501,8 @@ public class SecretHitlerServer {
     private static void onWebsocketConnect(WsConnectContext ctx) {
         if (ctx.queryParam(PARAM_LOBBY) == null || ctx.queryParam(PARAM_NAME) == null) {
             System.out.println("A websocket request was missing a parameter and was disconnected.");
-            ctx.session.close(StatusCode.PROTOCOL, "Must have the '" + PARAM_LOBBY + "' and '" + PARAM_NAME + "' parameters.");
+            ctx.session.close(StatusCode.PROTOCOL,
+                    "Must have the '" + PARAM_LOBBY + "' and '" + PARAM_NAME + "' parameters.");
             return;
         }
 

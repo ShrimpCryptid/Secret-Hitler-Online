@@ -29,6 +29,9 @@ jobs:
       - name: Build JAR with Gradle
         run: ./gradlew jar && mkdir target && mv build/libs/secret-hitler-online.jar target/secret-hitler-online.jar --force
 
+      - name: Replace standard Dockerfile with debug version
+        run: rm ./Dockerfile && cp ./config/Dockerfile.dev ./Dockerfile
+
       - name: Setup Fly
         uses: superfly/flyctl-actions/setup-flyctl@master
 
