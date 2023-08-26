@@ -1,49 +1,51 @@
 {
-  "name": "secret-hitler-online-interface",
-  "version": "0.1.0",
-  "private": true,
-  "homepage": ".",
-  "dependencies": {
-    "@testing-library/jest-dom": "^5.16.2",
-    "@testing-library/react": "^12.1.2",
-    "@testing-library/user-event": "^7.2.1",
-    "js-cookie": "^2.2.1",
-    "query-string": "^6.14.1",
-    "react": "^16.14.0",
-    "react-alice-carousel": "^2.5.1",
-    "react-dom": "^16.14.0",
-    "react-ga": "^2.7.0",
-    "react-helmet": "^6.1.0",
-    "react-router": "^5.2.0",
-    "react-router-config": "^5.1.1",
-    "react-router-dom": "^5.2.0",
-    "react-textfit": "^1.1.1",
-    "react-twitter-embed": "^3.0.3",
-    "typescript": "^3.9.10"
-  },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
-  "devDependencies": {
-    "prop-types": "^15.7.2",
-    "react-scripts": "^5.0.0"
-  }
+	"name": "secret-hitler-online-interface",
+	"version": "0.1.0",
+	"private": true,
+	"homepage": ".",
+	"dependencies": {
+		"@testing-library/jest-dom": "^5.16.2",
+		"@testing-library/react": "^12.1.2",
+		"@testing-library/user-event": "^7.2.1",
+		"js-cookie": "^2.2.1",
+		"query-string": "^6.14.1",
+		"react": "^16.14.0",
+		"react-alice-carousel": "^2.5.1",
+		"react-dom": "^16.14.0",
+		"react-ga": "^2.7.0",
+		"react-helmet": "^6.1.0",
+		"react-router": "^5.2.0",
+		"react-router-config": "^5.1.1",
+		"react-router-dom": "^5.2.0",
+		"react-textfit": "^1.1.1",
+		"react-twitter-embed": "^3.0.3",
+		"typescript": "^3.9.10"
+	},
+	"scripts": {
+		"start": "react-scripts start",
+		"debug": "npx env-cmd -f .env.dev react-scripts start",
+		"build": "react-scripts build",
+		"test": "react-scripts test",
+		"eject": "react-scripts eject"
+	},
+	"eslintConfig": {
+		"extends": "react-app"
+	},
+	"browserslist": {
+		"production": [
+			">0.2%",
+			"not dead",
+			"not op_mini all"
+		],
+		"development": [
+			"last 1 chrome version",
+			"last 1 firefox version",
+			"last 1 safari version"
+		]
+	},
+	"devDependencies": {
+		"env-cmd": "^10.1.0",
+		"prop-types": "^15.7.2",
+		"react-scripts": "^5.0.0"
+	}
 }

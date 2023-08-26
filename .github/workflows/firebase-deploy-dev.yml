@@ -18,8 +18,6 @@ jobs:
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
-          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_SECRET_HITLER_ONLINE }}"
-          # TODO: Use a separate project ID instead of defining a channel
-          channelId: dev
-          projectId: secret-hitler-online
+          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_SECRET_HITLER_ONLINE_DEV }}"
+          projectId: secret-hitler-online-dev0
           entryPoint: ./frontend
