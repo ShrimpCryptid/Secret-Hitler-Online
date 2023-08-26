@@ -70,7 +70,7 @@ public class GameToJSONConverter {
 
         // Players should only be shown all roles under specific circumstances.
         Identity role = game.getPlayer(userName).getIdentity();
-        Boolean showAllRoles = game.hasGameFinished() || role == Identity.FASCIST
+        boolean showAllRoles = game.hasGameFinished() || role == Identity.FASCIST
                 || (role == Identity.HITLER && game.getPlayerList().size() <= 6);
 
         for (int i = 0; i < playerList.size(); i++) {
