@@ -10,6 +10,7 @@ import server.SecretHitlerServer;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -291,8 +292,8 @@ public class Lobby implements Serializable {
      *          updates all connected CpuPlayers after a set amount of time.
      */
     synchronized public void updateAllUsers() {
-        for (WsContext ws : userToUsername.keySet()) {
-            updateUser(ws);
+        for (Entry<WsContext, String> entry : userToUsername.entrySet()) {
+            updateUser(entry.getKey(), entry.getValue());
         }
 
         // Check if the game ended.
@@ -365,10 +366,10 @@ public class Lobby implements Serializable {
      *          SecretHitlerGame is sent
      *          to the specified WsContext. ({@code GameToJSONConverter.convert()})
      */
-    synchronized public void updateUser(WsContext ctx) {
+    synchronized public void updateUser(WsContext ctx, String userName) {
         JSONObject message;
         if (isInGame()) {
-            message = GameToJSONConverter.convert(game); // sends the game state
+            message = GameToJSONConverter.convert(game, userName); // sends the game state
             message.put(SecretHitlerServer.PARAM_PACKET_TYPE, SecretHitlerServer.PACKET_GAME_STATE);
         } else {
             message = new JSONObject();
