@@ -1,4 +1,4 @@
-FROM openjdk:17.0.2-slim-buster
+FROM ibm-semeru-runtimes:open-17-jre-focal
 
 ENV PORT 8080
 EXPOSE 8080
