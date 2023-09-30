@@ -675,6 +675,7 @@ public class SecretHitlerServer {
                         } else {
                             obj.put(PARAM_INVESTIGATION, LIBERAL);
                         }
+                        obj.put(PARAM_TARGET, message.getString(PARAM_TARGET));
                         ctx.send(obj.toString());
                         break;
 
