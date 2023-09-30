@@ -68,7 +68,7 @@ import {
     WEBSOCKET_HEADER,
     DEBUG,
     PACKET_PONG,
-    PING_INTERVAL, COMMAND_PING, SERVER_PING, PARAM_ICON, PARAM_DID_VETO_OCCUR
+    PING_INTERVAL, COMMAND_PING, SERVER_PING, PARAM_ICON, PARAM_DID_VETO_OCCUR, PARAM_INVESTIGATION
 } from "./GlobalDefinitions";
 
 import PlayerDisplay, {
@@ -415,7 +415,17 @@ class App extends Component {
                 break;
 
             case PACKET_INVESTIGATION:
+                // Trigger investigation screen when the server responds.
+                console.log("Investigated player role: " + message[PARAM_INVESTIGATION]);
+                // Set party to liberal/fascist using sent packet
+                const party = (message[PARAM_INVESTIGATION]);
 
+                this.queueAlert(
+                    <InvestigationAlert party={party}
+                                        target={message[PARAM_TARGET]}
+                                        hideAlert={this.hideAlertAndFinish}
+                    />
+                    , false);
                 break;
             case PACKET_PONG:
             default:
@@ -1154,17 +1164,8 @@ class App extends Component {
                                     </ButtonPrompt>
                                     , true);
                             } else {
-                                // Is President
-                                let target = newState[PARAM_TARGET];
-                                // Set party according to liberal/fascist
-                                let party = (newState[PARAM_PLAYERS][target][PLAYER_IDENTITY] === LIBERAL ? LIBERAL : FASCIST);
-
-                                this.queueAlert(
-                                    <InvestigationAlert party={party}
-                                                        target={target}
-                                                        hideAlert={this.hideAlertAndFinish}
-                                    />
-                                    , false);
+                                // Is President; do nothing because we handle the
+                                // response directly from the server.
                             }
                             break;
                         case STATE_PP_PEEK: // No additional case is necessary for peeking.

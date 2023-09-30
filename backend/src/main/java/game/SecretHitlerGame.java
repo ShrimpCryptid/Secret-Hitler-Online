@@ -310,9 +310,7 @@ public class SecretHitlerGame implements Serializable {
             throw new IllegalStateException("Cannot assign roles with too many players.");
         }
 
-        // 5 6 7 8 9 10
-        int[] fascistsFromPlayers = new int[] { 1, 1, 2, 2, 3, 3 };
-        int numFascistsToSet = fascistsFromPlayers[players - MIN_PLAYERS];
+        int numFascistsToSet = NUM_FASCISTS_FOR_PLAYERS[players];
 
         // Set all players to default state
         for (Player player : playerList) {
