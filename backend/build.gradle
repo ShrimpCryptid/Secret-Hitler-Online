@@ -33,7 +33,7 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.10.1'
 
     // PostgresSQL driver
-    implementation 'org.postgresql:postgresql:42.2.5'
+    implementation 'org.postgresql:postgresql:42.7.0'
     
     // Apache Commons Lang
     implementation 'org.apache.commons:commons-lang3:3.0'
