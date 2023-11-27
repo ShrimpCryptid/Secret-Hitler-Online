@@ -14,6 +14,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.stream.Collectors;
 
 /**
  * A Lobby holds a collection of websocket connections, each representing a
@@ -91,6 +92,18 @@ public class Lobby implements Serializable {
      */
     synchronized public Set<WsContext> getConnections() {
         return userToUsername.keySet();
+    }
+
+    /**
+     * Returns the list of usernames currently in the lobby or game. Includes
+     * bot names if the game is running and has bots.
+     */
+    synchronized public List<String> getUserNames() {
+        if (game != null) {
+            return game.getPlayerList().stream().map(player -> player.getUsername()).collect(Collectors.toList());
+        } else {
+            return new ArrayList<String>(userToUsername.values());
+        }
     }
 
     /////// User Management
