@@ -108,6 +108,18 @@ public class SecretHitlerServer {
         debugPrint(input + "\n");
     }
 
+    /**
+     * Prints the current list of lobbies and their players.
+     */
+    private static void printLobbyStatus() {
+        synchronized (codeToLobby) {
+            System.out.println("Lobbies (" + codeToLobby.mappingCount() + ") : " + codeToLobby.keySet().toString());
+            for (Map.Entry<String, Lobby> entry : codeToLobby.entrySet()) {
+                System.out.println("  " + entry.getKey() + ": " + entry.getValue().getUserNames());
+            }
+        }
+    }
+
     private static int getHerokuAssignedPort() {
         String herokuPort = System.getenv("PORT");
         if (herokuPort != null) {
@@ -154,6 +166,7 @@ public class SecretHitlerServer {
             public void run() {
                 debugPrintLn("Attempting to back up lobby data.");
                 storeDatabaseBackup();
+                printLobbyStatus();
             }
         });
 
@@ -204,7 +217,7 @@ public class SecretHitlerServer {
         }
         if (removedCount > 0) {
             debugPrintLn(String.format("Removed %d inactive lobbies: %s", removedCount, removedLobbyCodes));
-            System.out.println("Available lobbies: " + codeToLobby.keySet());
+            printLobbyStatus();
             hasLobbyChanged = true;
         }
     }
@@ -347,6 +360,7 @@ public class SecretHitlerServer {
             return;
         }
         debugPrintLn("Successfully saved Lobby state to the database.");
+        printLobbyStatus();
     }
 
     /**
