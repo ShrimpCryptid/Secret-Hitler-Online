@@ -527,7 +527,7 @@ public class SecretHitlerServer {
      */
     private static void onWebsocketConnect(WsConnectContext ctx) {
         if (ctx.queryParam(PARAM_LOBBY) == null || ctx.queryParam(PARAM_NAME) == null) {
-            System.out.println("A websocket request was missing a parameter and was disconnected.");
+            debugPrintLn("A websocket request was missing a parameter and was disconnected.");
             ctx.session.close(StatusCode.PROTOCOL,
                     "Must have the '" + PARAM_LOBBY + "' and '" + PARAM_NAME + "' parameters.");
             return;
