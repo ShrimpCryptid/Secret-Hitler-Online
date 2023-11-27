@@ -171,8 +171,8 @@ public class SecretHitlerServer {
         });
 
         // Add timer for periodic updates.
-        int delay = 0;
-        int period = (int) (UPDATE_FREQUENCY_SECONDS * 1000.0f);
+        int delayMs = 0;
+        int periodMs = (int) (UPDATE_FREQUENCY_SECONDS * 1000.0f);
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override
@@ -187,7 +187,7 @@ public class SecretHitlerServer {
                     hasLobbyChanged = false;
                 }
             }
-        }, delay, period);
+        }, delayMs, periodMs);
     }
 
     /**
