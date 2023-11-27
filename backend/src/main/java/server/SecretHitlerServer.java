@@ -79,7 +79,7 @@ public class SecretHitlerServer {
     private static final String CODE_CHARACTERS = "ABCDEFGHIJKLMNOPQRSTWXYZ"; // u,v characters can look ambiguous
     private static final int CODE_LENGTH = 4;
 
-    private static final float UPDATE_FREQUENCY_MIN = 1;
+    private static final float UPDATE_FREQUENCY_SECONDS = 60;
     // </editor-fold>
 
     ///// Private Fields
@@ -172,12 +172,15 @@ public class SecretHitlerServer {
 
         // Add timer for periodic updates.
         int delay = 0;
-        int period = (int) (UPDATE_FREQUENCY_MIN * 60.0f * 1000.0f);
+        int period = (int) (UPDATE_FREQUENCY_SECONDS * 1000.0f);
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
                 removeInactiveLobbies();
+                if (!codeToLobby.isEmpty()) {
+                    printLobbyStatus();
+                }
                 // If there are active lobbies, store a backup of the game.
                 if (!codeToLobby.isEmpty() && hasLobbyChanged) {
                     storeDatabaseBackup();
@@ -314,6 +317,7 @@ public class SecretHitlerServer {
             System.out.println("Failed to retrieve lobby backups from the database.");
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
         }
+        printLobbyStatus();
     }
 
     private static void storeDatabaseBackup() {
@@ -360,7 +364,6 @@ public class SecretHitlerServer {
             return;
         }
         debugPrintLn("Successfully saved Lobby state to the database.");
-        printLobbyStatus();
     }
 
     /**
