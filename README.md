@@ -13,7 +13,7 @@ Go to [secret-hitler.online](https://secret-hitler.online) and open a new lobby!
 
 There are instructions on how to play the game provided on the website, and plenty of helpful tips are provided for first-time players. The game takes care of rules for you, making it easy to pick up and play. 
 
-For more information, read the [official rulebook here](https://cdn.vapid.site/sites/a67e0c72-4902-4365-a899-3386df73c2c4/assets/Secret_Hitler_Rules-023bc755617986cb2276a3b6920e43e0.pdf).
+For more information, read the [official rulebook here](https://www.secrethitler.com/assets/Secret_Hitler_Rules.pdf).
 
 ## About this project
 ### Technical Details
