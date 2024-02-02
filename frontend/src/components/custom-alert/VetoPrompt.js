@@ -5,7 +5,7 @@ import {
 	COMMAND_REGISTER_PRESIDENT_VETO,
 	PARAM_VETO,
 	SERVER_TIMEOUT,
-} from "../constants";
+} from "../../constants";
 
 class VetoPrompt extends Component {
 	constructor(props) {

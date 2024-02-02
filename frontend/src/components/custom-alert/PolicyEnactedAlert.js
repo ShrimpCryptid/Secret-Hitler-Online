@@ -9,7 +9,7 @@ import FolderCoverBack from "../assets/policy-folder-cover-back.png";
 import FolderBack from "../assets/policy-folder-back.png";
 
 import "./PolicyEnactedAlert.css";
-import { LIBERAL } from "../constants";
+import { LIBERAL } from "../../constants";
 
 class PolicyEnactedAlert extends Component {
 	shiftAnimationTimeout;

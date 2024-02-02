@@ -27,7 +27,7 @@ import {
 	PARAM_LAST_CHANCELLOR,
 	PARAM_LAST_PRESIDENT,
 	PARAM_ICON,
-} from "../constants";
+} from "../../constants";
 import "./PlayerDisplay.css";
 
 /**

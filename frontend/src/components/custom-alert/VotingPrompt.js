@@ -15,7 +15,7 @@ import {
 	PARAM_VOTE,
 	PLAYER_IDENTITY,
 	SERVER_TIMEOUT,
-} from "../constants";
+} from "../../constants";
 import "../selectable.css";
 import "./VotingPrompt.css";
 import YesVote from "../assets/vote-yes.png";
