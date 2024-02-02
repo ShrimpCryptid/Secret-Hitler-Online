@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import ReactGA from "react-ga";
 import "./LoginPageContent.css";
-import "./components/util/CustomAliceCarousel.css";
+import "./util/CustomAliceCarousel.css";
 
 class LoginPageContent extends Component {
 	onClickAbout = () => {

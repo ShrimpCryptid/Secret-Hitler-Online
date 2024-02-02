@@ -3,10 +3,10 @@ import ReactGA from "react-ga";
 import "./App.css";
 import "./Lobby.css";
 import "./fonts.css";
-import MaxLengthTextField from "./components/util/MaxLengthTextField";
-import CustomAlert from "./components/custom-alert/CustomAlert";
-import RoleAlert from "./components/custom-alert/RoleAlert";
-import EventBar from "./components/event-bar/EventBar";
+import MaxLengthTextField from "./util/MaxLengthTextField";
+import CustomAlert from "./custom-alert/CustomAlert";
+import RoleAlert from "./custom-alert/RoleAlert";
+import EventBar from "./event-bar/EventBar";
 
 import {
 	PAGE,
@@ -79,36 +79,36 @@ import {
 import PlayerDisplay, {
 	DISABLE_EXECUTED_PLAYERS,
 	DISABLE_NONE,
-} from "./components/player/PlayerDisplay";
-import StatusBar from "./components/status-bar/StatusBar";
-import Board from "./components/board/Board";
-import VotingPrompt from "./components/custom-alert/VotingPrompt";
-import PresidentLegislativePrompt from "./components/custom-alert/PresidentLegislativePrompt";
-import ChancellorLegislativePrompt from "./components/custom-alert/ChancellorLegislativePrompt";
-import VetoPrompt from "./components/custom-alert/VetoPrompt";
-import ElectionTrackerAlert from "./components/custom-alert/ElectionTrackerAlert";
-import PolicyEnactedAlert from "./components/custom-alert/PolicyEnactedAlert";
+} from "./player/PlayerDisplay";
+import StatusBar from "./status-bar/StatusBar";
+import Board from "./board/Board";
+import VotingPrompt from "./custom-alert/VotingPrompt";
+import PresidentLegislativePrompt from "./custom-alert/PresidentLegislativePrompt";
+import ChancellorLegislativePrompt from "./custom-alert/ChancellorLegislativePrompt";
+import VetoPrompt from "./custom-alert/VetoPrompt";
+import ElectionTrackerAlert from "./custom-alert/ElectionTrackerAlert";
+import PolicyEnactedAlert from "./custom-alert/PolicyEnactedAlert";
 import {
 	SelectExecutionPrompt,
 	SelectInvestigationPrompt,
 	SelectNominationPrompt,
 	SelectSpecialElectionPrompt,
-} from "./components/custom-alert/SelectPlayerPrompt";
-import ButtonPrompt from "./components/custom-alert/ButtonPrompt";
-import PeekPrompt from "./components/custom-alert/PeekPrompt";
-import InvestigationAlert from "./components/custom-alert/InvestigationAlert";
-import Deck from "./components/board/Deck";
-import PlayerPolicyStatus from "./components/util/PlayerPolicyStatus";
+} from "./custom-alert/SelectPlayerPrompt";
+import ButtonPrompt from "./custom-alert/ButtonPrompt";
+import PeekPrompt from "./custom-alert/PeekPrompt";
+import InvestigationAlert from "./custom-alert/InvestigationAlert";
+import Deck from "./board/Deck";
+import PlayerPolicyStatus from "./util/PlayerPolicyStatus";
 
 import VictoryFascistHeader from "./assets/victory-fascist-header.png";
 import VictoryLiberalHeader from "./assets/victory-liberal-header.png";
-import IconSelection from "./components/custom-alert/IconSelection";
-import HelmetMetaData from "./components/util/HelmetMetaData";
+import IconSelection from "./custom-alert/IconSelection";
+import HelmetMetaData from "./util/HelmetMetaData";
 import { defaultPortrait } from "./assets";
-import Player from "./components/player/Player";
+import Player from "./player/Player";
 import LoginPageContent from "./LoginPageContent";
 import Cookies from "js-cookie";
-import AnnouncementBox from "./components/util/AnnouncementBox";
+import AnnouncementBox from "./util/AnnouncementBox";
 
 const EVENT_BAR_FADE_OUT_DURATION = 500;
 const CUSTOM_ALERT_FADE_DURATION = 1000;
