@@ -22,21 +22,21 @@ repositories {
 
 dependencies {
     // This dependency is found on compile classpath of this component and consumers.
-    implementation 'com.google.guava:guava:27.0.1-jre'
+    implementation 'com.google.guava:guava:33.0.0-jre'
 
     // Javalin is a server/networking library for Java.
     implementation 'io.javalin:javalin:5.6.1'
     implementation 'io.javalin:javalin-bundle:5.6.1'
     implementation 'org.slf4j:slf4j-simple:1.7.30'
-    implementation 'org.json:json:20190722'
+    implementation 'org.json:json:20231013'
     implementation 'com.j2html:j2html:1.4.0'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.10.1'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.16.1'
 
     // PostgresSQL driver
-    implementation 'org.postgresql:postgresql:42.2.5'
+    implementation 'org.postgresql:postgresql:42.7.1'
     
     // Apache Commons Lang
-    implementation 'org.apache.commons:commons-lang3:3.0'
+    implementation 'org.apache.commons:commons-lang3:3.14.0'
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
