@@ -9,7 +9,7 @@ import {
 	PARAM_FASCIST_POLICIES,
 	PARAM_TARGET,
 	SERVER_TIMEOUT,
-} from "../constants";
+} from "../../constants";
 import {
 	DISABLE_EXECUTED_PLAYERS,
 	DISABLE_INVESTIGATED_PLAYERS,

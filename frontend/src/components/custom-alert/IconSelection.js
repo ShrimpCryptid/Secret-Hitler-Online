@@ -7,10 +7,10 @@ import portraits, {
 	unlockedPortraits,
 	lockedPortraits,
 	defaultPortrait,
-} from "../assets";
-import { portraitsAltText } from "../assets";
+} from "../../assets";
+import { portraitsAltText } from "../../assets";
 
-import { COMMAND_SELECT_ICON, PARAM_ICON } from "../constants";
+import { COMMAND_SELECT_ICON, PARAM_ICON } from "../../constants";
 import PropTypes from "prop-types";
 import ButtonPrompt from "./ButtonPrompt";
 

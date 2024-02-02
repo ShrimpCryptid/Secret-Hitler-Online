@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import "./AnnouncementBox.css";
-import { badge } from "../assets";
+import { badge } from "../../assets";
 
 /**
  * A MaxLengthTextField is a text field that has a constrained

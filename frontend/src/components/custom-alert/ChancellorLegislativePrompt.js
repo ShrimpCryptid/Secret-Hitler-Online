@@ -6,7 +6,7 @@ import {
 	COMMAND_REGISTER_CHANCELLOR_VETO,
 	PARAM_CHOICE,
 	SERVER_TIMEOUT,
-} from "../constants";
+} from "../../constants";
 
 import "../util/PolicyDisplay.css";
 import PolicyDisplay from "../util/PolicyDisplay";

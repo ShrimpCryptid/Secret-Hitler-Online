@@ -5,7 +5,7 @@ import ButtonPrompt from "./ButtonPrompt";
 import PartyBack from "../assets/party-membership.png";
 import PartyLiberal from "../assets/party-membership-liberal.png";
 import PartyFascist from "../assets/party-membership-fascist.png";
-import { LIBERAL } from "../constants";
+import { LIBERAL } from "../../constants";
 
 import "./InvestigationAlert.css";
 

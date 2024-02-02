@@ -15,7 +15,7 @@ import IconBusy from "../assets/player-icon-busy.png";
 
 import YesVote from "../assets/player-icon-ja.png";
 import NoVote from "../assets/player-icon-nein.png";
-import portraits, { portraitsAltText } from "../assets";
+import portraits, { portraitsAltText } from "../../assets";
 
 const LIBERAL = "LIBERAL";
 const FASCIST = "FASCIST";

@@ -19,7 +19,7 @@ import {
 	PARAM_PLAYER_ORDER,
 	PARAM_PLAYERS,
 	PLAYER_IDENTITY,
-} from "../constants";
+} from "../../constants";
 
 const LiberalImages = [
 	RoleLiberal1,
