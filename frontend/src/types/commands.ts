@@ -1,42 +1,42 @@
 export const enum WSCommandType {
-	PING = "ping",
-	START_GAME = "start-game",
-	GET_STATE = "get-state",
-	REGISTER_CHANCELLOR_VETO = "chancellor-veto",
-	REGISTER_PRESIDENT_VETO = "president-veto",
-	REGISTER_PEEK = "register-peek",
-	END_TERM = "end-term",
-	// Select an icon
-	SELECT_ICON = "select-icon",
-	// Select a player
-	NOMINATE_CHANCELLOR = "nominate-chancellor",
-	REGISTER_EXECUTION = "register-execution",
-	REGISTER_SPECIAL_ELECTION = "register-special-election",
-	GET_INVESTIGATION = "get-investigation",
-	// Voting action
-	REGISTER_VOTE = "register-vote",
-	// Policy action
-	REGISTER_CHANCELLOR_CHOICE = "register-chancellor-choice",
-	REGISTER_PRESIDENT_CHOICE = "register-president-choice",
+  PING = "ping",
+  START_GAME = "start-game",
+  GET_STATE = "get-state",
+  REGISTER_CHANCELLOR_VETO = "chancellor-veto",
+  REGISTER_PRESIDENT_VETO = "president-veto",
+  REGISTER_PEEK = "register-peek",
+  END_TERM = "end-term",
+  // Select an icon
+  SELECT_ICON = "select-icon",
+  // Select a player
+  NOMINATE_CHANCELLOR = "nominate-chancellor",
+  REGISTER_EXECUTION = "register-execution",
+  REGISTER_SPECIAL_ELECTION = "register-special-election",
+  GET_INVESTIGATION = "get-investigation",
+  // Voting action
+  REGISTER_VOTE = "register-vote",
+  // Policy action
+  REGISTER_CHANCELLOR_CHOICE = "register-chancellor-choice",
+  REGISTER_PRESIDENT_CHOICE = "register-president-choice",
 }
 
 /** All possible commands and associated parameters. */
 type ServerRequestPayload =
-	| { command: WSCommandType.PING }
-	| { command: WSCommandType.START_GAME }
-	| { command: WSCommandType.GET_STATE }
-	| { command: WSCommandType.REGISTER_CHANCELLOR_VETO }
-	| { command: WSCommandType.REGISTER_PRESIDENT_VETO }
-	| { command: WSCommandType.REGISTER_PEEK }
-	| { command: WSCommandType.END_TERM }
-	| { command: WSCommandType.SELECT_ICON; icon: number }
-	| { command: WSCommandType.NOMINATE_CHANCELLOR; target: string }
-	| { command: WSCommandType.REGISTER_EXECUTION; target: string }
-	| { command: WSCommandType.REGISTER_SPECIAL_ELECTION; target: string }
-	| { command: WSCommandType.GET_INVESTIGATION; target: string }
-	| { command: WSCommandType.REGISTER_VOTE; vote: boolean }
-	| { command: WSCommandType.REGISTER_CHANCELLOR_CHOICE; choice: number }
-	| { command: WSCommandType.REGISTER_PRESIDENT_CHOICE; choice: number };
+  | { command: WSCommandType.PING }
+  | { command: WSCommandType.START_GAME }
+  | { command: WSCommandType.GET_STATE }
+  | { command: WSCommandType.REGISTER_CHANCELLOR_VETO }
+  | { command: WSCommandType.REGISTER_PRESIDENT_VETO }
+  | { command: WSCommandType.REGISTER_PEEK }
+  | { command: WSCommandType.END_TERM }
+  | { command: WSCommandType.SELECT_ICON; icon: number }
+  | { command: WSCommandType.NOMINATE_CHANCELLOR; target: string }
+  | { command: WSCommandType.REGISTER_EXECUTION; target: string }
+  | { command: WSCommandType.REGISTER_SPECIAL_ELECTION; target: string }
+  | { command: WSCommandType.GET_INVESTIGATION; target: string }
+  | { command: WSCommandType.REGISTER_VOTE; vote: boolean }
+  | { command: WSCommandType.REGISTER_CHANCELLOR_CHOICE; choice: number }
+  | { command: WSCommandType.REGISTER_PRESIDENT_CHOICE; choice: number };
 
 /**
  * A WebSocket command to send to the server.
@@ -51,6 +51,6 @@ type ServerRequestPayload =
  * @param {number} choice The policy index to register.
  */
 export type WSCommand = {
-	name: string;
-	lobby: string;
+  name: string;
+  lobby: string;
 } & ServerRequestPayload;

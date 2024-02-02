@@ -1,10 +1,10 @@
 export const enum PolicyType {
-	LIBERAL,
-	FASCIST,
+  LIBERAL,
+  FASCIST,
 }
 
 export const enum Role {
-	LIBERAL,
-	FASCIST,
-	HITLER,
+  LIBERAL,
+  FASCIST,
+  HITLER,
 }
