@@ -18,6 +18,7 @@ export enum LobbyState {
 	FASCIST_VICTORY_ELECTION = "FASCIST_VICTORY_ELECTION", // Fascist Party won by successfully electing Hitler chancellor.
 }
 
+// TODO: Edit server API so that fields match
 export type GameState = {
 	state: LobbyState;
 	lastState: LobbyState;
