@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import "./PolicyDisplay.css";
-import { LIBERAL } from "../../constants";
+import { LIBERAL } from "../constants";
 import LiberalPolicy from "../assets/policy-liberal.png";
 import FascistPolicy from "../assets/policy-fascist.png";
 
