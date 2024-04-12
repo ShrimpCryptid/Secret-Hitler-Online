@@ -30,7 +30,10 @@ class PresidentLegislativePrompt extends Component {
     // Contact the server using provided method.
     let data = {};
     data[PARAM_CHOICE] = this.state.selection;
-    this.props.sendWSCommand(COMMAND_REGISTER_PRESIDENT_CHOICE, data);
+    this.props.sendWSCommand({
+      command: WSCommandType.REGISTER_PRESIDENT_CHOICE,
+      choice: this.state.selection,
+    });
   }
 
   // noinspection DuplicatedCode

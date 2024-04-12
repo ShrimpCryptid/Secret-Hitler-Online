@@ -64,9 +64,10 @@ class IconSelection extends Component {
       // This is a valid choice according to our current game state
       // Register the selection with the server.
       // Contact the server using provided method.
-      let data = {};
-      data[PARAM_ICON] = iconID;
-      this.props.sendWSCommand(COMMAND_SELECT_ICON, data);
+      this.props.sendWSCommand({
+        command: WSCommandType.SELECT_ICON,
+        icon: iconID,
+      });
     }
   }
 

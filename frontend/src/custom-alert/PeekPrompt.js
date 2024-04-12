@@ -24,8 +24,7 @@ class PeekPrompt extends Component {
     }, SERVER_TIMEOUT);
 
     // Contact the server using provided method.
-    let data = {};
-    this.props.sendWSCommand(COMMAND_REGISTER_PEEK, data);
+    this.props.sendWSCommand({ command: WSCommandType.REGISTER_PEEK });
   }
 
   componentWillUnmount() {

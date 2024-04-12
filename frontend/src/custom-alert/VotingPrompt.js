@@ -80,9 +80,10 @@ class VotingPrompt extends Component {
     this.setState({ waitingForServer: true });
 
     // Contact the server using provided method.
-    let data = {};
-    data[PARAM_VOTE] = this.state.selection === "yes"; // transform into a boolean value.
-    this.props.sendWSCommand(COMMAND_REGISTER_VOTE, data);
+    this.props.sendWSCommand({
+      command: WSCommandType.REGISTER_VOTE,
+      vote: this.state.selection === "yes",
+    });
   }
 
   componentWillUnmount() {

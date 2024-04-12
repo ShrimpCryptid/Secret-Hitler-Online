@@ -1,4 +1,4 @@
-import { PolicyType } from "./game";
+import { PolicyType, Role } from "./game";
 
 export enum LobbyState {
   SETUP = "SETUP",
@@ -18,12 +18,18 @@ export enum LobbyState {
   FASCIST_VICTORY_ELECTION = "FASCIST_VICTORY_ELECTION", // Fascist Party won by successfully electing Hitler chancellor.
 }
 
+export type PlayerState = {
+  id?: Role;
+  alive: boolean;
+  investigated: boolean;
+};
+
 // TODO: Edit server API so that fields match
 export type GameState = {
   state: LobbyState;
   lastState: LobbyState;
   playerOrder: string[];
-  players: string[];
+  players: Record<string, PlayerState>;
   id: string;
   alive: boolean;
   investigated: boolean;

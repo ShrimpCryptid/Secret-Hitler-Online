@@ -109,6 +109,13 @@ import Player from "./player/Player";
 import LoginPageContent from "./LoginPageContent";
 import Cookies from "js-cookie";
 import AnnouncementBox from "./util/AnnouncementBox";
+import {
+  GameState,
+  LobbyState,
+  ServerRequestPayload,
+  WSCommand,
+  WSCommandType,
+} from "./types";
 
 const EVENT_BAR_FADE_OUT_DURATION = 500;
 const CUSTOM_ALERT_FADE_DURATION = 1000;
@@ -131,100 +138,102 @@ const DEFAULT_GAME_STATE = {
 const COOKIE_NAME = "name";
 const COOKIE_LOBBY = "lobby";
 
-/*
-const TEST_GAME_STATE = {
-    "liberal-policies": 0,
-    "fascist-policies": 0,
-    "discard-size": 0,
-    "draw-size": 17,
-    "players": {
-        "P1": {"alive": true, "id": "FASCIST", "investigated": false},
-        "P2": {"alive": true, "id": "HITLER", "investigated": false},
-        "P3": {"alive": true, "id": "LIBERAL", "investigated": true},
-        "P4": {"alive": true, "id": "LIBERAL", "investigated": false},
-        "P5": {"alive": true, "id": "LIBERAL", "investigated": false},
-        "P6": {"alive": false, "id": "FASCIST", "investigated": false},
-        "P7": {"alive": true, "id": "LIBERAL", "investigated": false}
-    },
-    "in-game": true,
-    "player-order": ["P4", "P2", "P6", "P1", "P7", "P3", "P5"],
-    "state": STATE_SETUP,
-    "last-president": "P7",
-    "last-chancellor": "P3",
-    "president": "P4",
-    "chancellor": "P5",
-    "election-tracker": 0,
-    "user-votes": {"P4": true, "P2": false, "P1": false, "P7": true, "P3": false, "P5": true},
-    "icon": {
-        "P1": "p5",
-        "P2": "p9",
-        "P3": "p8",
-        "P4": "p15",
-        "P5": "p_default",
-        "P6": "p4",
-        "P7": "p2"
-    },
-    "veto-occurred": false
-};*/
-
 if (DEBUG) {
   console.warn("Running in debug mode.");
 }
 
+// TODO: Turn App into a functional component
+// TODO: Refactor out pages into separate components
+// TODO: Refactor out AnimationQueue
+
+// TODO: Remove this type and replace with actual state variables.
+type AppState = {
+  page: PAGE;
+  joinName: string;
+  joinLobby: string;
+  joinError: string;
+  createLobbyName: string;
+  createLobbyError: string;
+  name: string;
+  lobby: string;
+  lobbyFromURL: boolean;
+  usernames: string[];
+  userCount: number;
+  icons: { [key: string]: string };
+  gameState: any;
+  /* Stores the last gameState[PARAM_STATE] value to check for changes. */
+  lastState: any;
+  liberalPolicies: number;
+  fascistPolicies: number;
+  /*The position of the election tracker, ranging from 0 to 3.*/
+  electionTracker: number;
+  showVotes: boolean;
+  drawDeckSize: number;
+  discardDeckSize: number;
+  snackbarMessage: string;
+  showAlert: boolean;
+  alertContent: JSX.Element;
+  showEventBar: boolean;
+  eventBarMessage: string;
+  statusBarText: string;
+  allAnimationsFinished: boolean;
+};
+
+const defaultAppState: AppState = {
+  page: PAGE.LOGIN,
+  joinName: "",
+  joinLobby: "",
+  joinError: "",
+  createLobbyName: "",
+  createLobbyError: "",
+  name: "P1",
+  lobby: "AAAAAA",
+  lobbyFromURL: false,
+  usernames: [],
+  userCount: 0,
+  icons: {},
+  gameState: DEFAULT_GAME_STATE,
+  lastState: {},
+  liberalPolicies: 0,
+  fascistPolicies: 0,
+  electionTracker: 0,
+  showVotes: false,
+  drawDeckSize: 17,
+  discardDeckSize: 0,
+  snackbarMessage: "",
+  showAlert: false,
+  alertContent: <div />,
+  showEventBar: false,
+  eventBarMessage: "",
+  statusBarText: "---",
+  allAnimationsFinished: true,
+};
+
 class App extends Component {
-  websocket = undefined;
-  failedConnections = 0;
-  pinginterval = undefined;
-  reconnectOnConnectionClosed = true;
-  snackbarMessages = 0;
-  animationQueue = [];
-  okMessageListeners = [];
-  allAnimationsFinished = true;
-  gameOver = false;
+  websocket?: WebSocket = undefined;
+  failedConnections: number = 0;
+  pinginterval?: NodeJS.Timeout = undefined;
+  reconnectOnConnectionClosed: boolean = true;
+  snackbarMessages: number = 0;
+  animationQueue: (() => void)[] = [];
+  okMessageListeners: (() => void)[] = [];
+  allAnimationsFinished: boolean = true;
+  gameOver: boolean = false;
+
+  state: AppState;
 
   // noinspection DuplicatedCode
-  constructor(props) {
-    super(props);
+  constructor() {
+    super({});
 
     let name = Cookies.get(COOKIE_NAME) ? Cookies.get(COOKIE_NAME) : "";
     let lobby = Cookies.get(COOKIE_LOBBY) ? Cookies.get(COOKIE_LOBBY) : "";
 
     this.state = {
-      page: PAGE.LOGIN,
-
+      ...defaultAppState,
       joinName: name,
       joinLobby: lobby,
-      joinError: "",
       createLobbyName: name,
-      createLobbyError: "",
-      name: "P1",
-      lobby: "AAAAAA",
-      lobbyFromURL: false,
-
-      usernames: [],
-      userCount: 0,
-      icons: {},
-
-      gameState: DEFAULT_GAME_STATE,
-      lastState:
-        {} /* Stores the last gameState[PARAM_STATE] value to check for changes. */,
-      liberalPolicies: 0,
-      fascistPolicies: 0,
-      electionTracker: 0 /*The position of the election tracker, ranging from 0 to 3.*/,
-      showVotes: false,
-      drawDeckSize: 17,
-      discardDeckSize: 0,
-
-      snackbarMessage: "",
-
-      showAlert: false,
-      alertContent: <div />,
-
-      showEventBar: false,
-      eventBarMessage: "",
-
-      statusBarText: "---",
-      allAnimationsFinished: true,
     };
 
     // The website uses Google Analytics!
@@ -272,7 +281,7 @@ class App extends Component {
    * @param lobby the lobby code.
    * @return {Promise<Response>} The response from the server.
    */
-  async tryLogin(name, lobby) {
+  async tryLogin(name: string, lobby: string) {
     ReactGA.event({
       category: "Login Attempt",
       action: "User attempted to provide login credentials to the server.",
@@ -295,7 +304,7 @@ class App extends Component {
    *          and {@code ws} parameters. The WebSocket has a message callback to this.onWebSocketMessage().
    * @return {boolean} true if the connection was opened successfully. Otherwise, returns false.
    */
-  tryOpenWebSocket(name, lobby) {
+  tryOpenWebSocket(name: string, lobby: string) {
     if (DEBUG) {
       console.log("Opening connection with lobby: " + lobby);
       console.log("Failed connections: " + this.failedConnections);
@@ -336,7 +345,7 @@ class App extends Component {
       ws.onclose = () => this.onWebSocketClose();
       // Ping the web server at a set interval.
       this.pinginterval = setInterval(() => {
-        this.sendWSCommand(COMMAND_PING, {});
+        this.sendWSCommand({ command: WSCommandType.PING });
       }, PING_INTERVAL);
       return true;
     } else {
@@ -403,7 +412,7 @@ class App extends Component {
     }
   }
 
-  async onWebSocketMessage(msg) {
+  async onWebSocketMessage(msg: MessageEvent) {
     this.failedConnections = 0;
     let message = JSON.parse(msg.data);
     // Decode message contents as communication is encoded
@@ -472,20 +481,13 @@ class App extends Component {
    *          {@code PARAM_NAME}: {@code this.state.name}
    *          and each (key, value) pair in {@code params}.
    */
-  sendWSCommand(command, params) {
-    let data = {};
+  sendWSCommand(request: ServerRequestPayload) {
     // Do not need to encode name + lobby because this is sent through websocket
-    data["name"] = this.state.name;
-    data["lobby"] = this.state.lobby;
-    data[PARAM_COMMAND] = command;
-
-    if (params !== undefined) {
-      for (let key in params) {
-        if (!data.hasOwnProperty(key)) {
-          data[key] = params[key];
-        }
-      }
-    }
+    const data: WSCommand = {
+      ...request,
+      name: this.state.name,
+      lobby: this.state.lobby,
+    };
 
     if (DEBUG) {
       console.log(JSON.stringify(data));
@@ -508,7 +510,7 @@ class App extends Component {
    * Updates the "Name" field under Join Game.
    * @param text the text to update the text field to.
    */
-  updateJoinName = (text) => {
+  updateJoinName = (text: string) => {
     this.setState({
       joinName: text,
     });
@@ -518,7 +520,7 @@ class App extends Component {
    * Updates the Lobby field under Join Game.
    * @param text the text to update the text field to.
    */
-  updateJoinLobby = (text) => {
+  updateJoinLobby = (text: string) => {
     this.setState({
       joinLobby: text,
     });
@@ -528,7 +530,7 @@ class App extends Component {
    * Updates the Name field under Create Lobby.
    * @param text the text to update the text field to.
    */
-  updateCreateLobbyName = (text) => {
+  updateCreateLobbyName = (text: string) => {
     this.setState({
       createLobbyName: text,
     });
@@ -837,31 +839,37 @@ class App extends Component {
       category: "Starting Game",
       action: this.state.userCount + " players started game.",
     });
-    this.sendWSCommand(COMMAND_START_GAME);
+    this.sendWSCommand({ command: WSCommandType.START_GAME });
   }
 
   onClickLeaveLobby() {
-    this.websocket.close();
+    this.websocket?.close();
     this.reconnectOnConnectionClosed = false;
   }
 
   onClickCopy() {
-    let text = document.getElementById("linkText");
-    text.select();
-    text.setSelectionRange(0, 999999);
+    const text = document.getElementById("linkText");
+    if (text === null) {
+      return;
+    }
+    (text as HTMLTextAreaElement).select();
+    (text as HTMLTextAreaElement).setSelectionRange(0, 999999);
     document.execCommand("copy");
     this.showSnackBar("Copied!");
   }
 
-  showSnackBar(message) {
+  showSnackBar(message: string) {
     this.setState({ snackbarMessage: message });
     let snackbar = document.getElementById("snackbar");
+    if (snackbar === null) {
+      return;
+    }
     snackbar.className = "show";
     this.snackbarMessages++;
     setTimeout(() => {
       this.snackbarMessages--;
       if (this.snackbarMessages === 0) {
-        snackbar.className = snackbar.className.replace("show", "");
+        snackbar!.className = snackbar!.className.replace("show", "");
       }
     }, 3000);
   }
@@ -983,7 +991,7 @@ class App extends Component {
    * Queues animations for when the game state has changed.
    * @param newState {Object} the new game state sent from the server.
    */
-  onGameStateChanged(newState) {
+  onGameStateChanged(newState: GameState) {
     let oldState = this.state.gameState;
     let name = this.state.name;
     let isPresident = this.state.name === newState[PARAM_PRESIDENT];
@@ -997,30 +1005,26 @@ class App extends Component {
       oldState[PARAM_STATE] === STATE_SETUP
     ) {
       this.setState({
-        liberalPolicies: newState[PARAM_LIBERAL_POLICIES],
-        fascistPolicies: newState[PARAM_FASCIST_POLICIES],
-        electionTracker: newState[PARAM_ELECTION_TRACKER],
-        drawDeckSize: newState[PARAM_DRAW_DECK],
-        discardDeckSize: newState[PARAM_DISCARD_DECK],
+        liberalPolicies: newState.liberalPolicies,
+        fascistPolicies: newState.fascistPolicies,
+        electionTracker: newState.electionTracker,
+        drawDeckSize: newState.drawSize,
+        discardDeckSize: newState.discardSize,
       });
     }
 
     // Check for changes in enacted policies and election tracker.
     if (
-      state === STATE_POST_LEGISLATIVE ||
-      state === STATE_PP_INVESTIGATE ||
-      state === STATE_PP_EXECUTION ||
-      state === STATE_PP_ELECTION ||
-      state === STATE_PP_PEEK
+      state === LobbyState.POST_LEGISLATIVE ||
+      state === LobbyState.PP_INVESTIGATE ||
+      state === LobbyState.PP_EXECUTION ||
+      state === LobbyState.PP_ELECTION ||
+      state === LobbyState.PP_PEEK
     ) {
       // Check if the election tracker changed positions.
-      if (
-        newState[PARAM_ELECTION_TRACKER] !==
-        this.state.gameState[PARAM_ELECTION_TRACKER]
-      ) {
-        let newPos = newState[PARAM_ELECTION_TRACKER];
-        let advancedToThree =
-          newPos === 0 && newState[PARAM_ELEC_TRACKER_ADVANCED];
+      if (newState.electionTracker !== this.state.gameState.electionTracker) {
+        let newPos = newState.electionTracker;
+        let advancedToThree = newPos === 0 && newState.electionTrackerAdvanced;
         // We ignore all resets to 0, unless that reset was caused by the election tracker reaching 3.
         if (newPos !== 0 || advancedToThree) {
           // If the last phase was voting, we failed due to voting. Therefore, show votes.
@@ -1044,16 +1048,16 @@ class App extends Component {
       }
 
       let liberalChanged =
-        newState[PARAM_LIBERAL_POLICIES] !== oldState[PARAM_LIBERAL_POLICIES];
+        newState.liberalPolicies !== oldState.liberalPolicies;
       let fascistChanged =
-        newState[PARAM_FASCIST_POLICIES] !== oldState[PARAM_FASCIST_POLICIES];
+        newState.fascistPolicies !== oldState.fascistPolicies;
 
       if (liberalChanged || fascistChanged) {
         // Show an alert with the new policy
         this.queueAlert(
           <PolicyEnactedAlert
             hideAlert={this.hideAlertAndFinish}
-            policyType={newState[PARAM_LAST_POLICY]}
+            policyType={newState.lastPolicy}
           />
         );
       }
@@ -1061,9 +1065,9 @@ class App extends Component {
       // Update the decks, board with the new policies / election tracker.
       this.addAnimationToQueue(() => {
         this.setState({
-          liberalPolicies: newState[PARAM_LIBERAL_POLICIES],
-          fascistPolicies: newState[PARAM_FASCIST_POLICIES],
-          electionTracker: newState[PARAM_ELECTION_TRACKER],
+          liberalPolicies: newState.liberalPolicies,
+          fascistPolicies: newState.fascistPolicies,
+          electionTracker: newState.electionTracker,
         });
         setTimeout(() => this.onAnimationFinish(), 500);
       });
@@ -1075,14 +1079,14 @@ class App extends Component {
       switch (newState[PARAM_STATE]) {
         case STATE_CHANCELLOR_NOMINATION:
           if (
-            newState[PARAM_ELECTION_TRACKER] === 0 &&
-            newState[PARAM_LIBERAL_POLICIES] === 0 &&
-            newState[PARAM_FASCIST_POLICIES] === 0
+            newState.electionTracker === 0 &&
+            newState.liberalPolicies === 0 &&
+            newState.fascistPolicies === 0
           ) {
             // If the game has just started (everything in default state), show the player's role.
             this.queueAlert(
               <RoleAlert
-                role={newState[PARAM_PLAYERS][this.state.name][PLAYER_IDENTITY]}
+                role={newState.players[this.state.name][PLAYER_IDENTITY]}
                 gameState={newState}
                 name={name}
                 onClick={() => {
@@ -1113,8 +1117,8 @@ class App extends Component {
           this.queueStatusMessage("Waiting for all players to vote.");
           // Check if the player is dead or has already voted-- if so, do not show the voting prompt.
           if (
-            newState[PARAM_PLAYERS][name][PLAYER_IS_ALIVE] &&
-            !(name in newState[PARAM_VOTES])
+            newState.players[name][PLAYER_IS_ALIVE] &&
+            !(name in newState.userVotes)
           ) {
             this.queueAlert(
               <VotingPrompt
@@ -1142,7 +1146,7 @@ class App extends Component {
           if (isPresident) {
             this.queueAlert(
               <PresidentLegislativePrompt
-                policyOptions={newState[PARAM_PRESIDENT_CHOICES]}
+                policyOptions={newState.presidentChoices}
                 sendWSCommand={this.sendWSCommand}
               />
             );
@@ -1591,7 +1595,7 @@ class App extends Component {
    * @effects adds the listener to the queue of functions. When the server returns an 'OK' status, all of the
    *          listeners will be called and then cleared from the queue.
    */
-  addServerOKListener(func) {
+  addServerOKListener(func: () => void) {
     this.okMessageListeners.push(func);
   }
 
@@ -1753,7 +1757,7 @@ class App extends Component {
                     this.state.name !== this.state.gameState[PARAM_PRESIDENT]
                   }
                   onClick={() => {
-                    this.sendWSCommand(COMMAND_END_TERM);
+                    this.sendWSCommand({ command: WSCommandType.END_TERM });
                   }}
                 >
                   {" "}
