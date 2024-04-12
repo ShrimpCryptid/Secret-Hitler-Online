@@ -21,12 +21,12 @@ export const enum WSCommandType {
 }
 
 /** All possible commands and associated parameters. */
-type ServerRequestPayload =
+export type ServerRequestPayload =
   | { command: WSCommandType.PING }
   | { command: WSCommandType.START_GAME }
   | { command: WSCommandType.GET_STATE }
   | { command: WSCommandType.REGISTER_CHANCELLOR_VETO }
-  | { command: WSCommandType.REGISTER_PRESIDENT_VETO }
+  | { command: WSCommandType.REGISTER_PRESIDENT_VETO; veto: boolean }
   | { command: WSCommandType.REGISTER_PEEK }
   | { command: WSCommandType.END_TERM }
   | { command: WSCommandType.SELECT_ICON; icon: number }
@@ -37,6 +37,8 @@ type ServerRequestPayload =
   | { command: WSCommandType.REGISTER_VOTE; vote: boolean }
   | { command: WSCommandType.REGISTER_CHANCELLOR_CHOICE; choice: number }
   | { command: WSCommandType.REGISTER_PRESIDENT_CHOICE; choice: number };
+
+export type SendWSCommand = (payload: ServerRequestPayload) => void;
 
 /**
  * A WebSocket command to send to the server.
