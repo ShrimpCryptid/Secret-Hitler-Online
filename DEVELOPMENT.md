@@ -37,6 +37,8 @@ DEBUG_MODE=1 ./gradlew run
 
 This will start the backend server at [`http://localhost:4040`](http://locahost:4040) by default. You need to include `DEBUG_MODE=1`, otherwise the CORS policy will block access from the frontend.
 
+**Every time you make changes to Java files, you'll need to stop and restart the development server.**
+
 (TODO: Add a gradle run configuration for running locally)
 
 ### Running frontend server
