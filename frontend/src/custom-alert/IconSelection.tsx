@@ -10,14 +10,31 @@ import portraits, {
 } from "../assets";
 import { portraitsAltText } from "../assets";
 
-import { COMMAND_SELECT_ICON, PARAM_ICON } from "../constants";
 import PropTypes from "prop-types";
 import ButtonPrompt from "./ButtonPrompt";
+import { SendWSCommand, WSCommandType } from "../types";
 
 export const UNLOCK_ICONS_COOKIE_NAME = "_unlock_icons";
 
-class IconSelection extends Component {
-  constructor(props) {
+type IconSelectionProps = {
+  playerToIcon: Record<string, string>;
+  players: string[];
+  sendWSCommand: SendWSCommand;
+  user: string;
+  onConfirm: () => void;
+  onClickTweet: () => void;
+  onClickFBShare: () => void;
+};
+
+type IconSelectionState = {
+  unlockLockedIcons: boolean;
+  showLockedPrompt: boolean;
+};
+
+class IconSelection extends Component<IconSelectionProps, IconSelectionState> {
+  timeoutID: NodeJS.Timeout | undefined;
+
+  constructor(props: IconSelectionProps) {
     super(props);
 
     // Check if the locked icons prompt should be shown. (using cookies!)
@@ -42,7 +59,7 @@ class IconSelection extends Component {
     clearTimeout(this.timeoutID);
   }
 
-  isIconInUse(iconID) {
+  isIconInUse(iconID: string) {
     let playerOrder = this.props.players;
     for (let i = 0; i < playerOrder.length; i++) {
       let player = playerOrder[i];
@@ -53,7 +70,7 @@ class IconSelection extends Component {
     return false;
   }
 
-  onClickIcon(iconID) {
+  onClickIcon(iconID: string) {
     // Verify that player is able to select this icon.
     let isPremium = lockedPortraits.indexOf(iconID) !== -1;
     // Also does not allow selection if user has already selected this icon
@@ -83,39 +100,42 @@ class IconSelection extends Component {
     }
   }
 
-  getIconButtonHML(portraitNames) {
-    let iconHTML = [];
+  getIconButtonHML(portraitNames: string[]): React.JSX.Element {
     // Update selections based on game state given by the server (this prevents duplicate player icons).
 
     let currPortrait = this.props.playerToIcon[this.props.user];
 
-    portraitNames.forEach((portraitID) => {
-      // Check if valid portrait name
-      if (portraits.hasOwnProperty(portraitID)) {
-        // Disable locked icons or icons currently selected by other players.
-        let isIconAvailable =
-          !this.isIconInUse(portraitID) || portraitID === currPortrait;
-        let isIconUnlocked =
-          lockedPortraits.indexOf(portraitID) === -1 ||
-          this.state.unlockLockedIcons;
-        let isEnabled = isIconUnlocked && isIconAvailable;
-        let isSelected = currPortrait === portraitID;
-        iconHTML.push(
-          <img
-            id={"icon"}
-            className={
-              "selectable" +
-              (isSelected ? " selected" : "") +
-              (!isEnabled ? " disabled" : "")
-            } // Determines if selected / selectable
-            alt={portraitsAltText[portraitID]}
-            src={portraits[portraitID]}
-            draggable={false}
-            onClick={() => this.onClickIcon(portraitID)}
-          ></img>
-        );
+    const iconHTML: (React.JSX.Element | undefined)[] = portraitNames.map(
+      (portraitID, index: number) => {
+        // Check if valid portrait name
+        if (portraits.hasOwnProperty(portraitID)) {
+          // Disable locked icons or icons currently selected by other players.
+          let isIconAvailable =
+            !this.isIconInUse(portraitID) || portraitID === currPortrait;
+          let isIconUnlocked =
+            lockedPortraits.indexOf(portraitID) === -1 ||
+            this.state.unlockLockedIcons;
+          let isEnabled = isIconUnlocked && isIconAvailable;
+          let isSelected = currPortrait === portraitID;
+          // TODO: Convert this to a button since a clickable div is not accessible.
+          return (
+            <img
+              id={"icon"}
+              key={index}
+              className={
+                "selectable" +
+                (isSelected ? " selected" : "") +
+                (!isEnabled ? " disabled" : "")
+              } // Determines if selected / selectable
+              alt={portraitsAltText[portraitID]}
+              src={portraits[portraitID]}
+              draggable={false}
+              onClick={() => this.onClickIcon(portraitID)}
+            ></img>
+          );
+        }
       }
-    });
+    );
 
     // Return all the icons in a div container.
     return <div id={"icon-container"}>{iconHTML}</div>;
@@ -136,8 +156,8 @@ class IconSelection extends Component {
   }
 
   render() {
-    let headerPortraits;
-    let footerContent;
+    let headerPortraits: string[];
+    let footerContent: () => React.ReactNode;
     if (this.state.showLockedPrompt) {
       headerPortraits = unlockedPortraits;
       footerContent = () => {
@@ -223,20 +243,5 @@ class IconSelection extends Component {
     );
   }
 }
-
-IconSelection.defaultProps = {
-  onClickTweet: () => {},
-  onClickFBShare: () => {},
-};
-
-IconSelection.propTypes = {
-  playerToIcon: PropTypes.object.isRequired,
-  players: PropTypes.array.isRequired,
-  sendWSCommand: PropTypes.func.isRequired,
-  user: PropTypes.string.isRequired,
-  onConfirm: PropTypes.func.isRequired,
-  onClickTweet: PropTypes.func,
-  onClickFBShare: PropTypes.func,
-};
 
 export default IconSelection;

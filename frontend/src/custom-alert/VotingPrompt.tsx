@@ -1,18 +1,9 @@
 import React, { Component } from "react";
 import ButtonPrompt from "./ButtonPrompt";
 import {
-  COMMAND_REGISTER_VOTE,
-  FASCIST,
-  HITLER,
-  LIBERAL,
   PARAM_CHANCELLOR,
-  PARAM_ELECTION_TRACKER,
-  PARAM_FASCIST_POLICIES,
-  PARAM_ICON,
-  PARAM_PLAYER_ORDER,
   PARAM_PLAYERS,
   PARAM_PRESIDENT,
-  PARAM_VOTE,
   PLAYER_IDENTITY,
   SERVER_TIMEOUT,
 } from "../constants";
@@ -21,12 +12,23 @@ import "./VotingPrompt.css";
 import YesVote from "../assets/vote-yes.png";
 import NoVote from "../assets/vote-no.png";
 import Player from "../player/Player";
-import PropTypes from "prop-types";
+import { GameState, Role, SendWSCommand, WSCommandType } from "../types";
 
-class VotingPrompt extends Component {
-  timeoutID;
+type VotingPromptProps = {
+  gameState: GameState;
+  sendWSCommand: SendWSCommand;
+  user: string;
+};
 
-  constructor(props) {
+type VotingPromptState = {
+  selection?: string;
+  waitingForServer: boolean;
+};
+
+class VotingPrompt extends Component<VotingPromptProps, VotingPromptState> {
+  timeoutID: NodeJS.Timeout | undefined;
+
+  constructor(props: VotingPromptProps) {
     super(props);
     this.state = {
       selection: undefined,
@@ -47,18 +49,15 @@ class VotingPrompt extends Component {
     let chancellor = game[PARAM_CHANCELLOR];
     let chancellorRole = game[PARAM_PLAYERS][chancellor][PLAYER_IDENTITY];
     switch (userRole) {
-      case LIBERAL:
+      case Role.LIBERAL:
         return false;
-      case FASCIST:
-        if (chancellorRole === HITLER || chancellorRole === FASCIST) {
+      case Role.FASCIST:
+        if (chancellorRole === Role.HITLER || chancellorRole === Role.FASCIST) {
           return true;
         }
         break;
-      case HITLER:
-        if (
-          chancellorRole === FASCIST &&
-          game[PARAM_PLAYER_ORDER].length <= 6
-        ) {
+      case Role.HITLER:
+        if (chancellorRole === Role.FASCIST && game.playerOrder.length <= 6) {
           return true;
         }
         break;
@@ -108,7 +107,7 @@ class VotingPrompt extends Component {
                 showRole={shouldShowChancellorRole}
                 role={chancellorRole}
                 style={{ marginRight: "10px" }}
-                icon={this.props.gameState[PARAM_ICON][chancellorName]}
+                icon={this.props.gameState.icon[chancellorName]}
               />
 
               <p className="left-align">
@@ -125,14 +124,14 @@ class VotingPrompt extends Component {
 
               {/* These are two optional warnings that appear when player decisions are extra critical,
                                       such as if fascists can win the game or if the voting tracker will hit the end. */}
-              {this.props.gameState[PARAM_FASCIST_POLICIES] >= 3 && (
+              {this.props.gameState.fascistPolicies >= 3 && (
                 <p className="highlight left-align">
                   {
                     "Fascists will win if Hitler is successfully voted in as chancellor!"
                   }
                 </p>
               )}
-              {this.props.gameState[PARAM_ELECTION_TRACKER] === 2 && (
+              {this.props.gameState.electionTracker === 2 && (
                 <p className="highlight left-align">
                   {
                     "If this vote fails, the next policy in the draw deck will be immediately enacted."
@@ -172,15 +171,5 @@ class VotingPrompt extends Component {
     );
   }
 }
-
-VotingPrompt.defaultProps = {
-  gameState: { chancellor: "default" },
-};
-
-VotingPrompt.propTypes = {
-  gameState: PropTypes.object.isRequired,
-  sendWSCommand: PropTypes.func.isRequired,
-  user: PropTypes.string.isRequired,
-};
 
 export default VotingPrompt;

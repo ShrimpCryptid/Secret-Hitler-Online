@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 import { SERVER_TIMEOUT } from "../constants";
 import PolicyDisplay from "../util/PolicyDisplay";
 import ButtonPrompt from "./ButtonPrompt";

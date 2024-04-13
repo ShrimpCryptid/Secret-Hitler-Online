@@ -77,13 +77,6 @@ export default function SelectPlayerPrompt(
   );
 }
 
-/** Shared props for various player prompts. */
-type SharedPlayerPromptProps = {
-  user: string;
-  gameState: GameState;
-  sendWSCommand: SendWSCommand;
-};
-
 // Definitions for some basic templates.
 /**
  * Returns the HTML for the NominationPrompt.
@@ -94,11 +87,11 @@ type SharedPlayerPromptProps = {
  *         Notably, the prompt disables players that are term-limited, and when the button is pressed sends the
  *         COMMAND_NOMINATE_CHANCELLOR command to the server.
  */
-export const SelectNominationPrompt = ({
-  user,
-  gameState,
-  sendWSCommand,
-}: SharedPlayerPromptProps): ReactElement => {
+export const SelectNominationPrompt = (
+  user: string,
+  gameState: GameState,
+  sendWSCommand: SendWSCommand
+): ReactElement => {
   let shouldFascistVictoryWarningBeShown = gameState.fascistPolicies >= 3;
 
   return (
@@ -139,11 +132,11 @@ export const SelectNominationPrompt = ({
  *         The prompt disables players that have been investigated, and when the button is pressed sends the
  *         COMMAND_GET_INVESTIGATION command to the server.
  */
-export const SelectInvestigationPrompt = ({
-  user,
-  gameState,
-  sendWSCommand,
-}: SharedPlayerPromptProps): ReactElement => {
+export const SelectInvestigationPrompt = (
+  user: string,
+  gameState: GameState,
+  sendWSCommand: SendWSCommand
+): ReactElement => {
   return (
     <SelectPlayerPrompt
       user={user}
@@ -175,11 +168,11 @@ export const SelectInvestigationPrompt = ({
   );
 };
 
-export const SelectSpecialElectionPrompt = ({
-  user,
-  gameState,
-  sendWSCommand,
-}: SharedPlayerPromptProps): ReactElement => {
+export const SelectSpecialElectionPrompt = (
+  user: string,
+  gameState: GameState,
+  sendWSCommand: SendWSCommand
+): ReactElement => {
   return (
     <SelectPlayerPrompt
       user={user}
@@ -196,11 +189,11 @@ export const SelectSpecialElectionPrompt = ({
   );
 };
 
-export const SelectExecutionPrompt = ({
-  user,
-  gameState,
-  sendWSCommand,
-}: SharedPlayerPromptProps): ReactElement => {
+export const SelectExecutionPrompt = (
+  user: string,
+  gameState: GameState,
+  sendWSCommand: SendWSCommand
+): ReactElement => {
   return (
     <SelectPlayerPrompt
       user={user}

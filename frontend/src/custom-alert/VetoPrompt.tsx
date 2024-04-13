@@ -1,21 +1,26 @@
 import React, { Component } from "react";
-import PropTypes from "prop-types";
 import ButtonPrompt from "./ButtonPrompt";
-import {
-  COMMAND_REGISTER_PRESIDENT_VETO,
-  PARAM_VETO,
-  SERVER_TIMEOUT,
-} from "../constants";
+import { SERVER_TIMEOUT } from "../constants";
+import { SendWSCommand, WSCommandType } from "../types";
 
-class VetoPrompt extends Component {
-  constructor(props) {
+type VetoPromptProps = {
+  sendWSCommand: SendWSCommand;
+  electionTracker: number;
+};
+
+type VetoPromptState = {
+  waitingForServer: boolean;
+};
+
+class VetoPrompt extends Component<VetoPromptProps, VetoPromptState> {
+  constructor(props: VetoPromptProps) {
     super(props);
     this.state = {
       waitingForServer: false,
     };
   }
 
-  onButtonClick(accepted) {
+  onButtonClick(accepted: boolean) {
     this.setState({ waitingForServer: true });
     setTimeout(
       () => this.setState({ waitingForServer: false }),
@@ -81,10 +86,5 @@ class VetoPrompt extends Component {
     );
   }
 }
-
-VetoPrompt.propTypes = {
-  sendWSCommand: PropTypes.func.isRequired,
-  electionTracker: PropTypes.number.isRequired,
-};
 
 export default VetoPrompt;

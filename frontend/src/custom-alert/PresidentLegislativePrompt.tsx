@@ -1,17 +1,26 @@
 import React, { Component } from "react";
-import PropTypes from "prop-types";
 import ButtonPrompt from "./ButtonPrompt";
-import {
-  COMMAND_REGISTER_PRESIDENT_CHOICE,
-  PARAM_CHOICE,
-  SERVER_TIMEOUT,
-} from "../constants";
+import { SERVER_TIMEOUT } from "../constants";
 
 import "../util/PolicyDisplay.css";
 import PolicyDisplay from "../util/PolicyDisplay";
+import { PolicyType, SendWSCommand, WSCommandType } from "../types";
 
-class PresidentLegislativePrompt extends Component {
-  constructor(props) {
+type PresidentLegislativePromptProps = {
+  policyOptions: PolicyType[];
+  sendWSCommand: SendWSCommand;
+};
+
+type PresidentLegislativePromptState = {
+  selection: number | undefined;
+  waitingForServer: boolean;
+};
+
+class PresidentLegislativePrompt extends Component<
+  PresidentLegislativePromptProps,
+  PresidentLegislativePromptState
+> {
+  constructor(props: PresidentLegislativePromptProps) {
     super(props);
     this.state = {
       selection: undefined,
@@ -21,6 +30,9 @@ class PresidentLegislativePrompt extends Component {
   }
 
   onButtonClick() {
+    if (this.state.selection === undefined) {
+      return;
+    }
     // Lock the button so that it can't be pressed multiple times.
     this.setState({ waitingForServer: true });
     setTimeout(() => {
@@ -28,8 +40,6 @@ class PresidentLegislativePrompt extends Component {
     }, SERVER_TIMEOUT);
 
     // Contact the server using provided method.
-    let data = {};
-    data[PARAM_CHOICE] = this.state.selection;
     this.props.sendWSCommand({
       command: WSCommandType.REGISTER_PRESIDENT_CHOICE,
       choice: this.state.selection,
@@ -52,7 +62,7 @@ class PresidentLegislativePrompt extends Component {
       >
         <PolicyDisplay
           policies={this.props.policyOptions}
-          onClick={(index) => this.setState({ selection: index })}
+          onClick={(index: number) => this.setState({ selection: index })}
           selection={this.state.selection}
           allowSelection={true}
         />
@@ -60,10 +70,5 @@ class PresidentLegislativePrompt extends Component {
     );
   }
 }
-
-PresidentLegislativePrompt.propTypes = {
-  policyOptions: PropTypes.array.isRequired,
-  sendWSCommand: PropTypes.func.isRequired,
-};
 
 export default PresidentLegislativePrompt;
