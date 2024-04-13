@@ -50,4 +50,10 @@ export type GameState = {
   lastPolicy: string;
   vetoOccurred: boolean;
   peek: PolicyType[];
+
+  // Data appended by lobby
+  // user-count: number;
+  usernames?: string[];
+  /** Maps from usernames to icon keys */
+  icon: Record<string, string>;
 };

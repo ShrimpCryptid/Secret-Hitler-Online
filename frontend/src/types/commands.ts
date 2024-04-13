@@ -29,7 +29,7 @@ export type ServerRequestPayload =
   | { command: WSCommandType.REGISTER_PRESIDENT_VETO; veto: boolean }
   | { command: WSCommandType.REGISTER_PEEK }
   | { command: WSCommandType.END_TERM }
-  | { command: WSCommandType.SELECT_ICON; icon: number }
+  | { command: WSCommandType.SELECT_ICON; icon: string }
   | { command: WSCommandType.NOMINATE_CHANCELLOR; target: string }
   | { command: WSCommandType.REGISTER_EXECUTION; target: string }
   | { command: WSCommandType.REGISTER_SPECIAL_ELECTION; target: string }
