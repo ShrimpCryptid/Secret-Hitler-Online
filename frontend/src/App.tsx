@@ -8,6 +8,7 @@ import CustomAlert from "./custom-alert/CustomAlert";
 import RoleAlert from "./custom-alert/RoleAlert";
 import EventBar from "./event-bar/EventBar";
 
+// TODO: replace constants with enums from types
 import {
   PAGE,
   MAX_FAILED_CONNECTIONS,
@@ -138,7 +139,6 @@ type AppState = {
   lobby: string;
   lobbyFromURL: boolean;
   usernames: string[];
-  userCount: number;
   icons: { [key: string]: string };
   gameState: any;
   /* Stores the last gameState[PARAM_STATE] value to check for changes. */
@@ -170,7 +170,6 @@ const defaultAppState: AppState = {
   lobby: "AAAAAA",
   lobbyFromURL: false,
   usernames: [],
-  userCount: 0,
   icons: {},
   gameState: DEFAULT_GAME_STATE,
   lastState: {},
@@ -203,8 +202,8 @@ class App extends Component {
   state: AppState;
 
   // noinspection DuplicatedCode
-  constructor() {
-    super({});
+  constructor(props: any) {
+    super(props);
 
     let name = Cookies.get(COOKIE_NAME) ? Cookies.get(COOKIE_NAME) : "";
     let lobby = Cookies.get(COOKIE_LOBBY) ? Cookies.get(COOKIE_LOBBY) : "";
@@ -313,7 +312,6 @@ class App extends Component {
         name: name,
         lobby: lobby,
         usernames: [],
-        userCount: 0,
         joinName: "",
         joinLobby: "",
         joinError: "",
@@ -401,7 +399,6 @@ class App extends Component {
     switch (message[PARAM_PACKET_TYPE]) {
       case PACKET_LOBBY:
         this.setState({
-          userCount: message[PARAM_USER_COUNT],
           usernames: message[PARAM_USERNAMES],
           icons: message[PARAM_ICON],
           page: PAGE.LOBBY,
@@ -747,25 +744,23 @@ class App extends Component {
    * Written as "{@literal <p>} - {@code username} {@literal </p>}".
    */
   renderPlayerList() {
-    let out = [];
-    let i = 0;
-    for (i; i < this.state.userCount; i++) {
-      let name = this.state.usernames[i];
-      let displayName = name;
-      if (i === 0) {
-        displayName += " [★VIP]";
-      }
-      out[i] = (
+    console.log(
+      "Rendering player list",
+      this.state.usernames,
+      this.state.usernames.length
+    );
+    return this.state.usernames.map((name: string, i: number) => {
+      return (
         <Player
-          name={displayName}
+          key={i}
+          name={i === 0 ? name : name + " [Host]"}
           showRole={false}
           icon={this.state.icons[name]}
           isBusy={this.state.icons[name] === defaultPortrait}
           highlight={name === this.state.name}
         />
       );
-    }
-    return out;
+    });
   }
 
   onClickChangeIcon() {
@@ -816,7 +811,7 @@ class App extends Component {
   onClickStartGame() {
     ReactGA.event({
       category: "Starting Game",
-      action: this.state.userCount + " players started game.",
+      action: this.state.usernames.length + " players started game.",
     });
     this.sendWSCommand({ command: WSCommandType.START_GAME });
   }
@@ -901,7 +896,7 @@ class App extends Component {
             <div id={"lobby-player-area-container"}>
               <div id={"lobby-player-text-choose-container"}>
                 <p id={"lobby-player-count-text"}>
-                  Players ({this.state.userCount}/10)
+                  Players ({this.state.usernames.length}/10)
                 </p>
                 <button
                   id={"lobby-change-icon-button"}
@@ -1064,7 +1059,7 @@ class App extends Component {
             // If the game has just started (everything in default state), show the player's role.
             this.queueAlert(
               <RoleAlert
-                role={newState.players[this.state.name][PLAYER_IDENTITY]}
+                role={newState.players[this.state.name].id}
                 gameState={newState}
                 name={name}
                 onClick={() => {
@@ -1096,7 +1091,7 @@ class App extends Component {
           // Check if the player is dead or has already voted-- if so, do not show the voting prompt.
           if (
             newState.players[name][PLAYER_IS_ALIVE] &&
-            !(name in newState.userVotes)
+            !Object.keys(newState.userVotes).includes(name)
           ) {
             this.queueAlert(
               <VotingPrompt
