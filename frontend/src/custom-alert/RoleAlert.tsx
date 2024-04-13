@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import PropTypes from "prop-types";
 import RoleHitler from "../assets/role-hitler.png";
 import RoleLiberal1 from "../assets/role-liberal-1.png";
 import RoleLiberal2 from "../assets/role-liberal-2.png";
@@ -12,14 +11,7 @@ import RoleFascist2 from "../assets/role-fascist-2.png";
 import RoleFascist3 from "../assets/role-fascist-3.png";
 
 import "./RoleAlert.css";
-import {
-  FASCIST,
-  HITLER,
-  LIBERAL,
-  PARAM_PLAYER_ORDER,
-  PARAM_PLAYERS,
-  PLAYER_IDENTITY,
-} from "../constants";
+import { GameState, Role } from "../types";
 
 const LiberalImages = [
   RoleLiberal1,
@@ -64,6 +56,13 @@ const HitlerText = [
   "Try to gain trust and rely on the other fascists to open opportunities for you.",
 ];
 
+type RoleAlertProps = {
+  role?: Role;
+  name: string;
+  gameState: GameState;
+  onClick: () => void;
+};
+
 /**
  * CustomAlert content that shows the player's current role and a quick guide on how to play
  * the game.
@@ -74,104 +73,51 @@ const HitlerText = [
  *          the value is set to 1 (default).
  *      - {@code onClick} [()]: The callback function for when confirmation button ("OKAY") is pressed.
  */
-class RoleAlert extends Component {
-  getRoleImage() {
-    let imageArray;
+class RoleAlert extends Component<RoleAlertProps> {
+  getRoleImageAndAlt(): { image: string; alt: string } {
+    let images: string[];
+    let imageAlts: string[];
     switch (this.props.role) {
-      case "LIBERAL":
-        imageArray = LiberalImages;
+      case Role.LIBERAL:
+        images = LiberalImages;
+        imageAlts = LiberalImagesAltText;
         break;
-      case "FASCIST":
-        imageArray = FascistImages;
+      case Role.FASCIST:
+        images = FascistImages;
+        imageAlts = FascistImagesAltText;
         break;
-      default:
-        imageArray = HitlerImages;
+      default: // Hitler
+        images = HitlerImages;
+        imageAlts = HitlerImagesAltText;
     }
-    let roleID = this.getRoleID();
-    if (roleID >= imageArray.length || roleID < 0) {
-      return imageArray[0];
-    }
-    return imageArray[roleID];
-  }
+    const playerIndex = this.props.gameState.playerOrder.indexOf(
+      this.props.name
+    );
+    const roleId = playerIndex % images.length;
 
-  /**
-   * Gets the value at an index of an array, defaulting if the value is too large or small.
-   * @param array the array to get data from.
-   * @param index the index of the data in the array.
-   * @return if 0 < index < array.length, returns array[index].
-   *         Otherwise, returns array[0].
-   */
-  getIndexWithDefault(array, index) {
-    if (index >= array.length || index < 0) {
-      return array[0];
-    } else {
-      return array[index];
-    }
-  }
-
-  /**
-   * Determine the role ID of the player.
-   * @return the number of players with the same role that appear before the player. Otherwise, defaults to 0.
-   */
-  getRoleID() {
-    // Determine the role ID of the player by traversing the array of players.
-    // The roleID is the number of players with the same role that appear
-    // before the user.
-    let roleCounts = { FASCIST: 0, HITLER: 0, LIBERAL: 0 };
-    let roleID = roleCounts[FASCIST];
-    if (this.props.gameState !== undefined && this.props.name !== undefined) {
-      let game = this.props.gameState;
-      let name = this.props.name;
-      for (let i = 0; i < game[PARAM_PLAYER_ORDER].length; i++) {
-        let currName = game[PARAM_PLAYER_ORDER][i];
-        if (currName === name) {
-          roleID = roleCounts[game[PARAM_PLAYERS][name][PLAYER_IDENTITY]];
-          break;
-        } else {
-          roleCounts[game[PARAM_PLAYERS][currName][PLAYER_IDENTITY]] += 1;
-        }
-      }
-    }
-    return roleID;
-  }
-
-  getRoleImageAltText() {
-    let roleID = this.getRoleID();
-
-    switch (this.props.role) {
-      case LIBERAL:
-        return this.getIndexWithDefault(LiberalImagesAltText, roleID);
-      case FASCIST:
-        return this.getIndexWithDefault(FascistImagesAltText, roleID);
-      case HITLER:
-        return this.getIndexWithDefault(HitlerImagesAltText, roleID);
-      default:
-        return this.getIndexWithDefault(HitlerImagesAltText, roleID);
-    }
-  }
-
-  getHeader() {
-    return "YOU ARE: " + this.props.role;
+    return {
+      image: images[roleId],
+      alt: imageAlts[roleId],
+    };
   }
 
   render() {
     let roleText = HitlerText;
-    if (this.props.role === FASCIST) {
+    if (this.props.role === Role.FASCIST) {
       roleText = FascistText;
-    } else if (this.props.role === LIBERAL) {
+    } else if (this.props.role === Role.LIBERAL) {
       roleText = LiberalText;
     }
+
+    const { image, alt } = this.getRoleImageAndAlt();
+
     return (
       <div>
         <div>
           <h2 id="alert-header" className={"left-align"}>
             YOU ARE: {this.props.role}
           </h2>
-          <img
-            id="role"
-            src={this.getRoleImage()}
-            alt={this.getRoleImageAltText()}
-          />
+          <img id="role" src={image} alt={alt} />
 
           <p className={"left-align"}>{roleText[0]}</p>
           <p className={"left-align"}>{roleText[1]}</p>
@@ -183,18 +129,5 @@ class RoleAlert extends Component {
     );
   }
 }
-
-RoleAlert.defaultProps = {
-  role: "HITLER",
-  name: undefined,
-  gameState: undefined,
-};
-
-RoleAlert.propTypes = {
-  role: PropTypes.string.isRequired,
-  name: PropTypes.string,
-  gameState: PropTypes.object,
-  onClick: PropTypes.func.isRequired,
-};
 
 export default RoleAlert;
