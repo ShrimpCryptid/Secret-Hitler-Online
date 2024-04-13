@@ -227,7 +227,6 @@ class App extends Component {
     this.onClickCopy = this.onClickCopy.bind(this);
     this.onClickStartGame = this.onClickStartGame.bind(this);
     this.sendWSCommand = this.sendWSCommand.bind(this);
-    this.playAnimationTest = this.playAnimationTest.bind(this);
     this.showSnackBar = this.showSnackBar.bind(this);
     this.onAnimationFinish = this.onAnimationFinish.bind(this);
     this.onGameStateChanged = this.onGameStateChanged.bind(this);
@@ -1659,27 +1658,6 @@ class App extends Component {
   }
 
   // </editor-fold>
-
-  playAnimationTest() {
-    /*
-        if (this.state.discardDeckSize === 15) {
-            this.setState({
-                discardDeckSize: 14
-            });
-        } else {
-            this.setState({
-                discardDeckSize: 15
-            });
-        }*/
-    this.queueAlert(
-      <IconSelection
-        gameState={this.state.gameState}
-        onConfirm={this.hideAlertAndFinish}
-        user={"P1"}
-        sendWSCommand={this.sendWSCommand}
-      />
-    );
-  }
 
   /**
    * Renders the game page.

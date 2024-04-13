@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import "../selectable.css";
 import "./IconSelection.css";
 import Cookies from "js-cookie";
+// TODO: Remove this package!
 import { TwitterShareButton } from "react-twitter-embed";
 import portraits, {
   unlockedPortraits,
@@ -10,7 +11,6 @@ import portraits, {
 } from "../assets";
 import { portraitsAltText } from "../assets";
 
-import PropTypes from "prop-types";
 import ButtonPrompt from "./ButtonPrompt";
 import { SendWSCommand, WSCommandType } from "../types";
 
@@ -23,7 +23,6 @@ type IconSelectionProps = {
   user: string;
   onConfirm: () => void;
   onClickTweet: () => void;
-  onClickFBShare: () => void;
 };
 
 type IconSelectionState = {
@@ -152,7 +151,9 @@ class IconSelection extends Component<IconSelectionProps, IconSelectionState> {
   }
 
   addTwitterHooks() {
-    window.twttr.events.bind("tweet", this.onClickUnlock);
+    window.twttr.ready((twttr) => {
+      twttr.events.bind("tweet", this.onClickUnlock);
+    });
   }
 
   render() {
