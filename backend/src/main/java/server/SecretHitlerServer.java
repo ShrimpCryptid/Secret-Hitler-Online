@@ -37,7 +37,7 @@ public class SecretHitlerServer {
     public static final String PARAM_LOBBY = "lobby";
     public static final String PARAM_NAME = "name";
     public static final String PARAM_COMMAND = "command";
-    public static final String PARAM_TARGET = "target-user";
+    public static final String PARAM_TARGET = "target";
     public static final String PARAM_VOTE = "vote";
     public static final String PARAM_VETO = "veto";
     public static final String PARAM_CHOICE = "choice"; // the index of the chosen policy.
