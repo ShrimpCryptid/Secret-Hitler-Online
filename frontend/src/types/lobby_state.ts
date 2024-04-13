@@ -49,4 +49,5 @@ export type GameState = {
   targetUser: string;
   lastPolicy: string;
   vetoOccurred: boolean;
+  peek: PolicyType[];
 };

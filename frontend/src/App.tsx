@@ -112,6 +112,7 @@ import AnnouncementBox from "./util/AnnouncementBox";
 import {
   GameState,
   LobbyState,
+  Role,
   ServerRequestPayload,
   WSCommand,
   WSCommandType,
@@ -231,9 +232,9 @@ class App extends Component {
 
     this.state = {
       ...defaultAppState,
-      joinName: name,
-      joinLobby: lobby,
-      createLobbyName: name,
+      joinName: name || "",
+      joinLobby: lobby || "",
+      createLobbyName: name || "",
     };
 
     // The website uses Google Analytics!
@@ -954,7 +955,6 @@ class App extends Component {
                   }
                   target={"_blank"}
                   rel="noopener noreferrer"
-                  onClick={this.onClickAbout}
                 >
                   About this project
                 </a>
@@ -994,9 +994,9 @@ class App extends Component {
   onGameStateChanged(newState: GameState) {
     let oldState = this.state.gameState;
     let name = this.state.name;
-    let isPresident = this.state.name === newState[PARAM_PRESIDENT];
-    let isChancellor = this.state.name === newState[PARAM_CHANCELLOR];
-    let state = newState[PARAM_STATE];
+    let isPresident = this.state.name === newState.president;
+    let isChancellor = this.state.name === newState.chancellor;
+    let state = newState.state;
 
     // If last state was setup, which indicates that the client is re-entering the game or starting the game, then
     // we set the card count, liberal/fascist policy count, and the tracker to be visible.
@@ -1161,16 +1161,15 @@ class App extends Component {
           if (isChancellor) {
             this.queueAlert(
               <ChancellorLegislativePrompt
-                fascistPolicies={newState[PARAM_FASCIST_POLICIES]}
-                showError={(message) =>
+                fascistPolicies={newState.fascistPolicies}
+                showError={(message: string) =>
                   this.setState({ snackbarMessage: message })
                 }
-                policyOptions={newState[PARAM_CHANCELLOR_CHOICES]}
+                policyOptions={newState.chancellorChoices}
                 sendWSCommand={this.sendWSCommand}
                 // Disable if veto has already happened
                 enableVeto={
-                  newState[PARAM_FASCIST_POLICIES] === 5 &&
-                  !newState[PARAM_DID_VETO_OCCUR]
+                  newState.fascistPolicies === 5 && !newState.vetoOccurred
                 }
               />
             );
@@ -1185,7 +1184,7 @@ class App extends Component {
             this.queueAlert(
               <VetoPrompt
                 sendWSCommand={this.sendWSCommand}
-                electionTracker={newState[PARAM_ELECTION_TRACKER]}
+                electionTracker={newState.electionTracker}
               />,
               true
             );
@@ -1197,7 +1196,7 @@ class App extends Component {
           if (isPresident) {
             this.queueAlert(
               <PeekPrompt
-                policies={newState[PARAM_PEEK]}
+                policies={newState.peek}
                 sendWSCommand={this.sendWSCommand}
               />,
               true
@@ -1250,19 +1249,17 @@ class App extends Component {
           break;
 
         case STATE_POST_LEGISLATIVE:
-          switch (newState[PARAM_LAST_STATE]) {
+          switch (newState.lastState) {
             case STATE_PP_ELECTION:
               if (!isPresident) {
-                console.log(
-                  "Special Election Alert: " + newState[PARAM_TARGET]
-                );
+                console.log("Special Election Alert: " + newState.targetUser);
                 this.queueAlert(
                   <ButtonPrompt
                     label={"SPECIAL ELECTION"}
                     footerText={
                       newState[PARAM_PRESIDENT] +
                       " has chosen " +
-                      newState[PARAM_TARGET] +
+                      newState.targetUser +
                       " to be the next president." +
                       "\nThe normal presidential order will resume after the next round."
                     }
@@ -1273,7 +1270,7 @@ class App extends Component {
                       user={name}
                       gameState={newState}
                       showLabels={false}
-                      players={[newState[PARAM_TARGET]]}
+                      players={[newState.targetUser]}
                     />
                   </ButtonPrompt>,
                   false
@@ -1282,7 +1279,7 @@ class App extends Component {
               break;
             case STATE_PP_EXECUTION:
               // If player was executed
-              if (name === newState[PARAM_TARGET]) {
+              if (name === newState.targetUser) {
                 this.queueAlert(
                   <ButtonPrompt
                     label={"YOU HAVE BEEN EXECUTED"}
@@ -1298,7 +1295,7 @@ class App extends Component {
                   <ButtonPrompt
                     label={"EXECUTION RESULTS"}
                     footerText={
-                      newState[PARAM_TARGET] +
+                      newState.targetUser +
                       " has been executed. They may no longer speak, vote, or run for office."
                     }
                     buttonOnClick={this.hideAlertAndFinish}
@@ -1309,7 +1306,7 @@ class App extends Component {
                       gameState={newState}
                       showRoles={false}
                       playerDisabledFilter={DISABLE_EXECUTED_PLAYERS}
-                      players={[newState[PARAM_TARGET]]}
+                      players={[newState.targetUser]}
                     />
                   </ButtonPrompt>,
                   false
@@ -1318,7 +1315,7 @@ class App extends Component {
               break;
             case STATE_PP_INVESTIGATE:
               if (!isPresident) {
-                let isTarget = newState[PARAM_TARGET] === name;
+                let isTarget = newState.targetUser === name;
                 this.queueAlert(
                   <ButtonPrompt
                     label={"INVESTIGATION RESULTS"}
@@ -1327,9 +1324,7 @@ class App extends Component {
                     // If not target: [Target Name] has been investigated by [President Name].
                     //                The president now knows their party affiliation.
                     footerText={
-                      (isTarget
-                        ? "You have "
-                        : newState[PARAM_TARGET] + " has ") +
+                      (isTarget ? "You have " : newState.targetUser + " has ") +
                       " been investigated by " +
                       newState[PARAM_PRESIDENT] +
                       ". " +
@@ -1344,7 +1339,7 @@ class App extends Component {
                       user={name}
                       gameState={newState}
                       showLabels={false}
-                      players={[newState[PARAM_TARGET]]}
+                      players={[newState.targetUser]}
                     />
                   </ButtonPrompt>,
                   true
@@ -1373,20 +1368,23 @@ class App extends Component {
           }
 
           // Divide fascist and liberal players.
-          let fascistPlayers = [];
-          let liberalPlayers = [];
-          newState[PARAM_PLAYER_ORDER].forEach((player) => {
-            let role = newState[PARAM_PLAYERS][player][PLAYER_IDENTITY];
-            if (role === FASCIST || role === HITLER) {
+          const fascistPlayers: string[] = [];
+          const liberalPlayers: string[] = [];
+          newState.playerOrder.forEach((player) => {
+            const role = newState.players[player].id;
+            if (role === Role.FASCIST || role === Role.HITLER) {
               fascistPlayers.push(player);
             } else {
               liberalPlayers.push(player);
             }
           });
 
-          let victoryMessage, messageClass, headerImage, headerAlt;
-          let players = [];
-          let state = newState[PARAM_STATE];
+          let victoryMessage: string,
+            messageClass: string,
+            headerImage: string,
+            headerAlt: string;
+          let players: string[] = [];
+          let state = newState.state;
           let fascistVictoryPolicy = state === STATE_FASCIST_VICTORY_POLICY;
           let fascistVictoryElection = state === STATE_FASCIST_VICTORY_ELECTION;
           let liberalVictoryPolicy = state === STATE_LIBERAL_VICTORY_POLICY;
@@ -1394,9 +1392,9 @@ class App extends Component {
             state === STATE_LIBERAL_VICTORY_EXECUTION;
           let playerID = newState[PARAM_PLAYERS][name][PLAYER_IDENTITY];
           let playerWon =
-            (playerID === LIBERAL &&
+            (playerID === Role.LIBERAL &&
               (liberalVictoryExecution || liberalVictoryPolicy)) ||
-            (playerID !== LIBERAL &&
+            (playerID !== Role.LIBERAL &&
               (fascistVictoryElection || fascistVictoryPolicy));
 
           // Register player victory/loss with analytics.
@@ -1491,7 +1489,7 @@ class App extends Component {
           });
           this.gameOver = true;
           this.reconnectOnConnectionClosed = false;
-          this.websocket.close();
+          this.websocket?.close();
           break;
 
         default:
@@ -1502,8 +1500,8 @@ class App extends Component {
     // Update the draw decks
     this.addAnimationToQueue(() => {
       this.setState({
-        drawDeckSize: newState[PARAM_DRAW_DECK],
-        discardDeckSize: newState[PARAM_DISCARD_DECK],
+        drawDeckSize: newState.drawSize,
+        discardDeckSize: newState.discardSize,
       });
       this.onAnimationFinish();
     });
@@ -1520,7 +1518,9 @@ class App extends Component {
   onAnimationFinish() {
     if (this.animationQueue.length > 0) {
       let func = this.animationQueue.shift();
-      func(); //call the function.
+      if (func !== undefined) {
+        func(); //call the function.
+      }
     } else {
       // the animation queue is empty, so we set a flag.
       this.allAnimationsFinished = true;
@@ -1543,17 +1543,19 @@ class App extends Component {
    * @effects Adds the function to the back of the animation queue. If no animations are currently playing,
    *          starts the specified animation.
    */
-  addAnimationToQueue(func) {
+  addAnimationToQueue(func: () => void) {
     this.animationQueue.push(func);
     if (this.allAnimationsFinished) {
       this.allAnimationsFinished = false;
       this.setState({ allAnimationsFinished: false });
       let func = this.animationQueue.shift();
-      func(); //call the function.
+      if (func !== undefined) {
+        func(); //call the function.
+      }
     }
   }
 
-  showVotes(newState) {
+  showVotes(newState: GameState) {
     this.setState({ statusBarText: "Tallying votes..." });
     setTimeout(() => {
       this.setState({ showVotes: true });
@@ -1562,7 +1564,7 @@ class App extends Component {
 
     let noVotes = 0;
     let yesVotes = 0;
-    Object.values(newState[PARAM_VOTES]).forEach((value) => {
+    Object.values(newState.userVotes).forEach((value) => {
       if (value) {
         yesVotes++;
       } else {
@@ -1626,7 +1628,7 @@ class App extends Component {
    * @effects Adds a function to the animation queue that, when called, shows the EventBar with the given message
    *          for {@code duration} ms, then advances to the next animation when finished.
    */
-  queueEventUpdate(message, duration = 2000) {
+  queueEventUpdate(message: string, duration = 2000) {
     this.addAnimationToQueue(() => {
       this.setState({
         showEventBar: true,
@@ -1650,7 +1652,7 @@ class App extends Component {
    *          be closed when the server responds with an 'ok' to any command. (There will be a short delay before the
    *          animation queue advances if not waiting for a server response.)
    */
-  queueAlert(content, closeOnOK = true) {
+  queueAlert(content: React.JSX.Element, closeOnOK = true) {
     this.addAnimationToQueue(() => {
       this.setState({
         alertContent: content,
@@ -1670,7 +1672,7 @@ class App extends Component {
    * @effects Adds a new function to the animation queue that, when called, updates {@code this.state.statusBarText} to
    *          the message provided then instantly advances the animation queue.
    */
-  queueStatusMessage(message) {
+  queueStatusMessage(message: string) {
     this.addAnimationToQueue(() => {
       this.setState({ statusBarText: message });
       this.onAnimationFinish();
