@@ -107,32 +107,33 @@ class IconSelection extends Component<IconSelectionProps, IconSelectionState> {
     const iconHTML: (React.JSX.Element | undefined)[] = portraitNames.map(
       (portraitID, index: number) => {
         // Check if valid portrait name
-        if (portraits.hasOwnProperty(portraitID)) {
-          // Disable locked icons or icons currently selected by other players.
-          let isIconAvailable =
-            !this.isIconInUse(portraitID) || portraitID === currPortrait;
-          let isIconUnlocked =
-            lockedPortraits.indexOf(portraitID) === -1 ||
-            this.state.unlockLockedIcons;
-          let isEnabled = isIconUnlocked && isIconAvailable;
-          let isSelected = currPortrait === portraitID;
-          // TODO: Convert this to a button since a clickable div is not accessible.
-          return (
-            <img
-              id={"icon"}
-              key={index}
-              className={
-                "selectable" +
-                (isSelected ? " selected" : "") +
-                (!isEnabled ? " disabled" : "")
-              } // Determines if selected / selectable
-              alt={portraitsAltText[portraitID]}
-              src={portraits[portraitID]}
-              draggable={false}
-              onClick={() => this.onClickIcon(portraitID)}
-            ></img>
-          );
+        if (!portraits[portraitID]) {
+          return undefined;
         }
+        // Disable locked icons or icons currently selected by other players.
+        let isIconAvailable =
+          !this.isIconInUse(portraitID) || portraitID === currPortrait;
+        let isIconUnlocked =
+          lockedPortraits.indexOf(portraitID) === -1 ||
+          this.state.unlockLockedIcons;
+        let isEnabled = isIconUnlocked && isIconAvailable;
+        let isSelected = currPortrait === portraitID;
+        // TODO: Convert this to a button since a clickable div is not accessible.
+        return (
+          <img
+            id={"icon"}
+            key={index}
+            className={
+              "selectable" +
+              (isSelected ? " selected" : "") +
+              (!isEnabled ? " disabled" : "")
+            } // Determines if selected / selectable
+            alt={portraitsAltText[portraitID]}
+            src={portraits[portraitID]}
+            draggable={false}
+            onClick={() => this.onClickIcon(portraitID)}
+          ></img>
+        );
       }
     );
 
