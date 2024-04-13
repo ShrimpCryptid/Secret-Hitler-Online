@@ -1,18 +1,30 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import ButtonPrompt from "./ButtonPrompt";
-import {
-  COMMAND_REGISTER_CHANCELLOR_CHOICE,
-  COMMAND_REGISTER_CHANCELLOR_VETO,
-  PARAM_CHOICE,
-  SERVER_TIMEOUT,
-} from "../constants";
+import { SERVER_TIMEOUT } from "../constants";
 
 import "../util/PolicyDisplay.css";
 import PolicyDisplay from "../util/PolicyDisplay";
+import { PolicyType, SendWSCommand, WSCommandType } from "../types";
 
-class ChancellorLegislativePrompt extends Component {
-  constructor(props) {
+type ChancellorLegislativePromptProps = {
+  policyOptions: PolicyType[];
+  sendWSCommand: SendWSCommand;
+  fascistPolicies: number;
+  showError: (message: string) => void;
+  enableVeto: boolean;
+};
+
+type ChancellorLegislativePromptState = {
+  selection: number | undefined;
+  waitingForServer: boolean;
+};
+
+class ChancellorLegislativePrompt extends Component<
+  ChancellorLegislativePromptProps,
+  ChancellorLegislativePromptState
+> {
+  constructor(props: ChancellorLegislativePromptProps) {
     super(props);
     this.state = {
       selection: undefined,
@@ -23,6 +35,9 @@ class ChancellorLegislativePrompt extends Component {
   }
 
   onEnactButtonClick() {
+    if (this.state.selection === undefined) {
+      return;
+    }
     // Lock the button so that it can't be pressed multiple times.
     this.setState({ waitingForServer: true });
     setTimeout(() => {
@@ -107,7 +122,7 @@ class ChancellorLegislativePrompt extends Component {
       >
         <PolicyDisplay
           policies={this.props.policyOptions}
-          onClick={(index) => this.setState({ selection: index })}
+          onClick={(index: number) => this.setState({ selection: index })}
           selection={this.state.selection}
           allowSelection={true}
         />
@@ -115,17 +130,5 @@ class ChancellorLegislativePrompt extends Component {
     );
   }
 }
-
-ChancellorLegislativePrompt.defaultProps = {
-  enableVeto: true,
-};
-
-ChancellorLegislativePrompt.propTypes = {
-  policyOptions: PropTypes.array.isRequired,
-  sendWSCommand: PropTypes.func.isRequired,
-  fascistPolicies: PropTypes.number.isRequired,
-  showError: PropTypes.func.isRequired,
-  enableVeto: PropTypes.bool.isRequired,
-};
 
 export default ChancellorLegislativePrompt;
