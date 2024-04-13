@@ -3,11 +3,22 @@ import PropTypes from "prop-types";
 import { COMMAND_REGISTER_PEEK, SERVER_TIMEOUT } from "../constants";
 import PolicyDisplay from "../util/PolicyDisplay";
 import ButtonPrompt from "./ButtonPrompt";
+import { PolicyType, SendWSCommand, WSCommandType } from "../types";
 
-class PeekPrompt extends Component {
-  timeOutID;
+type PeekPromptProps = {
+  policies: PolicyType[];
+  sendWSCommand: SendWSCommand;
+};
 
-  constructor(props) {
+type PeekPromptState = {
+  waitingForServer: boolean;
+  selection: number | undefined;
+};
+
+class PeekPrompt extends Component<PeekPromptProps, PeekPromptState> {
+  timeoutID: NodeJS.Timeout | undefined;
+
+  constructor(props: PeekPromptProps) {
     super(props);
     this.state = {
       waitingForServer: false,
@@ -42,17 +53,12 @@ class PeekPrompt extends Component {
       >
         <PolicyDisplay
           policies={this.props.policies}
-          onClick={(index) => this.setState({ selection: index })}
+          onClick={(index: number) => this.setState({ selection: index })}
           allowSelection={false}
         />
       </ButtonPrompt>
     );
   }
 }
-
-PeekPrompt.propTypes = {
-  policies: PropTypes.array,
-  sendWSCommand: PropTypes.func.isRequired,
-};
 
 export default PeekPrompt;
