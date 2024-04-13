@@ -17,12 +17,10 @@ import {
   CHECK_LOGIN,
   SERVER_ADDRESS,
   WEBSOCKET,
-  PARAM_USER_COUNT,
   PARAM_USERNAMES,
   LOBBY_CODE_LENGTH,
   PARAM_PLAYERS,
   PLAYER_IDENTITY,
-  PARAM_PLAYER_ORDER,
   PARAM_STATE,
   STATE_CHANCELLOR_NOMINATION,
   STATE_CHANCELLOR_VOTING,
@@ -188,18 +186,16 @@ const defaultAppState: AppState = {
   allAnimationsFinished: true,
 };
 
-class App extends Component {
+class App extends Component<{}, AppState> {
   websocket?: WebSocket = undefined;
   failedConnections: number = 0;
-  pinginterval?: NodeJS.Timeout = undefined;
+  pingInterval?: NodeJS.Timeout = undefined;
   reconnectOnConnectionClosed: boolean = true;
   snackbarMessages: number = 0;
   animationQueue: (() => void)[] = [];
   okMessageListeners: (() => void)[] = [];
   allAnimationsFinished: boolean = true;
   gameOver: boolean = false;
-
-  state: AppState;
 
   // noinspection DuplicatedCode
   constructor(props: any) {
@@ -219,7 +215,7 @@ class App extends Component {
     ReactGA.initialize("UA-166327773-1");
     ReactGA.pageview("/");
 
-    // These are necessary for handling class fields (ex: websocket)
+    // These are necessary for handling class fields safely (ex: websocket)
     this.onWebSocketClose = this.onWebSocketClose.bind(this);
     this.tryOpenWebSocket = this.tryOpenWebSocket.bind(this);
     this.onClickLeaveLobby = this.onClickLeaveLobby.bind(this);
@@ -292,14 +288,24 @@ class App extends Component {
       SERVER_ADDRESS +
       WEBSOCKET +
       "?name=" +
-      encodeURI(name) +
+      encodeURIComponent(name) +
       "&lobby=" +
-      encodeURI(lobby);
+      encodeURIComponent(lobby);
     if (DEBUG) {
-      console.log("TryOpenWebsocket URL: " + url);
+      console.trace("TryOpenWebsocket URL: " + url);
     }
+
+    // Close existing websocket
+    if (this.websocket) {
+      // Clear onClose event to prevent reconnection
+      this.websocket.onclose = () => {};
+      this.websocket.close();
+      this.websocket = undefined;
+    }
+
     let ws = new WebSocket(url);
     if (ws.OPEN) {
+      console.log("Websocket opened successfully to " + url);
       this.websocket = ws;
       this.reconnectOnConnectionClosed = true;
       // Only move the player to the lobby page if they were logging in.
@@ -320,10 +326,15 @@ class App extends Component {
       });
       ws.onmessage = (msg) => this.onWebSocketMessage(msg);
       ws.onclose = () => this.onWebSocketClose();
+
       // Ping the web server at a set interval.
-      this.pinginterval = setInterval(() => {
+      if (this.pingInterval) {
+        clearInterval(this.pingInterval);
+      }
+      this.pingInterval = setInterval(() => {
         this.sendWSCommand({ command: WSCommandType.PING });
       }, PING_INTERVAL);
+
       return true;
     } else {
       return false;
@@ -338,10 +349,18 @@ class App extends Component {
    *          login screen with a relevant error message.
    */
   onWebSocketClose() {
-    // Clear the server ping interval each time the socket is closed.
-    if (this.pinginterval) {
-      clearInterval(this.pinginterval);
+    // Clear the server ping interval when the socket is closed.
+    if (this.pingInterval) {
+      clearInterval(this.pingInterval);
     }
+
+    console.log(
+      "A websocket closed: " +
+        this.websocket?.url +
+        ". Reopening to current lobby " +
+        this.state.lobby
+    );
+    //
 
     if (
       this.reconnectOnConnectionClosed &&
@@ -744,11 +763,6 @@ class App extends Component {
    * Written as "{@literal <p>} - {@code username} {@literal </p>}".
    */
   renderPlayerList() {
-    console.log(
-      "Rendering player list",
-      this.state.usernames,
-      this.state.usernames.length
-    );
     return this.state.usernames.map((name: string, i: number) => {
       return (
         <Player
@@ -1721,7 +1735,7 @@ class App extends Component {
                 <PlayerPolicyStatus
                   numFascistPolicies={this.state.fascistPolicies}
                   numLiberalPolicies={this.state.liberalPolicies}
-                  playerCount={this.state.gameState[PARAM_PLAYER_ORDER].length}
+                  playerCount={this.state.gameState.playerOrder.length}
                 />
               </div>
 
@@ -1732,7 +1746,7 @@ class App extends Component {
             </div>
 
             <Board
-              numPlayers={this.state.gameState[PARAM_PLAYER_ORDER].length}
+              numPlayers={this.state.gameState.playerOrder.length}
               numFascistPolicies={this.state.fascistPolicies}
               numLiberalPolicies={this.state.liberalPolicies}
               electionTracker={this.state.electionTracker}

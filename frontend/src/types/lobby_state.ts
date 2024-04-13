@@ -39,7 +39,7 @@ export type GameState = {
   lastPresident: string;
   electionTracker: number;
   electionTrackerAdvanced: boolean;
-  userVotes: Record<string, boolean>[];
+  userVotes: Record<string, boolean>;
   liberalPolicies: number;
   fascistPolicies: number;
   drawSize: number;
