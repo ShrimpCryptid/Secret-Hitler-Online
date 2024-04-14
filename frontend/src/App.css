@@ -113,11 +113,11 @@ button {
     -webkit-tap-highlight-color: transparent;
 }
 
-button:hover{
+button:hover, button:focus, button:focus-visible{
     background: var(--buttonHoverFill);
 }
 
-button:active{
+button:not(:disabled):active{
     top:5px;
     background: var(--buttonFill);
     box-shadow: 0 0 0 var(--buttonShadowFill);
