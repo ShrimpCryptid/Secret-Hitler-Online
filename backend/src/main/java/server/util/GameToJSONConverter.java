@@ -73,6 +73,8 @@ public class GameToJSONConverter {
         boolean showAllRoles = game.hasGameFinished() || role == Identity.FASCIST
                 || (role == Identity.HITLER && game.getPlayerList().size() <= 6);
 
+        System.out.println("Show all roles: " + showAllRoles);
+
         for (int i = 0; i < playerList.size(); i++) {
             JSONObject playerObj = new JSONObject();
             Player player = playerList.get(i);

@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { ReactElement, useRef, useState } from "react";
 import Player from "./Player";
 import {
   PLAYER_IDENTITY,
@@ -16,7 +16,8 @@ import {
   STATE_CHANCELLOR_VOTING,
 } from "../constants";
 import "./PlayerDisplay.css";
-import { GameState } from "../types";
+import { GameState, Role } from "../types";
+import { doesHitlerKnowFascists, isVictoryState } from "../utils";
 
 // <editor-fold desc="Player Filters">
 
@@ -111,7 +112,7 @@ type PlayerDisplayProps = {
   includeUser?: boolean;
 };
 
-const defaultPlayerProps: Partial<PlayerDisplayProps> = {
+const defaultProps: Partial<PlayerDisplayProps> = {
   playerDisabledFilter: DISABLE_EXECUTED_PLAYERS,
   useAsButtons: false,
   includeUser: true,
@@ -123,41 +124,48 @@ const defaultPlayerProps: Partial<PlayerDisplayProps> = {
 /**
  * Displays a row of player icons and handles displaying busy status, votes, and roles where applicable.
  */
-class PlayerDisplay extends React.Component<PlayerDisplayProps> {
-  // A map from the role to a boolean value determining if it should be shown.
-  playingVoteAnimation = false;
+export default function PlayerDisplay(
+  inputProps: PlayerDisplayProps
+): ReactElement {
+  const props = {
+    ...defaultProps,
+    ...inputProps,
+  } as Required<PlayerDisplayProps>;
+
+  const [isPlayingVoteAnimation, setIsPlayingVoteAnimation] = useState(false);
   // An array object that maps from each player's position in the order to
   // whether their vote should be shown. This allows the sequence to be animated.
-  showPlayerVote = new Array(10).fill(false);
-
-  // TODO: delete this
-  static defaultProps: {
-    playerDisabledFilter: (
-      name: string,
-      gameState: GameState
-    ) => "EXECUTED" | "";
-    useAsButtons: boolean;
-    includeUser: boolean;
-    showVotes: boolean;
-    showRoles: boolean;
-    showLabels: boolean;
-  };
-
-  constructor(props: PlayerDisplayProps) {
-    super(props);
-
-    this.onPlayerSelected = this.onPlayerSelected.bind(this);
-    this.setupVoteAnimation = this.setupVoteAnimation.bind(this);
-    this.resetVoteAnimation = this.resetVoteAnimation.bind(this);
-  }
+  const [playerVotesVisible, setPlayerVotesVisible] = useState<number>(0);
+  /** Timeouts for each player animation. Will be destroyed on reset. */
+  const playerVoteAnimations = useRef<NodeJS.Timeout[]>([]);
 
   /**
-   * Returns a set of players that should be considered 'busy' and marked on the interface. A player is considered
+   * Returns an array representing the player order.
+   * Removes the player if props.includeUser is false.
+   */
+  const getPlayerOrder = (): string[] => {
+    let basePlayers;
+    if (props.players === undefined) {
+      basePlayers = props.gameState.playerOrder;
+    } else {
+      basePlayers = props.players;
+    }
+
+    if (!props.includeUser) {
+      // Remove the user from the players.
+      return basePlayers.filter((player) => player !== props.user);
+    }
+    return basePlayers;
+  };
+
+  /**
+   * Returns a set of players that should be considered 'busy', which is shown
+   * on the UI with a (...) ellipses bubble. A player is considered
    * busy if the game is waiting for some input from them.
    */
-  getBusyPlayerSet() {
-    let game = this.props.gameState;
-    let busyPlayers = new Set<string>([]);
+  const getBusyPlayerSet = (): Set<string> => {
+    const game = props.gameState;
+    const busyPlayers = new Set<string>([]);
     switch (game[PARAM_STATE]) {
       case STATE_CHANCELLOR_NOMINATION:
       case STATE_LEGISLATIVE_PRESIDENT:
@@ -173,7 +181,7 @@ class PlayerDisplay extends React.Component<PlayerDisplayProps> {
         busyPlayers.add(game[PARAM_CHANCELLOR]);
         break;
       case STATE_CHANCELLOR_VOTING:
-        let playerOrder = this.getPlayerOrder();
+        let playerOrder = getPlayerOrder();
         let i = 0;
         for (i; i < game.playerOrder.length; i++) {
           let name = playerOrder[i];
@@ -183,205 +191,190 @@ class PlayerDisplay extends React.Component<PlayerDisplayProps> {
             busyPlayers.add(name);
           }
         }
-
         break;
       default: // This includes the victory states and setup.
         break;
     }
     return busyPlayers;
-  }
+  };
 
   /**
-   * Returns an array representing the player order. Removes the player if this.props.includeUser is false.
+   * @param gameState Current game state
+   * @param playerName Name of player to view role for
+   * @returns true if the role should be shown; false otherwise.
    */
-  getPlayerOrder() {
-    let basePlayers;
-    if (this.props.players === undefined) {
-      basePlayers = this.props.gameState.playerOrder;
-    } else {
-      basePlayers = this.props.players;
-    }
+  const shouldShowRole = (
+    gameState: GameState,
+    playerName: string
+  ): boolean => {
+    const myRole = gameState.players[props.user].id;
+    const otherRole = gameState.players[playerName].id;
 
-    if (!this.props.includeUser) {
-      // Remove the user from the players.
-      return basePlayers.filter((player) => player !== this.props.user);
+    if (otherRole === undefined) {
+      return false;
     }
-    return basePlayers;
-  }
+    if (isVictoryState(gameState.state)) {
+      return true;
+    }
+    if (
+      myRole === Role.FASCIST ||
+      (myRole === Role.HITLER && doesHitlerKnowFascists(gameState))
+    ) {
+      // Hide liberal roles, because they can be redundant otherwise.
+      return otherRole !== Role.LIBERAL;
+    } else {
+      return otherRole !== undefined;
+    }
+  };
+
+  /**
+   * Called when the player is selected. Calls props.onSelection if the player is a valid choice.
+   * @param name the name of the player.
+   * @effects If the player should be disabled (ie, {@code props.playerDisabledFilter(name, gamestate) !== ""}), ignores the selection.
+   *          If the player is already selected, ignores the selection.
+   *          Otherwise, calls {@code.props.onSelection(name)}.
+   */
+  const onPlayerSelected = (name: string): void => {
+    if (
+      props.playerDisabledFilter &&
+      props.playerDisabledFilter(name, props.gameState) === "" &&
+      props.useAsButtons &&
+      name !== props.selection
+    ) {
+      props.onSelection && props.onSelection(name);
+    }
+  };
 
   /**
    * Gets the HTML tags for the players in the provided indices.
    * @param start {int} the starting index, inclusive.
    * @param end {int} the ending index, exclusive.
-   * @return {html[]} an array of html tags representing the players in indices {@code start} (inclusive)
+   * @return {html[]} an array of JSX representing the players in indices {@code start} (inclusive)
    *         to {@code end} (exclusive).
    */
-  getPlayerHTML(start: number, end: number) {
-    let out = [];
-    let players = this.props.gameState.players;
-    let playerOrder = this.getPlayerOrder();
-    let busyPlayers = this.getBusyPlayerSet();
-    let i = 0;
-    for (i; start + i < end; i++) {
-      let index = i + start;
-      let playerName = playerOrder[index];
+  const renderPlayer = (start: number, end: number): JSX.Element[] => {
+    const players = props.gameState.players;
+    const playerOrder = getPlayerOrder();
+    const busyPlayers = getBusyPlayerSet();
 
-      if (!players.hasOwnProperty(playerName)) {
-        continue;
-      }
-      let playerData = players[playerName];
+    return playerOrder
+      .slice(start, end)
+      .map((playerName: string, index: number) => {
+        const playerData = players[playerName];
 
-      let roleText = "";
-      if (playerName === this.props.gameState[PARAM_CHANCELLOR]) {
-        roleText = "CHANCELLOR";
-      } else if (playerName === this.props.gameState.president) {
-        roleText = "PRESIDENT";
-      }
+        let roleText = "";
+        if (playerName === props.gameState[PARAM_CHANCELLOR]) {
+          roleText = "CHANCELLOR";
+        } else if (playerName === props.gameState.president) {
+          roleText = "PRESIDENT";
+        }
 
-      let disabledText = this.props.playerDisabledFilter!(
-        playerName,
-        this.props.gameState
-      );
-      let disabled = disabledText !== "";
+        const disabledText = props.playerDisabledFilter!(
+          playerName,
+          props.gameState
+        );
+        const disabled = disabledText !== "";
 
-      let label;
-      if (this.props.showLabels) {
-        label = <p id="player-display-label">{roleText}</p>;
-      }
+        let label;
+        if (props.showLabels) {
+          label = <p id="player-display-label">{roleText}</p>;
+        }
 
-      let isSelected = this.props.selection === playerName;
-      let onClick = () => {
-        this.onPlayerSelected(playerName);
-      };
-      out[i] = (
-        <div id={"player-display-text-container"} key={playerName}>
-          {label}
-          <Player
-            isBusy={
-              busyPlayers.has(playerName) &&
-              !this.props.showVotes &&
-              this.props.showBusy
-            } // Do not show while voting.
-            role={playerData[PLAYER_IDENTITY]}
-            showRole={playerData[PLAYER_IDENTITY] !== undefined}
-            highlight={playerName === this.props.user}
-            disabled={disabled}
-            disabledText={disabledText}
-            name={playerName}
-            useAsButton={this.props.useAsButtons}
-            isSelected={isSelected}
-            onClick={onClick}
-            showVote={this.showPlayerVote[i + start]}
-            vote={this.props.gameState.userVotes[playerName]}
-            icon={this.props.gameState.icon[playerName]}
-          />
-        </div>
-      );
-    }
-    return out;
-  }
+        const isSelected = props.selection === playerName;
+        const onClick = () => {
+          onPlayerSelected(playerName);
+        };
 
-  /**
-   * Called when the player is selected. Calls this.props.onSelection if the player is a valid choice.
-   * @param name the name of the player.
-   * @effects If the player should be disabled (ie, {@code this.props.playerDisabledFilter(name, gamestate) !== ""}), ignores the selection.
-   *          If the player is already selected, ignores the selection.
-   *          Otherwise, calls {@code.this.props.onSelection(name)}.
-   */
-  onPlayerSelected(name: string) {
-    if (
-      this.props.playerDisabledFilter &&
-      this.props.playerDisabledFilter(name, this.props.gameState) === "" &&
-      this.props.useAsButtons &&
-      name !== this.props.selection
-    ) {
-      this.props.onSelection && this.props.onSelection(name);
-    }
-  }
+        // Skip votes for players that are not alive.
+        const showVote = index + start < playerVotesVisible && playerData.alive;
+
+        return (
+          <div id={"player-display-text-container"} key={playerName}>
+            {label}
+            <Player
+              isBusy={
+                busyPlayers.has(playerName) &&
+                !props.showVotes &&
+                props.showBusy
+              } // Do not show while voting.
+              role={playerData[PLAYER_IDENTITY]}
+              showRole={shouldShowRole(props.gameState, playerName)}
+              highlight={playerName === props.user}
+              disabled={disabled}
+              disabledText={disabledText}
+              name={playerName}
+              useAsButton={props.useAsButtons}
+              isSelected={isSelected}
+              onClick={onClick}
+              showVote={showVote}
+              vote={props.gameState.userVotes[playerName]}
+              icon={props.gameState.icon[playerName]}
+            />
+          </div>
+        );
+      });
+  };
 
   /**
    * Creates the voting animation sequence.
    */
-  setupVoteAnimation() {
-    let duration = 1000;
-    let playerOrder = this.getPlayerOrder();
-    let numVotes = playerOrder.length;
-    let timePerPlayer = duration / numVotes;
-    let players = this.props.gameState.players;
-    let delay = 0;
-    for (let i = 0; i < playerOrder.length; i++) {
-      this.showPlayerVote[i] = false;
-      let playerName = playerOrder[i];
-      if (players[playerName].alive) {
-        // player is eligible to vote
-        setTimeout(() => {
-          this.showPlayerVote[i] = true;
-          this.forceUpdate();
-          i++;
-        }, delay);
-        delay += timePerPlayer;
-      } else {
-        setTimeout(() => {
-          this.showPlayerVote[i] = false;
-          i++;
-        }, delay);
-      }
-    }
-  }
+  const setupVoteAnimation = () => {
+    const durationMs = 1000;
+    const playerOrder = getPlayerOrder();
+    const numVotes = playerOrder.length;
+    const timePerPlayerMs = durationMs / numVotes;
 
-  resetVoteAnimation() {
-    this.showPlayerVote = new Array(10).fill(false);
-  }
+    setPlayerVotesVisible(0);
+    playerVoteAnimations.current = playerOrder.map((_playerName, index) => {
+      return setTimeout(() => {
+        setPlayerVotesVisible(index + 1);
+      }, (index + 1) * timePerPlayerMs);
+    });
+  };
+
+  const resetVoteAnimation = () => {
+    playerVoteAnimations.current.forEach((timeout) => {
+      clearTimeout(timeout);
+    });
+    playerVoteAnimations.current = [];
+    setPlayerVotesVisible(0);
+  };
 
   /* Note that there are two player-display-containers, so that the player tiles can be split into two rows if there
    * is insufficient space for them.*/
-  render() {
-    let playerOrder = this.getPlayerOrder();
-    // divides the playerOrder at the given index to allow for even groupings if the page is too narrow to fit
-    // all players.
-    let div1, div2;
-    if (playerOrder.length <= 4) {
-      // all players can be sorted into the first group.
-      div1 = playerOrder.length;
-      div2 = playerOrder.length;
-    } else if (playerOrder.length <= 8) {
-      // divide the players into two groups, with size preference given to the second group.
-      div1 = Math.floor(playerOrder.length / 2);
-      div2 = playerOrder.length;
-    } else {
-      div1 = Math.floor(playerOrder.length / 3);
-      div2 = Math.floor((playerOrder.length * 2) / 3);
-    }
+  const playerOrder = getPlayerOrder();
 
-    if (this.props.showVotes && !this.playingVoteAnimation) {
-      this.playingVoteAnimation = true;
-      this.setupVoteAnimation();
-    } else if (!this.props.showVotes && this.playingVoteAnimation) {
-      this.playingVoteAnimation = false;
-      this.resetVoteAnimation();
-    }
-
-    return (
-      <div id="player-display">
-        <div id="player-display-container">{this.getPlayerHTML(0, div1)}</div>
-        <div id="player-display-container">
-          {this.getPlayerHTML(div1, div2)}
-        </div>
-        <div id="player-display-container">
-          {this.getPlayerHTML(div2, playerOrder.length)}
-        </div>
-      </div>
-    );
+  // divides the playerOrder at the given index to allow for even groupings if the page is too narrow to fit
+  // all players.
+  let div1, div2;
+  if (playerOrder.length <= 4) {
+    // all players can be sorted into the first group.
+    div1 = playerOrder.length;
+    div2 = playerOrder.length;
+  } else if (playerOrder.length <= 8) {
+    // divide the players into two groups, with size preference given to the second group.
+    div1 = Math.floor(playerOrder.length / 2);
+    div2 = playerOrder.length;
+  } else {
+    div1 = Math.floor(playerOrder.length / 3);
+    div2 = Math.floor((playerOrder.length * 2) / 3);
   }
+
+  if (props.showVotes && !isPlayingVoteAnimation) {
+    setIsPlayingVoteAnimation(true);
+    setupVoteAnimation();
+  } else if (!props.showVotes && isPlayingVoteAnimation) {
+    setIsPlayingVoteAnimation(false);
+    resetVoteAnimation();
+  }
+
+  return (
+    <div id="player-display">
+      <div id="player-display-container">{renderPlayer(0, div1)}</div>
+      <div id="player-display-container">{renderPlayer(div1, div2)}</div>
+      <div id="player-display-container">
+        {renderPlayer(div2, playerOrder.length)}
+      </div>
+    </div>
+  );
 }
-
-PlayerDisplay.defaultProps = {
-  playerDisabledFilter: DISABLE_EXECUTED_PLAYERS,
-  useAsButtons: false,
-  includeUser: true,
-  showVotes: false,
-  showRoles: false,
-  showLabels: true,
-};
-
-export default PlayerDisplay;

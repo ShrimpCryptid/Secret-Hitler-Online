@@ -68,7 +68,6 @@ p {
     font-family: var(--textFont);
     font-weight: 700;
     font-size: calc(12px + 1vmin);
-    min-font-size: 12px;
     color: var(--textColorOnDark);
 }
 
@@ -129,15 +128,6 @@ button:disabled{
     cursor: not-allowed;
 }
 
-/* Override for pulsating buttons (for the end term button)*/
-#pulse-button {
-
-}
-
-#pulse-button:disabled {
-
-}
-
 input {
     font-family: var(--textFont);
     width: 40vmin;
@@ -161,7 +151,7 @@ textarea {
     min-height: 10px;
     resize: none;
     font-size: calc(2px + 2vmin);
-    user-modify: false;
+    -webkit-user-modify: read-only;
     color: var(--textColorOnWhite);
     border-radius: 5px;
     padding: calc(5px + 1.5vmin) 5px 5px;
