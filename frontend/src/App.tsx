@@ -19,8 +19,6 @@ import {
   WEBSOCKET,
   PARAM_USERNAMES,
   LOBBY_CODE_LENGTH,
-  PARAM_PLAYERS,
-  PLAYER_IDENTITY,
   PARAM_STATE,
   STATE_CHANCELLOR_NOMINATION,
   STATE_CHANCELLOR_VOTING,
@@ -99,19 +97,29 @@ import {
 const EVENT_BAR_FADE_OUT_DURATION = 500;
 const CUSTOM_ALERT_FADE_DURATION = 1000;
 
-const DEFAULT_GAME_STATE = {
-  "liberal-policies": 0,
-  "fascist-policies": 0,
-  "discard-size": 0,
-  "draw-size": 17,
+const DEFAULT_GAME_STATE: GameState = {
+  liberalPolicies: 0,
+  fascistPolicies: 0,
+  discardSize: 0,
+  drawSize: 17,
   players: {},
-  "in-game": true,
-  "player-order": [],
-  state: STATE_SETUP,
+  playerOrder: [],
+  state: LobbyState.SETUP,
   president: "",
   chancellor: "",
-  "election-tracker": 0,
-  "veto-occurred": false,
+  electionTracker: 0,
+  vetoOccurred: false,
+  lastState: LobbyState.SETUP,
+  lastChancellor: "",
+  lastPresident: "",
+  electionTrackerAdvanced: false,
+  userVotes: {},
+  presidentChoices: [],
+  chancellorChoices: [],
+  targetUser: "",
+  lastPolicy: "",
+  peek: [],
+  icon: {},
 };
 
 const COOKIE_NAME = "name";
@@ -138,7 +146,7 @@ type AppState = {
   lobbyFromURL: boolean;
   usernames: string[];
   icons: { [key: string]: string };
-  gameState: any;
+  gameState: GameState;
   /* Stores the last gameState[PARAM_STATE] value to check for changes. */
   lastState: any;
   liberalPolicies: number;
@@ -974,6 +982,42 @@ class App extends Component<{}, AppState> {
   /////////////////// Game Page
   //<editor-fold desc="Game Page">
 
+  showExecutionResults(name: string, newState: GameState): void {
+    if (name === newState.targetUser) {
+      this.queueAlert(
+        <ButtonPrompt
+          label={"YOU HAVE BEEN EXECUTED"}
+          headerText={
+            "Executed players may not speak, vote, or run for office. You should not reveal your identity to the group."
+          }
+          buttonOnClick={this.hideAlertAndFinish}
+        />,
+        false
+      );
+    } else {
+      this.queueAlert(
+        <ButtonPrompt
+          label={"EXECUTION RESULTS"}
+          footerText={
+            newState.targetUser +
+            " has been executed. They may no longer speak, vote, or run for office."
+          }
+          buttonOnClick={this.hideAlertAndFinish}
+          buttonText={"OKAY"}
+        >
+          <PlayerDisplay
+            user={name}
+            gameState={newState}
+            showRoles={false}
+            playerDisabledFilter={DISABLE_EXECUTED_PLAYERS}
+            players={[newState.targetUser!]}
+          />
+        </ButtonPrompt>,
+        false
+      );
+    }
+  }
+
   /**
    * Queues animations for when the game state has changed.
    * @param newState {Object} the new game state sent from the server.
@@ -986,7 +1030,7 @@ class App extends Component<{}, AppState> {
     let state = newState.state;
 
     // If last state was setup, which indicates that the client is re-entering the game or starting the game, then
-    // we set the card count, liberal/fascist policy count, and the tracker to be visible.
+    // we set the card count, liberal/fascist policy count, and the tracker.
     if (
       oldState.hasOwnProperty(PARAM_STATE) &&
       oldState[PARAM_STATE] === STATE_SETUP
@@ -1001,13 +1045,16 @@ class App extends Component<{}, AppState> {
     }
 
     // Check for changes in enacted policies and election tracker.
-    if (
-      state === LobbyState.POST_LEGISLATIVE ||
-      state === LobbyState.PP_INVESTIGATE ||
-      state === LobbyState.PP_EXECUTION ||
-      state === LobbyState.PP_ELECTION ||
-      state === LobbyState.PP_PEEK
-    ) {
+    const statesToShowPolicyFor = [
+      LobbyState.POST_LEGISLATIVE,
+      LobbyState.PP_INVESTIGATE,
+      LobbyState.PP_EXECUTION,
+      LobbyState.PP_ELECTION,
+      LobbyState.PP_PEEK,
+      LobbyState.FASCIST_VICTORY_POLICY,
+      LobbyState.LIBERAL_VICTORY_POLICY,
+    ];
+    if (statesToShowPolicyFor.includes(state)) {
       // Check if the election tracker changed positions.
       if (newState.electionTracker !== this.state.gameState.electionTracker) {
         let newPos = newState.electionTracker;
@@ -1131,6 +1178,9 @@ class App extends Component<{}, AppState> {
           );
 
           if (isPresident) {
+            if (!newState.presidentChoices) {
+              throw new Error("President choices not found.");
+            }
             this.queueAlert(
               <PresidentLegislativePrompt
                 policyOptions={newState.presidentChoices}
@@ -1146,6 +1196,9 @@ class App extends Component<{}, AppState> {
             "Waiting for the chancellor to choose a policy to enact."
           );
           if (isChancellor) {
+            if (!newState.chancellorChoices) {
+              throw new Error("Chancellor choices not found.");
+            }
             this.queueAlert(
               <ChancellorLegislativePrompt
                 fascistPolicies={newState.fascistPolicies}
@@ -1181,6 +1234,9 @@ class App extends Component<{}, AppState> {
         case STATE_PP_PEEK:
           this.queueEventUpdate("PRESIDENTIAL POWER");
           if (isPresident) {
+            if (!newState.peek) {
+              throw new Error("Peek policies not found.");
+            }
             this.queueAlert(
               <PeekPrompt
                 policies={newState.peek}
@@ -1236,6 +1292,7 @@ class App extends Component<{}, AppState> {
           break;
 
         case STATE_POST_LEGISLATIVE:
+          // Show results of any special elections, executions, or investigations.
           switch (newState.lastState) {
             case STATE_PP_ELECTION:
               if (!isPresident) {
@@ -1257,7 +1314,7 @@ class App extends Component<{}, AppState> {
                       user={name}
                       gameState={newState}
                       showLabels={false}
-                      players={[newState.targetUser]}
+                      players={[newState.targetUser!]}
                     />
                   </ButtonPrompt>,
                   false
@@ -1266,43 +1323,14 @@ class App extends Component<{}, AppState> {
               break;
             case STATE_PP_EXECUTION:
               // If player was executed
-              if (name === newState.targetUser) {
-                this.queueAlert(
-                  <ButtonPrompt
-                    label={"YOU HAVE BEEN EXECUTED"}
-                    headerText={
-                      "Executed players may not speak, vote, or run for office. You should not reveal your identity to the group."
-                    }
-                    buttonOnClick={this.hideAlertAndFinish}
-                  />,
-                  false
-                );
-              } else {
-                this.queueAlert(
-                  <ButtonPrompt
-                    label={"EXECUTION RESULTS"}
-                    footerText={
-                      newState.targetUser +
-                      " has been executed. They may no longer speak, vote, or run for office."
-                    }
-                    buttonOnClick={this.hideAlertAndFinish}
-                    buttonText={"OKAY"}
-                  >
-                    <PlayerDisplay
-                      user={name}
-                      gameState={newState}
-                      showRoles={false}
-                      playerDisabledFilter={DISABLE_EXECUTED_PLAYERS}
-                      players={[newState.targetUser]}
-                    />
-                  </ButtonPrompt>,
-                  false
-                );
-              }
+              this.showExecutionResults(name, newState);
               break;
             case STATE_PP_INVESTIGATE:
               if (!isPresident) {
                 let isTarget = newState.targetUser === name;
+                let footerText = isTarget
+                  ? `You have been investigated by ${newState[PARAM_PRESIDENT]}. The president now knows your party affiliation.`
+                  : `${newState.targetUser} has been investigated by ${newState[PARAM_PRESIDENT]}. The president now knows their party affiliation.`;
                 this.queueAlert(
                   <ButtonPrompt
                     label={"INVESTIGATION RESULTS"}
@@ -1310,15 +1338,7 @@ class App extends Component<{}, AppState> {
                     //            The president now knows your party affiliation.
                     // If not target: [Target Name] has been investigated by [President Name].
                     //                The president now knows their party affiliation.
-                    footerText={
-                      (isTarget ? "You have " : newState.targetUser + " has ") +
-                      " been investigated by " +
-                      newState[PARAM_PRESIDENT] +
-                      ". " +
-                      "The president now knows " +
-                      (isTarget ? "your" : "their") +
-                      " party affiliation (Liberal/Fascist)."
-                    }
+                    footerText={footerText}
                     buttonOnClick={this.hideAlertAndFinish}
                     buttonText={"OKAY"}
                   >
@@ -1326,7 +1346,7 @@ class App extends Component<{}, AppState> {
                       user={name}
                       gameState={newState}
                       showLabels={false}
-                      players={[newState.targetUser]}
+                      players={[newState.targetUser!]}
                     />
                   </ButtonPrompt>,
                   true
@@ -1345,10 +1365,12 @@ class App extends Component<{}, AppState> {
           );
           break;
 
+        case STATE_LIBERAL_VICTORY_EXECUTION:
+          this.showExecutionResults(name, newState);
         case STATE_FASCIST_VICTORY_ELECTION:
         case STATE_FASCIST_VICTORY_POLICY:
-        case STATE_LIBERAL_VICTORY_EXECUTION:
         case STATE_LIBERAL_VICTORY_POLICY:
+          // Policies will already be shown for policy-based victories.
           // If the game was won via election, show the votes.
           if (newState[PARAM_STATE] === STATE_FASCIST_VICTORY_ELECTION) {
             this.addAnimationToQueue(() => this.showVotes(newState));
@@ -1377,7 +1399,7 @@ class App extends Component<{}, AppState> {
           let liberalVictoryPolicy = state === STATE_LIBERAL_VICTORY_POLICY;
           let liberalVictoryExecution =
             state === STATE_LIBERAL_VICTORY_EXECUTION;
-          let playerID = newState[PARAM_PLAYERS][name][PLAYER_IDENTITY];
+          let playerID = newState.players[name].id;
           let playerWon =
             (playerID === Role.LIBERAL &&
               (liberalVictoryExecution || liberalVictoryPolicy)) ||
@@ -1385,6 +1407,8 @@ class App extends Component<{}, AppState> {
               (fascistVictoryElection || fascistVictoryPolicy));
 
           // Register player victory/loss with analytics.
+          // TODO: Only register if player is host, or if player is the only
+          // non-bot player in the game.
           if (playerWon) {
             ReactGA.event({
               category: "Victory",
