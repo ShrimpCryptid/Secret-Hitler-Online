@@ -1366,15 +1366,18 @@ class App extends Component<{}, AppState> {
           break;
 
         case STATE_LIBERAL_VICTORY_EXECUTION:
-          this.showExecutionResults(name, newState);
         case STATE_FASCIST_VICTORY_ELECTION:
         case STATE_FASCIST_VICTORY_POLICY:
         case STATE_LIBERAL_VICTORY_POLICY:
-          // Policies will already be shown for policy-based victories.
-          // If the game was won via election, show the votes.
-          if (newState[PARAM_STATE] === STATE_FASCIST_VICTORY_ELECTION) {
+          // Show normal enactments when victory events happen.
+          if (newState.state === STATE_LIBERAL_VICTORY_EXECUTION) {
+            this.showExecutionResults(name, newState);
+          }
+          if (newState.state === STATE_FASCIST_VICTORY_ELECTION) {
             this.addAnimationToQueue(() => this.showVotes(newState));
           }
+          // Policies will already be shown for policy-based victories.
+          // If the game was won via election, show the votes.
 
           // Divide fascist and liberal players.
           const fascistPlayers: string[] = [];
