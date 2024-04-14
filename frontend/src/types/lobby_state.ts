@@ -24,15 +24,11 @@ export type PlayerState = {
   investigated: boolean;
 };
 
-// TODO: Edit server API so that fields match
 export type GameState = {
   state: LobbyState;
   lastState: LobbyState;
   playerOrder: string[];
   players: Record<string, PlayerState>;
-  id: string;
-  alive: boolean;
-  investigated: boolean;
   chancellor: string;
   president: string;
   lastChancellor: string;
@@ -44,15 +40,18 @@ export type GameState = {
   fascistPolicies: number;
   drawSize: number;
   discardSize: number;
-  presidentChoices: PolicyType[];
-  chancellorChoices: PolicyType[];
-  targetUser: string;
+  // TODO: Make GameState type more complex, correlating
+  // these fields with certain LobbyStates.
+  // This actually is a little more complicated, since GameState currently represents the
+  // the full packet data sent by the server. See `Lobby.java` `updateUser()`
+  // for how all of this is packaged.
+  presidentChoices?: PolicyType[];
+  chancellorChoices?: PolicyType[];
+  targetUser?: string;
   lastPolicy: string;
   vetoOccurred: boolean;
-  peek: PolicyType[];
+  peek?: PolicyType[];
 
-  // Data appended by lobby
-  // user-count: number;
   usernames?: string[];
   /** Maps from usernames to icon keys */
   icon: Record<string, string>;

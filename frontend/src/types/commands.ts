@@ -1,3 +1,4 @@
+// TODO: Change these all to camelCase
 export const enum WSCommandType {
   PING = "ping",
   START_GAME = "start-game",
