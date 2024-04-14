@@ -68,7 +68,6 @@ p {
     font-family: var(--textFont);
     font-weight: 700;
     font-size: calc(12px + 1vmin);
-    min-font-size: 12px;
     color: var(--textColorOnDark);
 }
 
@@ -113,11 +112,11 @@ button {
     -webkit-tap-highlight-color: transparent;
 }
 
-button:hover{
+button:hover, button:focus, button:focus-visible{
     background: var(--buttonHoverFill);
 }
 
-button:active{
+button:not(:disabled):active{
     top:5px;
     background: var(--buttonFill);
     box-shadow: 0 0 0 var(--buttonShadowFill);
@@ -127,15 +126,6 @@ button:disabled{
     box-shadow: 0 5px 0 var(--buttonDisabledShadowFill);
     background: var(--buttonDisabledFill);
     cursor: not-allowed;
-}
-
-/* Override for pulsating buttons (for the end term button)*/
-#pulse-button {
-
-}
-
-#pulse-button:disabled {
-
 }
 
 input {
@@ -161,7 +151,7 @@ textarea {
     min-height: 10px;
     resize: none;
     font-size: calc(2px + 2vmin);
-    user-modify: false;
+    -webkit-user-modify: read-only;
     color: var(--textColorOnWhite);
     border-radius: 5px;
     padding: calc(5px + 1.5vmin) 5px 5px;

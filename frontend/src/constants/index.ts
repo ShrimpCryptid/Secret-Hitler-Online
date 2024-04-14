@@ -2,18 +2,19 @@ export const LIBERAL = "LIBERAL";
 export const FASCIST = "FASCIST";
 export const HITLER = "HITLER";
 
-export const PAGE = {
-	LOGIN: "login",
-	LOBBY: "lobby",
-	GAME: "game",
-};
+export enum PAGE {
+  LOGIN = "login",
+  LOBBY = "lobby",
+  GAME = "game",
+}
+
 export const DEBUG = process.env.REACT_APP_DEBUG !== undefined;
 export const SERVER_ADDRESS =
-	process.env.REACT_APP_SERVER_ADDRESS || "secret-hitler-online.fly.dev";
+  process.env.REACT_APP_SERVER_ADDRESS || "secret-hitler-online.fly.dev";
 export const SERVER_ADDRESS_HTTP =
-	process.env.REACT_APP_SERVER_ADDRESS_HTTP || "https://" + SERVER_ADDRESS;
+  process.env.REACT_APP_SERVER_ADDRESS_HTTP || "https://" + SERVER_ADDRESS;
 export const WEBSOCKET_HEADER =
-	process.env.REACT_APP_WEBSOCKET_HEADER || "wss://";
+  process.env.REACT_APP_WEBSOCKET_HEADER || "wss://";
 
 export const CHECK_LOGIN = "/check-login";
 export const NEW_LOBBY = "/new-lobby";
@@ -117,7 +118,7 @@ export const PARAM_DRAW_DECK = "draw-size";
 export const PARAM_DISCARD_DECK = "discard-size";
 export const PARAM_PRESIDENT_CHOICES = "president-choices";
 export const PARAM_CHANCELLOR_CHOICES = "chancellor-choices";
-export const PARAM_TARGET = "target-user";
+export const PARAM_TARGET = "target";
 export const PARAM_LAST_POLICY = "last-policy";
 export const PARAM_DID_VETO_OCCUR = "veto-occurred";
 // </editor-fold>
