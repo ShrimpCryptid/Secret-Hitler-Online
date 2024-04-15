@@ -775,7 +775,7 @@ class App extends Component<{}, AppState> {
       return (
         <Player
           key={i}
-          name={i === 0 ? name : name + " [Host]"}
+          name={i === 0 ? name + " [Host]" : name}
           showRole={false}
           icon={this.state.icons[name]}
           isBusy={this.state.icons[name] === defaultPortrait}
