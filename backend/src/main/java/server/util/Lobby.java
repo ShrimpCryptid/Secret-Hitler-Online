@@ -5,6 +5,8 @@ import game.GameState;
 import game.SecretHitlerGame;
 import io.javalin.websocket.WsContext;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import server.SecretHitlerServer;
 
 import java.io.IOException;
@@ -44,6 +46,8 @@ public class Lobby implements Serializable {
     public static float PLAYER_TIMEOUT_IN_SEC = 3;
     public static float CPU_ACTION_DELAY_IN_SEC = 4;
     private long timeout;
+
+    private static Logger logger = LoggerFactory.getLogger(Lobby.class);
 
     private static int MAX_TIMER_SCHEDULING_ATTEMPTS = 2;
     transient private Timer userTimeoutTimer = new Timer();
@@ -357,7 +361,7 @@ public class Lobby implements Serializable {
                 }
             }
             if (timerSchedulingAttempts == MAX_TIMER_SCHEDULING_ATTEMPTS) {
-                System.err.println("Failed to schedule timer for CPU ticks.");
+                logger.error("Failed to schedule timer for CPU ticks.");
             }
         }
     }
