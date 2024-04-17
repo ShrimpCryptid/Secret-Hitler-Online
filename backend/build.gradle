@@ -22,7 +22,7 @@ repositories {
 
 dependencies {
     // This dependency is found on compile classpath of this component and consumers.
-    implementation 'com.google.guava:guava:33.0.0-jre'
+    implementation 'com.google.guava:guava:33.1.0-jre'
 
     // Javalin is a server/networking library for Java.
     implementation 'io.javalin:javalin:5.6.1'
