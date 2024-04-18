@@ -32,14 +32,14 @@ In your first terminal, clone the repo if you haven't yet. Navigate to the `back
 git clone git@github.com:ShrimpCryptid/Secret-Hitler-Online.git
 cd Secret-Hitler-Online/backend
 
-DEBUG_MODE=1 ./gradlew run
+./gradlew runLocal
 ```
 
-This will start the backend server at [`http://localhost:4040`](http://locahost:4040) by default. You need to include `DEBUG_MODE=1`, otherwise the CORS policy will block access from the frontend.
+This will start the backend server at [`http://localhost:4040`](http://locahost:4040) by default. This will also set the server in debug-mode, so the CORS policy will not block access from the frontend.
 
 **Every time you make changes to Java files, you'll need to stop and restart the development server.**
 
-(TODO: Add a gradle run configuration for running locally)
+You can also run the backend-server using your preferred IDE by launching the Main-method in `ApplicationTest` found in the test directory.
 
 ### Running frontend server
 

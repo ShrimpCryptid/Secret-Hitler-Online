@@ -10,6 +10,8 @@ import io.javalin.websocket.WsMessageContext;
 
 import org.eclipse.jetty.websocket.api.StatusCode;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import server.util.Lobby;
 
 import java.io.*;
@@ -20,18 +22,13 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+
 public class SecretHitlerServer {
 
     ////// Static Fields
     // <editor-fold desc="Static Fields">
     // TODO: Replace this with an environment variable or environment flag
     public static final int DEFAULT_PORT_NUMBER = 4040;
-
-    // Environmental Variable Names
-    private static final String ENV_DEBUG = "DEBUG_MODE";
-    private static final String ENV_DATABASE_URL = "DATABASE_URL";
-
-    private static boolean DEBUG = System.getenv(ENV_DEBUG) != null;
 
     // Passed to server
     public static final String PARAM_LOBBY = "lobby";
@@ -88,34 +85,22 @@ public class SecretHitlerServer {
     transient private static ConcurrentHashMap<WsContext, Lobby> userToLobby = new ConcurrentHashMap<>();
     private static ConcurrentHashMap<String, Lobby> codeToLobby = new ConcurrentHashMap<>();
 
+    private static final Logger logger = LoggerFactory.getLogger(SecretHitlerServer.class);
+
     transient private static boolean hasLobbyChanged;
 
     // </editor-fold>
 
     ////// Private Methods
 
-    // TODO: Replace this with actual log levels, or a logging library.
-    /**
-     * Optionally prints an input string if the debug flag is enabled.
-     */
-    private static void debugPrint(String input) {
-        if (DEBUG) {
-            System.out.print(input);
-        }
-    }
-
-    private static void debugPrintLn(String input) {
-        debugPrint(input + "\n");
-    }
-
     /**
      * Prints the current list of lobbies and their players.
      */
     private static void printLobbyStatus() {
         synchronized (codeToLobby) {
-            System.out.println("Lobbies (" + codeToLobby.mappingCount() + ") : " + codeToLobby.keySet().toString());
+            logger.info("Lobbies (" + codeToLobby.mappingCount() + ") : " + codeToLobby.keySet());
             for (Map.Entry<String, Lobby> entry : codeToLobby.entrySet()) {
-                System.out.println("  " + entry.getKey() + ": " + entry.getValue().getUserNames());
+                logger.debug("Lobby " + entry.getKey() + ": " + entry.getValue().getUserNames());
             }
         }
     }
@@ -134,12 +119,10 @@ public class SecretHitlerServer {
         loadDatabaseBackup();
         removeInactiveLobbies(); // immediately clean in case of redundant lobbies.
 
-        debugPrintLn("Running in DEBUG mode.");
-
         // Only initialize Javalin communication after the database has been queried.
         Javalin serverApp = Javalin.create(config -> {
             config.plugins.enableCors(cors -> {
-                if (DEBUG) {
+                if (ApplicationConfig.DEBUG) {
                     cors.add(it -> {
                         it.anyHost();
                     });
@@ -164,7 +147,7 @@ public class SecretHitlerServer {
         // Add hook for termination that backs up the lobbies to the database.
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
-                debugPrintLn("Attempting to back up lobby data.");
+                logger.info("Attempting to back up lobby data.");
                 storeDatabaseBackup();
                 printLobbyStatus();
             }
@@ -219,7 +202,7 @@ public class SecretHitlerServer {
             }
         }
         if (removedCount > 0) {
-            debugPrintLn(String.format("Removed %d inactive lobbies: %s", removedCount, removedLobbyCodes));
+            logger.info(String.format("Removed %d inactive lobbies: %s", removedCount, removedLobbyCodes));
             printLobbyStatus();
             hasLobbyChanged = true;
         }
@@ -236,13 +219,12 @@ public class SecretHitlerServer {
      */
     private static Connection getDatabaseConnection() {
         // Get credentials from database or (if debug flag is set) via manual input.
-        Connection c = null;
+        Connection c;
         try {
             URI databaseUri;
-            String envUri = System.getenv(ENV_DATABASE_URL);
+            String envUri = ApplicationConfig.DATABASE_URI;
             if (envUri == null) {
-                System.out.println(
-                        "Could not connect to database: No ENV_DATABASE_URL environment variable provided.");
+                logger.error("Could not connect to database: No ENV_DATABASE_URL environment variable provided.");
                 return null;
             }
             databaseUri = new URI(envUri);
@@ -254,12 +236,11 @@ public class SecretHitlerServer {
 
             Class.forName("org.postgresql.Driver");
             c = DriverManager.getConnection(dbUrl, username, password);
-            debugPrintLn("Successfully connected to database.");
+            logger.info("Successfully connected to database.");
             return c;
         } catch (Exception e) {
             // Print failures no matter what
-            System.out.println("Failed to connect to database.");
-            System.err.println(e);
+            logger.error("Failed to connect to database.", e);
             return null;
         }
     }
@@ -289,7 +270,7 @@ public class SecretHitlerServer {
             String timestamp = rs.getString("timestamp");
             int numAttempts = rs.getInt("attempts");
             byte[] lobbyBytes = rs.getBytes("lobby_bytes");
-            System.out.println("Loaded backup from " + timestamp + ".");
+            logger.info("Loaded backup from " + timestamp + ".");
             rs.close();
             stmt.close();
 
@@ -307,15 +288,13 @@ public class SecretHitlerServer {
                     ObjectInputStream objectStream = new ObjectInputStream(lobbyByteStream)) {
                 codeToLobby = (ConcurrentHashMap<String, Lobby>) objectStream.readObject();
                 objectStream.close();
-                debugPrintLn("Successfully parsed lobby data from the database.");
+                logger.debug("Successfully parsed lobby data from the database.");
             } catch (Exception e) {
-                System.out.println("Failed to parse lobby data from stored backup. ");
-                System.err.println(e.getClass().getName() + ": " + e.getMessage());
+                logger.error("Failed to parse lobby data from stored backup.", e);
             }
 
         } catch (Exception e) {
-            System.out.println("Failed to retrieve lobby backups from the database.");
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            logger.error("Failed to retrieve lobby backups from the database.", e);
         }
         printLobbyStatus();
     }
@@ -331,8 +310,7 @@ public class SecretHitlerServer {
             byteBuilder.flush();
             // No need to close bytebuilder (close has no effect)
         } catch (Exception e) {
-            System.out.println("Failed to serialize the Lobby data.");
-            System.err.println(e);
+            logger.error("Failed to serialize the Lobby data.", e);
             return;
         }
         byte[] lobbyData = byteBuilder.toByteArray();
@@ -359,11 +337,10 @@ public class SecretHitlerServer {
             pstmt.executeUpdate();
             c.close();
         } catch (Exception e) {
-            System.out.println("Failed to store the Lobby data in the database.");
-            System.err.println(e);
+            logger.error("Failed to store the Lobby data in the database.", e);
             return;
         }
-        debugPrintLn("Successfully saved Lobby state to the database.");
+        logger.debug("Successfully saved Lobby state to the database.");
     }
 
     /**
@@ -476,8 +453,8 @@ public class SecretHitlerServer {
 
         ctx.status(200);
         ctx.result(newCode);
-        System.out.println("New lobby created: " + newCode);
-        System.out.println("Available lobbies: " + codeToLobby.keySet());
+        logger.info("New lobby created: " + newCode);
+        logger.info("Available lobbies: " + codeToLobby.keySet());
     }
 
     /**
@@ -527,7 +504,7 @@ public class SecretHitlerServer {
      */
     private static void onWebsocketConnect(WsConnectContext ctx) {
         if (ctx.queryParam(PARAM_LOBBY) == null || ctx.queryParam(PARAM_NAME) == null) {
-            debugPrintLn("A websocket request was missing a parameter and was disconnected.");
+            logger.debug("A websocket request was missing a parameter and was disconnected.");
             ctx.session.close(StatusCode.PROTOCOL,
                     "Must have the '" + PARAM_LOBBY + "' and '" + PARAM_NAME + "' parameters.");
             return;
@@ -538,32 +515,32 @@ public class SecretHitlerServer {
         String name = ctx.queryParam(PARAM_NAME);
 
         if (code == null || name == null || name.isEmpty() || name.isBlank()) {
-            debugPrintLn("FAILED (Lobby or name is empty/null)");
+            logger.debug("FAILED (Lobby or name is empty/null)");
             ctx.session.close(StatusCode.PROTOCOL, "Lobby and name must be specified.");
         }
 
-        debugPrint("Attempting to connect user '" + name + "' to lobby '" + code + "': ");
+        logger.debug("Attempting to connect user '" + name + "' to lobby '" + code + "': ");
         if (!codeToLobby.containsKey(code)) { // the lobby does not exist.
-            debugPrintLn("FAILED (The lobby does not exist)");
+            logger.debug("FAILED (The lobby does not exist)");
             ctx.session.close(StatusCode.PROTOCOL, "The lobby '" + code + "' does not exist.");
             return;
         }
 
         Lobby lobby = codeToLobby.get(code);
         if (lobby.hasUserWithName(name)) { // duplicate names not allowed
-            debugPrintLn("FAILED (Repeat username)");
+            logger.debug("FAILED (Repeat username)");
             ctx.session.close(StatusCode.PROTOCOL, "A user with the name " + name + " is already in the lobby.");
             return;
         } else if (lobby.isFull()) {
-            debugPrintLn("FAILED (Lobby is full)");
+            logger.debug("FAILED (Lobby is full)");
             ctx.session.close(StatusCode.PROTOCOL, "The lobby " + code + " is currently full.");
             return;
         } else if (lobby.isInGame() && !lobby.canAddUserDuringGame(name)) {
-            debugPrintLn("FAILED (Lobby in game)");
+            logger.debug("FAILED (Lobby in game)");
             ctx.session.close(StatusCode.PROTOCOL, "The lobby " + code + " is currently in a game..");
             return;
         }
-        debugPrintLn("SUCCESS");
+        logger.debug("SUCCESS");
         lobby.addUser(ctx, name);
         userToLobby.put(ctx, lobby); // keep track of which lobby this connection is in.
         lobby.updateAllUsers();
@@ -597,7 +574,7 @@ public class SecretHitlerServer {
         if (message.getString(PARAM_LOBBY) == null
                 || message.getString(PARAM_NAME) == null
                 || message.getString(PARAM_COMMAND) == null) {
-            System.out.println("Message request failed: missing a parameter.");
+            logger.warn("Message request failed: missing a parameter.");
             ctx.session.close(StatusCode.PROTOCOL, "A required parameter is missing.");
             return;
         }
@@ -607,10 +584,9 @@ public class SecretHitlerServer {
 
         String logMessage = "Received a message from user '" + name + "' in lobby '" + lobbyCode + "' ("
                 + ctx.message() + "): ";
-        int log_length = logMessage.length();
 
         if (!codeToLobby.containsKey(lobbyCode)) {
-            debugPrintLn(logMessage + " FAILED (Lobby requested does not exist)");
+            logger.debug(logMessage + " FAILED (Lobby requested does not exist)");
             ctx.session.close(StatusCode.PROTOCOL, "The lobby does not exist.");
             return;
         }
@@ -619,7 +595,7 @@ public class SecretHitlerServer {
 
         synchronized (lobby) {
             if (!lobby.hasUser(ctx, name)) {
-                debugPrintLn(logMessage + " FAILED (Lobby does not have the user)");
+                logger.debug(logMessage + " FAILED (Lobby does not have the user)");
                 ctx.session.close(StatusCode.PROTOCOL, "The user is not in the lobby " + lobbyCode + ".");
                 return;
             }
@@ -633,9 +609,6 @@ public class SecretHitlerServer {
                     case COMMAND_PING:
                         sendOKMessage = false;
                         updateUsers = false;
-                        // Erase the previous line with spaces and \r
-                        debugPrint("\r" + (' ' * log_length));
-                        debugPrint("\r");
                         JSONObject msg = new JSONObject();
                         msg.put(PARAM_PACKET_TYPE, PACKET_PONG);
                         ctx.send(msg.toString());
@@ -727,7 +700,7 @@ public class SecretHitlerServer {
                 } // End switch
 
                 if (sendOKMessage) {
-                    debugPrintLn(logMessage + " SUCCESS");
+                    logger.debug(logMessage + " SUCCESS");
                     JSONObject msg = new JSONObject();
                     msg.put(PARAM_PACKET_TYPE, PACKET_OK);
                     ctx.send(msg.toString());
@@ -736,10 +709,10 @@ public class SecretHitlerServer {
             } catch (NullPointerException e) {
                 // Show error messages by default, since they indicate API access
                 // issues.
-                System.out.println(logMessage + " FAILED (" + e.toString() + ")");
+                logger.error(logMessage + " FAILED", e);
                 ctx.session.close(StatusCode.PROTOCOL, "NullPointerException:" + e.toString());
             } catch (RuntimeException e) {
-                System.out.println(logMessage + " FAILED (" + e.toString() + ")");
+                logger.error(logMessage + " FAILED", e);
                 ctx.session.close(StatusCode.PROTOCOL, "RuntimeException:" + e.toString());
             }
             if (updateUsers) {
