@@ -119,8 +119,6 @@ public class SecretHitlerServer {
         loadDatabaseBackup();
         removeInactiveLobbies(); // immediately clean in case of redundant lobbies.
 
-        logger.info("Running in DEBUG mode.");
-
         // Only initialize Javalin communication after the database has been queried.
         Javalin serverApp = Javalin.create(config -> {
             config.plugins.enableCors(cors -> {
