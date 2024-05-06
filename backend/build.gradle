@@ -30,7 +30,7 @@ dependencies {
     implementation 'org.slf4j:slf4j-simple:1.7.30'
     implementation 'org.json:json:20231013'
     implementation 'com.j2html:j2html:1.4.0'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.16.1'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.1'
 
     // PostgresSQL driver
     implementation 'org.postgresql:postgresql:42.7.1'
