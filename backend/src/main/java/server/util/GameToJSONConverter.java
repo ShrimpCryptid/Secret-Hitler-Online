@@ -73,6 +73,8 @@ public class GameToJSONConverter {
         boolean showAllRoles = game.hasGameFinished() || role == Identity.FASCIST
                 || (role == Identity.HITLER && game.getPlayerList().size() <= 6);
 
+        System.out.println("Show all roles: " + showAllRoles);
+
         for (int i = 0; i < playerList.size(); i++) {
             JSONObject playerObj = new JSONObject();
             Player player = playerList.get(i);
@@ -91,33 +93,33 @@ public class GameToJSONConverter {
         }
 
         out.put("players", playerData);
-        out.put("player-order", playerOrder);
+        out.put("playerOrder", playerOrder);
 
         out.put("president", game.getCurrentPresident());
         out.put("chancellor", game.getCurrentChancellor());
         out.put("state", game.getState().toString());
-        out.put("last-state", game.getLastState().toString());
-        out.put("last-president", game.getLastPresident());
-        out.put("last-chancellor", game.getLastChancellor());
-        out.put("target-user", game.getTarget());
+        out.put("lastState", game.getLastState().toString());
+        out.put("lastPresident", game.getLastPresident());
+        out.put("lastChancellor", game.getLastChancellor());
+        out.put("targetUser", game.getTarget());
 
-        out.put("election-tracker", game.getElectionTracker());
-        out.put("election-tracker-advanced", game.didElectionTrackerAdvance());
+        out.put("electionTracker", game.getElectionTracker());
+        out.put("electionTrackerAdvanced", game.didElectionTrackerAdvance());
 
-        out.put("last-policy", game.getLastEnactedPolicy().toString().toUpperCase());
+        out.put("lastPolicy", game.getLastEnactedPolicy().toString().toUpperCase());
 
-        out.put("draw-size", game.getDrawSize());
-        out.put("discard-size", game.getDiscardSize());
-        out.put("fascist-policies", game.getNumFascistPolicies());
-        out.put("liberal-policies", game.getNumLiberalPolicies());
-        out.put("user-votes", game.getVotes());
-        out.put("veto-occurred", game.didVetoOccurThisTurn());
+        out.put("drawSize", game.getDrawSize());
+        out.put("discardSize", game.getDiscardSize());
+        out.put("fascistPolicies", game.getNumFascistPolicies());
+        out.put("liberalPolicies", game.getNumLiberalPolicies());
+        out.put("userVotes", game.getVotes());
+        out.put("vetoOccurred", game.didVetoOccurThisTurn());
 
         if (game.getState() == GameState.LEGISLATIVE_PRESIDENT) {
-            out.put("president-choices", convertPolicyListToStringArray(game.getPresidentLegislativeChoices()));
+            out.put("presidentChoices", convertPolicyListToStringArray(game.getPresidentLegislativeChoices()));
         }
         if (game.getState() == GameState.LEGISLATIVE_CHANCELLOR) {
-            out.put("chancellor-choices", convertPolicyListToStringArray(game.getChancellorLegislativeChoices()));
+            out.put("chancellorChoices", convertPolicyListToStringArray(game.getChancellorLegislativeChoices()));
         }
         if (game.getState() == GameState.PRESIDENTIAL_POWER_PEEK) {
             out.put("peek", convertPolicyListToStringArray(game.getPeek()));

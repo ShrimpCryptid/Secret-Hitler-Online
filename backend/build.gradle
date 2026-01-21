@@ -69,5 +69,10 @@ javadoc {
 // Define the main class for the application
 mainClassName = 'server.SecretHitlerServer'
 
+task runLocal(type: JavaExec) {
+    mainClass = "game.ApplicationTest"
+    classpath = sourceSets.test.runtimeClasspath
+}
+
 task stage(dependsOn: ['build', 'clean', 'jar'])
 build.mustRunAfter clean

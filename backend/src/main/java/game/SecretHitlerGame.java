@@ -377,6 +377,9 @@ public class SecretHitlerGame implements Serializable {
      * Returns whether the game has reached an ending victory state.
      */
     public boolean hasGameFinished() {
+        if (board != null) {
+            checkIfGameOver();
+        }
         return state == GameState.FASCIST_VICTORY_ELECTION
                 || state == GameState.FASCIST_VICTORY_POLICY
                 || state == GameState.LIBERAL_VICTORY_EXECUTION

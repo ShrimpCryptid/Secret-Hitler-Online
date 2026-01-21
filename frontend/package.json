@@ -3,6 +3,17 @@
 	"version": "0.1.0",
 	"private": true,
 	"homepage": ".",
+	"scripts": {
+		"start": "react-scripts start",
+		"devLocal": "npx env-cmd -f .env.local react-scripts start",
+		"devServer": "npx env-cmd -f .env.dev react-scripts start",
+		"build": "react-scripts build",
+		"test": "react-scripts test",
+		"eject": "react-scripts eject"
+	},
+	"eslintConfig": {
+		"extends": "react-app"
+	},
 	"dependencies": {
 		"@testing-library/jest-dom": "^5.16.2",
 		"@testing-library/react": "^12.1.2",
@@ -21,15 +32,14 @@
 		"react-twitter-embed": "^3.0.3",
 		"typescript": "^3.9.10"
 	},
-	"scripts": {
-		"start": "react-scripts start",
-		"debug": "npx env-cmd -f .env.dev react-scripts start",
-		"build": "react-scripts build",
-		"test": "react-scripts test",
-		"eject": "react-scripts eject"
-	},
-	"eslintConfig": {
-		"extends": "react-app"
+	"devDependencies": {
+		"@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+		"@types/js-cookie": "^3.0.6",
+		"@types/node": "^20.11.16",
+		"@types/twitter-for-web": "^0.0.6",
+		"env-cmd": "^10.1.0",
+		"prop-types": "^15.7.2",
+		"react-scripts": "^5.0.0"
 	},
 	"browserslist": {
 		"production": [
@@ -42,11 +52,5 @@
 			"last 1 firefox version",
 			"last 1 safari version"
 		]
-	},
-	"devDependencies": {
-		"env-cmd": "^10.1.0",
-		"prop-types": "^15.7.2",
-		"react-scripts": "^5.0.0",
-		"@babel/plugin-proposal-private-property-in-object": "^7.21.11"
 	}
 }

@@ -1,1 +1,5 @@
+# Must use Unix-style line endings (LF) for compatibility with the
+# docker-compose quickstart on Windows. CRLF line endings will cause the
+# script to fail when run in the container environment.
+backend/gradlew text eol=lf
 *.svg binary
