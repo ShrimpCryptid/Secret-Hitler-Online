@@ -8,3 +8,8 @@ export const enum Role {
   FASCIST = "FASCIST",
   HITLER = "HITLER",
 }
+
+export const enum DeckType {
+  DRAW = "DRAW",
+  DISCARD = "DISCARD",
+}
