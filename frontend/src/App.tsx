@@ -146,6 +146,7 @@ type AppState = {
   lobbyFromURL: boolean;
   usernames: string[];
   icons: { [key: string]: string };
+  targetLobbySize: number;
   gameState: GameState;
   /* Stores the last gameState[PARAM_STATE] value to check for changes. */
   lastState: any;
@@ -177,6 +178,7 @@ const defaultAppState: AppState = {
   lobbyFromURL: false,
   usernames: [],
   icons: {},
+  targetLobbySize: 5,
   gameState: DEFAULT_GAME_STATE,
   lastState: {},
   liberalPolicies: 0,
@@ -429,6 +431,7 @@ class App extends Component<{}, AppState> {
           usernames: message[PARAM_USERNAMES],
           icons: message[PARAM_ICON],
           page: PAGE.LOBBY,
+          targetLobbySize: message["targetLobbySize"] || 5,
         });
         if (message[PARAM_ICON][this.state.name] === defaultPortrait) {
           this.showChangeIconAlert();
@@ -917,9 +920,32 @@ class App extends Component<{}, AppState> {
           <div id={"lobby-lower-container"}>
             <div id={"lobby-player-area-container"}>
               <div id={"lobby-player-text-choose-container"}>
-                <p id={"lobby-player-count-text"}>
-                  Players ({this.state.usernames.length}/10)
-                </p>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+                  <p id={"lobby-player-count-text"}>
+                    Players ({this.state.usernames.length}/{this.state.targetLobbySize})
+                  </p>
+                  
+                  {isVIP ? (
+                    <div style={{ marginTop: "5px", display: "flex", alignItems: "center", color: "white" }}>
+                      <label style={{ marginRight: "10px" }}>Target Game Size:</label>
+                      <select 
+                        value={this.state.targetLobbySize} 
+                        onChange={(e) => this.sendWSCommand({ 
+                          command: WSCommandType.SET_LOBBY_SIZE, 
+                          size: parseInt(e.target.value) 
+                        })}
+                        style={{ padding: "5px", borderRadius: "4px", backgroundColor: "#333", color: "white", border: "1px solid #555" }}
+                      >
+                        {[5, 6, 7, 8, 9, 10].map(n => <option key={n} value={n}>{n} Players</option>)}
+                      </select>
+                    </div>
+                  ) : (
+                    <p style={{ marginTop: "5px", color: "gray", fontSize: "0.9em" }}>
+                      Target Game Size: {this.state.targetLobbySize}
+                    </p>
+                  )}
+                </div>
+
                 <button
                   id={"lobby-change-icon-button"}
                   onClick={this.onClickChangeIcon}

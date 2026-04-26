@@ -694,6 +694,14 @@ public class SecretHitlerServer {
                         String iconId = message.getString(PARAM_ICON);
                         lobby.trySetUserIcon(iconId, ctx);
                         break;
+                    
+                    case COMMAND_SET_LOBBY_SIZE:
+                        // Ensure the game hasn't started yet
+                        if (!lobby.isInGame()) {
+                            int newSize = message.getInt("size"); 
+                            lobby.setTargetLobbySize(newSize);
+                        }
+                        break;
 
                     default: // This is an invalid command.
                         throw new RuntimeException("unrecognized command " + message.get(PARAM_COMMAND));
