@@ -699,7 +699,7 @@ public class SecretHitlerServer {
                         // Ensure the game hasn't started yet
                         if (!lobby.isInGame()) {
                             int newSize = message.getInt("size"); 
-                            lobby.setTargetLobbySize(newSize);
+                            lobby.setMinLobbySize(newSize);
                         }
                         break;
 

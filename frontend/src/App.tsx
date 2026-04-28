@@ -146,7 +146,7 @@ type AppState = {
   lobbyFromURL: boolean;
   usernames: string[];
   icons: { [key: string]: string };
-  targetLobbySize: number;
+  minLobbySize: number;
   gameState: GameState;
   /* Stores the last gameState[PARAM_STATE] value to check for changes. */
   lastState: any;
@@ -178,7 +178,7 @@ const defaultAppState: AppState = {
   lobbyFromURL: false,
   usernames: [],
   icons: {},
-  targetLobbySize: 5,
+  minLobbySize: 5,
   gameState: DEFAULT_GAME_STATE,
   lastState: {},
   liberalPolicies: 0,
@@ -431,7 +431,7 @@ class App extends Component<{}, AppState> {
           usernames: message[PARAM_USERNAMES],
           icons: message[PARAM_ICON],
           page: PAGE.LOBBY,
-          targetLobbySize: message["targetLobbySize"] || 5,
+          minLobbySize: message["minLobbySize"] || 5,
         });
         if (message[PARAM_ICON][this.state.name] === defaultPortrait) {
           this.showChangeIconAlert();
@@ -920,32 +920,9 @@ class App extends Component<{}, AppState> {
           <div id={"lobby-lower-container"}>
             <div id={"lobby-player-area-container"}>
               <div id={"lobby-player-text-choose-container"}>
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
-                  <p id={"lobby-player-count-text"}>
-                    Players ({this.state.usernames.length}/{this.state.targetLobbySize})
-                  </p>
-                  
-                  {isVIP ? (
-                    <div style={{ marginTop: "5px", display: "flex", alignItems: "center", color: "white" }}>
-                      <label style={{ marginRight: "10px" }}>Target Game Size:</label>
-                      <select 
-                        value={this.state.targetLobbySize} 
-                        onChange={(e) => this.sendWSCommand({ 
-                          command: WSCommandType.SET_LOBBY_SIZE, 
-                          size: parseInt(e.target.value) 
-                        })}
-                        style={{ padding: "5px", borderRadius: "4px", backgroundColor: "#333", color: "white", border: "1px solid #555" }}
-                      >
-                        {[5, 6, 7, 8, 9, 10].map(n => <option key={n} value={n}>{n} Players</option>)}
-                      </select>
-                    </div>
-                  ) : (
-                    <p style={{ marginTop: "5px", color: "gray", fontSize: "0.9em" }}>
-                      Target Game Size: {this.state.targetLobbySize}
-                    </p>
-                  )}
-                </div>
-
+                <p id={"lobby-player-count-text"}>
+                  Players ({this.state.usernames.length}/{this.state.minLobbySize})
+                </p>
                 <button
                   id={"lobby-change-icon-button"}
                   onClick={this.onClickChangeIcon}
@@ -953,6 +930,40 @@ class App extends Component<{}, AppState> {
                   CHANGE ICON
                 </button>
               </div>
+
+              <div style={{ marginBottom: "15px", display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+            {isVIP ? (
+              <>
+                <label style={{ color: "white", display: "flex", alignItems: "center", cursor: "pointer" }}>
+                  <span style={{ marginRight: "10px" }}>Game Size:</span>
+                  <select 
+                    value={this.state.minLobbySize} 
+                    onChange={(e) => this.sendWSCommand({ 
+                      command: WSCommandType.SET_LOBBY_SIZE, 
+                      size: parseInt(e.target.value) 
+                    })}
+                    style={{ padding: "5px", borderRadius: "4px", backgroundColor: "#333", color: "white", border: "1px solid #555", cursor: "pointer" }}
+                  >
+                    {[5, 6, 7, 8, 9, 10].map(n => (
+                      <option key={n} value={n}>
+                        {n === 10 ? "10 Players" : `${n}+ Players`}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <span style={{ color: "#aaaaaa", fontSize: "0.8em", marginTop: "4px" }}>
+                  (Empty spots will be filled by bots)
+                </span>
+              </>
+            ) : (
+              <p style={{ color: "gray", fontSize: "0.9em", margin: 0 }}>
+                Game Size: {this.state.minLobbySize === 10 ? "10 Players" : `${this.state.minLobbySize}+ Players`}
+                <br/>
+                <span style={{ fontSize: "0.9em" }}>(Empty spots will be filled by bots)</span>
+              </p>
+            )}
+          </div>
+
               <div id={"lobby-player-container"}>{this.renderPlayerList()}</div>
             </div>
 
