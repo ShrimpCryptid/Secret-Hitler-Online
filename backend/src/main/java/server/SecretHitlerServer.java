@@ -39,6 +39,7 @@ public class SecretHitlerServer {
     public static final String PARAM_VETO = "veto";
     public static final String PARAM_CHOICE = "choice"; // the index of the chosen policy.
     public static final String PARAM_ICON = "icon";
+    public static final String PARAM_MIN_LOBBY_SIZE = "minLobbySize";
 
     // Passed to client
     // The type of the packet tells the client how to parse the contents.
@@ -693,6 +694,14 @@ public class SecretHitlerServer {
                     case COMMAND_SELECT_ICON:
                         String iconId = message.getString(PARAM_ICON);
                         lobby.trySetUserIcon(iconId, ctx);
+                        break;
+                    
+                    case COMMAND_SET_LOBBY_SIZE:
+                        // Ensure the game hasn't started yet
+                        if (!lobby.isInGame()) {
+                            int newSize = message.getInt("size"); 
+                            lobby.setMinLobbySize(newSize);
+                        }
                         break;
 
                     default: // This is an invalid command.

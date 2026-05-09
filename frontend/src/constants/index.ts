@@ -90,6 +90,7 @@ export const STATE_FASCIST_VICTORY_ELECTION = "FASCIST_VICTORY_ELECTION"; // Fas
 // Lobby
 export const PARAM_USER_COUNT = "user-count";
 export const PARAM_USERNAMES = "usernames";
+export const PARAM_MIN_LOBBY_SIZE = "minLobbySize";
 
 // Peek
 export const PARAM_PEEK = "peek";

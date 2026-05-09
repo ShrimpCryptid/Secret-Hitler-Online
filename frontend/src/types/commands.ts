@@ -3,6 +3,7 @@ export const enum WSCommandType {
   PING = "ping",
   START_GAME = "start-game",
   GET_STATE = "get-state",
+  SET_LOBBY_SIZE = "set-lobby-size",
   REGISTER_CHANCELLOR_VETO = "chancellor-veto",
   REGISTER_PRESIDENT_VETO = "president-veto",
   REGISTER_PEEK = "register-peek",
@@ -25,6 +26,7 @@ export const enum WSCommandType {
 export type ServerRequestPayload =
   | { command: WSCommandType.PING }
   | { command: WSCommandType.START_GAME }
+  | { command: WSCommandType.SET_LOBBY_SIZE; size: number }
   | { command: WSCommandType.GET_STATE }
   | { command: WSCommandType.REGISTER_CHANCELLOR_VETO }
   | { command: WSCommandType.REGISTER_PRESIDENT_VETO; veto: boolean }
