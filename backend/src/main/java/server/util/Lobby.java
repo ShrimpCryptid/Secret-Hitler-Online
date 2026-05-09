@@ -399,7 +399,7 @@ public class Lobby implements Serializable {
             message = new JSONObject();
             message.put(SecretHitlerServer.PARAM_PACKET_TYPE, SecretHitlerServer.PACKET_LOBBY);
             message.put("usernames", activeUsernames.toArray());
-            message.put("minLobbySize", minLobbySize);
+            message.put(SecretHitlerServer.PARAM_MIN_LOBBY_SIZE, minLobbySize);
         }
         // Add user icons to the update message
         JSONObject icons = new JSONObject(usernameToIcon);

@@ -39,6 +39,7 @@ public class SecretHitlerServer {
     public static final String PARAM_VETO = "veto";
     public static final String PARAM_CHOICE = "choice"; // the index of the chosen policy.
     public static final String PARAM_ICON = "icon";
+    public static final String PARAM_MIN_LOBBY_SIZE = "minLobbySize";
 
     // Passed to client
     // The type of the packet tells the client how to parse the contents.

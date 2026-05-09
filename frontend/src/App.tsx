@@ -50,6 +50,7 @@ import {
   SERVER_PING,
   PARAM_ICON,
   PARAM_INVESTIGATION,
+  PARAM_MIN_LOBBY_SIZE,
 } from "./constants";
 
 import PlayerDisplay, {
@@ -431,7 +432,7 @@ class App extends Component<{}, AppState> {
           usernames: message[PARAM_USERNAMES],
           icons: message[PARAM_ICON],
           page: PAGE.LOBBY,
-          minLobbySize: message["minLobbySize"] || 5,
+          minLobbySize: message[PARAM_MIN_LOBBY_SIZE] || 5,
         });
         if (message[PARAM_ICON][this.state.name] === defaultPortrait) {
           this.showChangeIconAlert();
