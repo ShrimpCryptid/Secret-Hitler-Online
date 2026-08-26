@@ -86,6 +86,7 @@ import LoginPageContent from "./LoginPageContent";
 import Cookies from "js-cookie";
 import AnnouncementBox from "./util/AnnouncementBox";
 import {
+  DeckType,
   GameState,
   LobbyState,
   Role,
@@ -274,7 +275,7 @@ class App extends Component<{}, AppState> {
         "?name=" +
         encodeURI(name) +
         "&lobby=" +
-        encodeURI(lobby)
+        encodeURI(lobby),
     );
   }
 
@@ -366,7 +367,7 @@ class App extends Component<{}, AppState> {
       "A websocket closed: " +
         this.websocket?.url +
         ". Reopening to current lobby " +
-        this.state.lobby
+        this.state.lobby,
     );
     //
 
@@ -454,7 +455,7 @@ class App extends Component<{}, AppState> {
       case PACKET_INVESTIGATION:
         // Trigger investigation screen when the server responds.
         console.log(
-          "Investigated player role: " + message[PARAM_INVESTIGATION]
+          "Investigated player role: " + message[PARAM_INVESTIGATION],
         );
         // Set party to liberal/fascist using sent packet
         const party = message[PARAM_INVESTIGATION];
@@ -465,7 +466,7 @@ class App extends Component<{}, AppState> {
             target={message[PARAM_TARGET]}
             hideAlert={this.hideAlertAndFinish}
           />,
-          false
+          false,
         );
         break;
       case PACKET_PONG:
@@ -499,7 +500,7 @@ class App extends Component<{}, AppState> {
       this.websocket.send(JSON.stringify(data));
     } else {
       this.showSnackBar(
-        "Could not connect to the server. Try refreshing the page if this happens again."
+        "Could not connect to the server. Try refreshing the page if this happens again.",
       );
     }
   }
@@ -992,7 +993,7 @@ class App extends Component<{}, AppState> {
           }
           buttonOnClick={this.hideAlertAndFinish}
         />,
-        false
+        false,
       );
     } else {
       this.queueAlert(
@@ -1013,7 +1014,7 @@ class App extends Component<{}, AppState> {
             players={[newState.targetUser!]}
           />
         </ButtonPrompt>,
-        false
+        false,
       );
     }
   }
@@ -1076,7 +1077,7 @@ class App extends Component<{}, AppState> {
             <ElectionTrackerAlert
               trackerPosition={trackerPosition}
               closeAlert={this.hideAlertAndFinish}
-            />
+            />,
           );
         }
       }
@@ -1092,7 +1093,7 @@ class App extends Component<{}, AppState> {
           <PolicyEnactedAlert
             hideAlert={this.hideAlertAndFinish}
             policyType={newState.lastPolicy}
-          />
+          />,
         );
       }
 
@@ -1127,19 +1128,19 @@ class App extends Component<{}, AppState> {
                   this.hideAlertAndFinish();
                 }}
               />,
-              false
+              false,
             );
           }
 
           this.queueEventUpdate("CHANCELLOR NOMINATION");
           this.queueStatusMessage(
-            "Waiting for president to nominate a chancellor."
+            "Waiting for president to nominate a chancellor.",
           );
 
           if (isPresident) {
             //Show the chancellor nomination window.
             this.queueAlert(
-              SelectNominationPrompt(name, newState, this.sendWSCommand)
+              SelectNominationPrompt(name, newState, this.sendWSCommand),
             );
           }
 
@@ -1160,7 +1161,7 @@ class App extends Component<{}, AppState> {
                 sendWSCommand={this.sendWSCommand}
                 user={this.state.name}
               />,
-              true
+              true,
             );
           }
 
@@ -1174,7 +1175,7 @@ class App extends Component<{}, AppState> {
           // TODO: Animate cards being pulled from the draw deck for all users.
 
           this.queueStatusMessage(
-            "Waiting for the president to choose a policy to discard."
+            "Waiting for the president to choose a policy to discard.",
           );
 
           if (isPresident) {
@@ -1185,7 +1186,7 @@ class App extends Component<{}, AppState> {
               <PresidentLegislativePrompt
                 policyOptions={newState.presidentChoices}
                 sendWSCommand={this.sendWSCommand}
-              />
+              />,
             );
           }
 
@@ -1193,7 +1194,7 @@ class App extends Component<{}, AppState> {
 
         case STATE_LEGISLATIVE_CHANCELLOR:
           this.queueStatusMessage(
-            "Waiting for the chancellor to choose a policy to enact."
+            "Waiting for the chancellor to choose a policy to enact.",
           );
           if (isChancellor) {
             if (!newState.chancellorChoices) {
@@ -1211,14 +1212,14 @@ class App extends Component<{}, AppState> {
                 enableVeto={
                   newState.fascistPolicies === 5 && !newState.vetoOccurred
                 }
-              />
+              />,
             );
           }
           break;
 
         case STATE_LEGISLATIVE_PRESIDENT_VETO:
           this.queueStatusMessage(
-            "Chancellor has motioned to veto the agenda. Waiting for the president to decide."
+            "Chancellor has motioned to veto the agenda. Waiting for the president to decide.",
           );
           if (isPresident) {
             this.queueAlert(
@@ -1226,7 +1227,7 @@ class App extends Component<{}, AppState> {
                 sendWSCommand={this.sendWSCommand}
                 electionTracker={newState.electionTracker}
               />,
-              true
+              true,
             );
           }
           break;
@@ -1242,11 +1243,11 @@ class App extends Component<{}, AppState> {
                 policies={newState.peek}
                 sendWSCommand={this.sendWSCommand}
               />,
-              true
+              true,
             );
           } else {
             this.queueStatusMessage(
-              "Peek: President is previewing the next 3 policies."
+              "Peek: President is previewing the next 3 policies.",
             );
           }
           break;
@@ -1255,11 +1256,11 @@ class App extends Component<{}, AppState> {
           this.queueEventUpdate("PRESIDENTIAL POWER");
           if (isPresident) {
             this.queueAlert(
-              SelectSpecialElectionPrompt(name, newState, this.sendWSCommand)
+              SelectSpecialElectionPrompt(name, newState, this.sendWSCommand),
             );
           } else {
             this.queueStatusMessage(
-              "Special Election: President is choosing the next president."
+              "Special Election: President is choosing the next president.",
             );
           }
           break;
@@ -1269,11 +1270,11 @@ class App extends Component<{}, AppState> {
           if (isPresident) {
             this.queueAlert(
               SelectExecutionPrompt(name, newState, this.sendWSCommand),
-              true
+              true,
             );
           } else {
             this.queueStatusMessage(
-              "Execution: President is choosing a player to execute."
+              "Execution: President is choosing a player to execute.",
             );
           }
           break;
@@ -1282,11 +1283,11 @@ class App extends Component<{}, AppState> {
           this.queueEventUpdate("PRESIDENTIAL POWER");
           if (isPresident) {
             this.queueAlert(
-              SelectInvestigationPrompt(name, newState, this.sendWSCommand)
+              SelectInvestigationPrompt(name, newState, this.sendWSCommand),
             );
           } else {
             this.queueStatusMessage(
-              "Investigation: President is choosing a player to investigate."
+              "Investigation: President is choosing a player to investigate.",
             );
           }
           break;
@@ -1317,7 +1318,7 @@ class App extends Component<{}, AppState> {
                       players={[newState.targetUser!]}
                     />
                   </ButtonPrompt>,
-                  false
+                  false,
                 );
               }
               break;
@@ -1349,7 +1350,7 @@ class App extends Component<{}, AppState> {
                       players={[newState.targetUser!]}
                     />
                   </ButtonPrompt>,
-                  true
+                  true,
                 );
               } else {
                 // Is President; do nothing because we handle the
@@ -1361,7 +1362,7 @@ class App extends Component<{}, AppState> {
           }
 
           this.queueStatusMessage(
-            "Waiting for the president to end their term."
+            "Waiting for the president to end their term.",
           );
           break;
 
@@ -1598,7 +1599,7 @@ class App extends Component<{}, AppState> {
     }, 2000);
     setTimeout(
       () => this.setState({ showVotes: false, statusBarText: "" }),
-      6000
+      6000,
     );
     setTimeout(() => {
       this.onAnimationFinish();
@@ -1742,7 +1743,10 @@ class App extends Component<{}, AppState> {
                 marginTop: "15px",
               }}
             >
-              <Deck cardCount={this.state.drawDeckSize} deckType={"DRAW"} />
+              <Deck
+                cardCount={this.state.drawDeckSize}
+                deckType={DeckType.DRAW}
+              />
 
               <div style={{ margin: "auto auto" }}>
                 <button
@@ -1768,7 +1772,7 @@ class App extends Component<{}, AppState> {
 
               <Deck
                 cardCount={this.state.discardDeckSize}
-                deckType={"DISCARD"}
+                deckType={DeckType.DISCARD}
               />
             </div>
 
