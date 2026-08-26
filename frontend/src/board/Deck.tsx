@@ -125,7 +125,7 @@ export default function Deck(props: DeckProps) {
       <p id={"deck-card-count"}>{props.cardCount}</p>
       <img
         id={"deck-base"}
-        src={props.deckType === "DRAW" ? DrawDeck : DiscardDeck}
+        src={props.deckType === DeckType.DRAW ? DrawDeck : DiscardDeck}
         alt={
           "The " +
           props.deckType.toLowerCase() +
