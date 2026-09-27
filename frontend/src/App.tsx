@@ -146,6 +146,7 @@ type AppState = {
   lobbyFromURL: boolean;
   usernames: string[];
   icons: { [key: string]: string };
+  anonymousVoting: boolean;
   gameState: GameState;
   /* Stores the last gameState[PARAM_STATE] value to check for changes. */
   lastState: any;
@@ -177,6 +178,7 @@ const defaultAppState: AppState = {
   lobbyFromURL: false,
   usernames: [],
   icons: {},
+  anonymousVoting: false,
   gameState: DEFAULT_GAME_STATE,
   lastState: {},
   liberalPolicies: 0,
@@ -229,6 +231,7 @@ class App extends Component<{}, AppState> {
     this.onClickLeaveLobby = this.onClickLeaveLobby.bind(this);
     this.onClickCopy = this.onClickCopy.bind(this);
     this.onClickStartGame = this.onClickStartGame.bind(this);
+    this.onToggleAnonymousVoting = this.onToggleAnonymousVoting.bind(this);
     this.sendWSCommand = this.sendWSCommand.bind(this);
     this.showSnackBar = this.showSnackBar.bind(this);
     this.onAnimationFinish = this.onAnimationFinish.bind(this);
@@ -428,6 +431,7 @@ class App extends Component<{}, AppState> {
         this.setState({
           usernames: message[PARAM_USERNAMES],
           icons: message[PARAM_ICON],
+          anonymousVoting: Boolean(message.anonymousVoting),
           page: PAGE.LOBBY,
         });
         if (message[PARAM_ICON][this.state.name] === defaultPortrait) {
@@ -838,6 +842,16 @@ class App extends Component<{}, AppState> {
     this.sendWSCommand({ command: WSCommandType.START_GAME });
   }
 
+  /**
+   * Asks the server to enable or disable anonymous voting (VIP only).
+   */
+  onToggleAnonymousVoting(event: React.ChangeEvent<HTMLInputElement>) {
+    this.sendWSCommand({
+      command: WSCommandType.SET_ANONYMOUS_VOTING,
+      anonymousVoting: event.target.checked,
+    });
+  }
+
   onClickLeaveLobby() {
     this.websocket?.close();
     this.reconnectOnConnectionClosed = false;
@@ -928,6 +942,24 @@ class App extends Component<{}, AppState> {
                 </button>
               </div>
               <div id={"lobby-player-container"}>{this.renderPlayerList()}</div>
+            </div>
+
+            <div id={"lobby-settings-container"}>
+              <label id={"lobby-anonymous-voting"}>
+                <input
+                  type="checkbox"
+                  checked={this.state.anonymousVoting}
+                  disabled={!isVIP}
+                  onChange={this.onToggleAnonymousVoting}
+                />
+                <span>ANONYMOUS VOTING</span>
+              </label>
+              <p id={"lobby-anonymous-voting-description"}>
+                {this.state.anonymousVoting
+                  ? "On: only the Ja/Nein totals are revealed after each vote."
+                  : "Off: everyone's individual vote is revealed after each vote."}
+                {!isVIP && " Only the VIP can change this."}
+              </p>
             </div>
 
             <div id={"lobby-button-container"}>
@@ -1578,13 +1610,18 @@ class App extends Component<{}, AppState> {
 
     let noVotes = 0;
     let yesVotes = 0;
-    Object.values(newState.userVotes).forEach((value) => {
-      if (value) {
-        yesVotes++;
-      } else {
-        noVotes++;
-      }
-    });
+    if (newState.voteTotals) {
+      yesVotes = newState.voteTotals.yes;
+      noVotes = newState.voteTotals.no;
+    } else {
+      Object.values(newState.userVotes).forEach((value) => {
+        if (value) {
+          yesVotes++;
+        } else {
+          noVotes++;
+        }
+      });
+    }
     setTimeout(() => {
       if (yesVotes > noVotes) {
         this.setState({

@@ -39,6 +39,9 @@ public class Lobby implements Serializable {
 
     private Set<CpuPlayer> cpuPlayers;
 
+    // When enabled, clients only ever receive Ja/Nein totals, never individual votes.
+    private boolean anonymousVoting = false;
+
     /* Used to reassign users to previously chosen images if they disconnect */
     final private ConcurrentHashMap<String, String> usernameToPreferredIcon;
 
@@ -386,13 +389,14 @@ public class Lobby implements Serializable {
     synchronized public void updateUser(WsContext ctx, String userName) {
         JSONObject message;
         if (isInGame()) {
-            message = GameToJSONConverter.convert(game, userName); // sends the game state
+            message = GameToJSONConverter.convert(game, userName, anonymousVoting); // sends the game state
             message.put(SecretHitlerServer.PARAM_PACKET_TYPE, SecretHitlerServer.PACKET_GAME_STATE);
         } else {
             message = new JSONObject();
             message.put(SecretHitlerServer.PARAM_PACKET_TYPE, SecretHitlerServer.PACKET_LOBBY);
             message.put("usernames", activeUsernames.toArray());
         }
+        message.put(SecretHitlerServer.PARAM_ANONYMOUS_VOTING, anonymousVoting);
         // Add user icons to the update message
         JSONObject icons = new JSONObject(usernameToIcon);
         message.put("icon", icons);
@@ -459,6 +463,30 @@ public class Lobby implements Serializable {
      * 
      * @return true iff the Lobby has a currently active game.
      */
+    /**
+     * Returns whether the given user is the lobby VIP (the first active user).
+     */
+    synchronized public boolean isVip(String username) {
+        String vip = activeUsernames.peek();
+        return vip != null && vip.equals(username);
+    }
+
+    synchronized public boolean isAnonymousVoting() {
+        return anonymousVoting;
+    }
+
+    /**
+     * Enables or disables anonymous voting for the next game.
+     *
+     * @throws IllegalStateException if a game is currently in progress.
+     */
+    synchronized public void setAnonymousVoting(boolean enabled) {
+        if (isInGame()) {
+            throw new IllegalStateException("Cannot change voting settings while a game is in progress.");
+        }
+        anonymousVoting = enabled;
+    }
+
     synchronized public boolean isInGame() {
         return game != null;
     }

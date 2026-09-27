@@ -8,6 +8,7 @@ import game.datastructures.Policy;
 import org.json.JSONObject;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Converts a SecretHitlerGame to a JSONObject that represents the game state.
@@ -59,6 +60,16 @@ public class GameToJSONConverter {
      *         place on this legislative session.
      */
     public static JSONObject convert(SecretHitlerGame game, String userName) {
+        return convert(game, userName, false);
+    }
+
+    /**
+     * Same as {@link #convert(SecretHitlerGame, String)}, but when
+     * {@code anonymousVoting} is true individual votes are never included.
+     * Instead {@code userVotes} maps each voter to null, and {@code voteTotals}
+     * ({@code yes}/{@code no}) is included once voting has concluded.
+     */
+    public static JSONObject convert(SecretHitlerGame game, String userName, boolean anonymousVoting) {
         if (game == null) {
             throw new NullPointerException();
         }
@@ -112,7 +123,31 @@ public class GameToJSONConverter {
         out.put("discardSize", game.getDiscardSize());
         out.put("fascistPolicies", game.getNumFascistPolicies());
         out.put("liberalPolicies", game.getNumLiberalPolicies());
-        out.put("userVotes", game.getVotes());
+        out.put("anonymousVoting", anonymousVoting);
+        if (anonymousVoting) {
+            // Reveal only who has voted (for waiting indicators), never how.
+            JSONObject votedPlayers = new JSONObject();
+            int yes = 0;
+            int no = 0;
+            for (Map.Entry<String, Boolean> entry : game.getVotes().entrySet()) {
+                votedPlayers.put(entry.getKey(), JSONObject.NULL);
+                if (Boolean.TRUE.equals(entry.getValue())) {
+                    yes++;
+                } else {
+                    no++;
+                }
+            }
+            out.put("userVotes", votedPlayers);
+            // Partial totals mid-election would let players deduce individual votes.
+            if (game.getState() != GameState.CHANCELLOR_VOTING) {
+                JSONObject totals = new JSONObject();
+                totals.put("yes", yes);
+                totals.put("no", no);
+                out.put("voteTotals", totals);
+            }
+        } else {
+            out.put("userVotes", game.getVotes());
+        }
         out.put("vetoOccurred", game.didVetoOccurThisTurn());
 
         if (game.getState() == GameState.LEGISLATIVE_PRESIDENT) {

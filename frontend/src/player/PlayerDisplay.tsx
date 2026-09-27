@@ -286,7 +286,10 @@ export default function PlayerDisplay(
         };
 
         // Skip votes for players that are not alive.
-        const showVote = index + start < playerVotesVisible && playerData.alive;
+        const showVote =
+          !props.gameState.anonymousVoting &&
+          index + start < playerVotesVisible &&
+          playerData.alive;
 
         return (
           <div id={"player-display-text-container"} key={playerName}>

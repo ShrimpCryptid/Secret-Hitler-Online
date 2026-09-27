@@ -39,6 +39,7 @@ public class SecretHitlerServer {
     public static final String PARAM_VETO = "veto";
     public static final String PARAM_CHOICE = "choice"; // the index of the chosen policy.
     public static final String PARAM_ICON = "icon";
+    public static final String PARAM_ANONYMOUS_VOTING = "anonymousVoting";
 
     // Passed to client
     // The type of the packet tells the client how to parse the contents.
@@ -59,6 +60,7 @@ public class SecretHitlerServer {
     public static final String COMMAND_GET_STATE = "get-state";
     public static final String COMMAND_SET_LOBBY_SIZE = "set-lobby-size";
     public static final String COMMAND_SELECT_ICON = "select-icon";
+    public static final String COMMAND_SET_ANONYMOUS_VOTING = "set-anonymous-voting";
     public static final String COMMAND_NOMINATE_CHANCELLOR = "nominate-chancellor";
     public static final String COMMAND_REGISTER_VOTE = "register-vote";
     public static final String COMMAND_REGISTER_PRESIDENT_CHOICE = "register-president-choice";
@@ -693,6 +695,13 @@ public class SecretHitlerServer {
                     case COMMAND_SELECT_ICON:
                         String iconId = message.getString(PARAM_ICON);
                         lobby.trySetUserIcon(iconId, ctx);
+                        break;
+
+                    case COMMAND_SET_ANONYMOUS_VOTING: // params: PARAM_ANONYMOUS_VOTING (boolean)
+                        if (!lobby.isVip(name)) {
+                            throw new RuntimeException("Only the VIP can change voting settings.");
+                        }
+                        lobby.setAnonymousVoting(message.getBoolean(PARAM_ANONYMOUS_VOTING));
                         break;
 
                     default: // This is an invalid command.

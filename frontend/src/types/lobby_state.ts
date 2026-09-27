@@ -35,7 +35,11 @@ export type GameState = {
   lastPresident: string;
   electionTracker: number;
   electionTrackerAdvanced: boolean;
-  userVotes: Record<string, boolean>;
+  /** With anonymous voting, values are null: only who has voted is known. */
+  userVotes: Record<string, boolean | null>;
+  anonymousVoting?: boolean;
+  /** Only sent with anonymous voting, once the vote has concluded. */
+  voteTotals?: { yes: number; no: number };
   liberalPolicies: number;
   fascistPolicies: number;
   drawSize: number;

@@ -50,6 +50,38 @@
     max-width: 700px;
 }
 
+#lobby-settings-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 10px auto 0;
+    max-width: 700px;
+}
+
+#lobby-anonymous-voting {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-size: 1.2em;
+}
+
+#lobby-anonymous-voting input {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+#lobby-anonymous-voting input:disabled {
+    cursor: not-allowed;
+}
+
+#lobby-anonymous-voting-description {
+    margin: 4px 0 0;
+    text-align: center;
+    opacity: 0.8;
+}
+
 #lobby-vip-text {
     margin-bottom: 0;
     text-align: center;
