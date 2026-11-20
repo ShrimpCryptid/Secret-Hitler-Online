@@ -843,6 +843,9 @@ public class SecretHitlerGame implements Serializable {
             lastPresident = null;
             return;
         }
+        
+        checkIfGameOver();
+        if (hasGameFinished()) return;
 
         this.lastState = this.state;
         switch (board.getActivatedPower()) {

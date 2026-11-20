@@ -314,10 +314,6 @@ public class Lobby implements Serializable {
         }
 
         // Check if the game ended.
-        if (game != null && game.hasGameFinished()) {
-            game = null;
-            cpuPlayers.clear();
-        }
 
         // Update all the CpuPlayers so they can act
         boolean didCpuUpdateState = false;
@@ -363,6 +359,10 @@ public class Lobby implements Serializable {
             if (timerSchedulingAttempts == MAX_TIMER_SCHEDULING_ATTEMPTS) {
                 logger.error("Failed to schedule timer for CPU ticks.");
             }
+        }
+        if (game != null && game.hasGameFinished()) {
+            game = null;
+            cpuPlayers.clear();
         }
     }
 
