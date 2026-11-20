@@ -55,6 +55,13 @@ public class Lobby implements Serializable {
 
     static String DEFAULT_ICON = "p_default";
 
+    private int minLobbySize = SecretHitlerGame.MIN_PLAYERS;
+    synchronized public void setMinLobbySize(int size) {
+        if (size >= SecretHitlerGame.MIN_PLAYERS && size <= SecretHitlerGame.MAX_PLAYERS) {
+            this.minLobbySize = size;
+        }
+    }
+
     /**
      * Constructs a new Lobby.
      */
@@ -392,6 +399,7 @@ public class Lobby implements Serializable {
             message = new JSONObject();
             message.put(SecretHitlerServer.PARAM_PACKET_TYPE, SecretHitlerServer.PACKET_LOBBY);
             message.put("usernames", activeUsernames.toArray());
+            message.put(SecretHitlerServer.PARAM_MIN_LOBBY_SIZE, minLobbySize);
         }
         // Add user icons to the update message
         JSONObject icons = new JSONObject(usernameToIcon);
@@ -494,11 +502,11 @@ public class Lobby implements Serializable {
         usersInGame.clear();
         usersInGame.addAll(userToUsername.values());
 
-        // Generate CpuPlayers if the lobby size has not been met
+        // Generate CpuPlayers if the target lobby size has not been met
         List<String> cpuNames = new ArrayList<>();
         cpuPlayers.clear();
-        if (usersInGame.size() < SecretHitlerGame.MIN_PLAYERS) {
-            int numCpuPlayersToGenerate = SecretHitlerGame.MIN_PLAYERS - usersInGame.size();
+        if (usersInGame.size() < minLobbySize) {
+            int numCpuPlayersToGenerate = minLobbySize - usersInGame.size();
             int i = 1;
             while (numCpuPlayersToGenerate > 0) {
                 String botName = "Bot " + i;
