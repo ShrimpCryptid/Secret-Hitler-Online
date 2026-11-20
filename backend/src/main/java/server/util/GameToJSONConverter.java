@@ -115,13 +115,16 @@ public class GameToJSONConverter {
         out.put("userVotes", game.getVotes());
         out.put("vetoOccurred", game.didVetoOccurThisTurn());
 
-        if (game.getState() == GameState.LEGISLATIVE_PRESIDENT) {
+        if (game.getState() == GameState.LEGISLATIVE_PRESIDENT
+                && game.getCurrentPresident().equals(userName)) {
             out.put("presidentChoices", convertPolicyListToStringArray(game.getPresidentLegislativeChoices()));
         }
-        if (game.getState() == GameState.LEGISLATIVE_CHANCELLOR) {
+        if (game.getState() == GameState.LEGISLATIVE_CHANCELLOR
+                && game.getCurrentChancellor().equals(userName)) {
             out.put("chancellorChoices", convertPolicyListToStringArray(game.getChancellorLegislativeChoices()));
         }
-        if (game.getState() == GameState.PRESIDENTIAL_POWER_PEEK) {
+        if (game.getState() == GameState.PRESIDENTIAL_POWER_PEEK
+                && game.getCurrentPresident().equals(userName)) {
             out.put("peek", convertPolicyListToStringArray(game.getPeek()));
         }
 
