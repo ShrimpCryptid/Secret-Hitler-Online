@@ -705,12 +705,10 @@ public class CpuPlayer implements Serializable, Comparable<CpuPlayer> {
   } // end chooseRandomPlayerWeighted()
 
   private int getWeightedRandomIndex(float[] weights) {
-    // Calculate total weight
+    // The array holds cumulative weights; the last positive entry is the total.
     float totalWeight = 0;
     for (int i = 0; i < weights.length; i++) {
-      if (weights[i] > 0) {
-        totalWeight += 1;
-      }
+      totalWeight = Math.max(totalWeight, weights[i]);
     }
 
     float t = (float) (totalWeight * random.nextDouble());
@@ -719,7 +717,7 @@ public class CpuPlayer implements Serializable, Comparable<CpuPlayer> {
     for (int i = 0; i < weights.length; i++) {
       if (weights[i] > 0f) {
         lastValidIndex = i;
-        if (t >= totalWeight - weights[i]) {
+        if (t < weights[i]) {
           return i;
         }
       }
