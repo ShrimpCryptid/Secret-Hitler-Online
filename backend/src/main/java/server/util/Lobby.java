@@ -155,8 +155,8 @@ public class Lobby implements Serializable {
      *
      */
     synchronized public boolean canAddUserDuringGame(String name) {
-        return (usersInGame.contains(name) && !activeUsernames.contains(name)); // the user was in the game but was
-                                                                                // disconnected.
+        return (usersInGame.contains(name) && !userToUsername.containsValue(name)); // the user was in the game but was
+                                                                                    // disconnected.
     }
 
     /**
@@ -166,7 +166,7 @@ public class Lobby implements Serializable {
      *         {@code SecretHitlerGame.MAX_PLAYERS}.
      */
     synchronized public boolean isFull() {
-        return activeUsernames.size() >= SecretHitlerGame.MAX_PLAYERS;
+        return !isInGame() && activeUsernames.size() >= SecretHitlerGame.MAX_PLAYERS;
     }
 
     /**
@@ -193,6 +193,9 @@ public class Lobby implements Serializable {
                 if (canAddUserDuringGame(name)) { // This username is in the game but is not currently connected.
                     // allow the user to be connected.
                     userToUsername.put(context, name);
+                    if (!activeUsernames.contains(name)) {
+                        activeUsernames.add(name);
+                    }
 
                     usernameToIcon.put(name, DEFAULT_ICON); // load default icon
                     // Try setting the player's icon using their previous choice
